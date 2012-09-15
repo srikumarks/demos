@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <title>Demo of Steller framework</title>
+        <script src="steller.js"></script>
+        <script src="models.js"></script>
+        <script src="nishabdam.js"></script>
+        <script src="vina.js"></script>
+        <script src="tanpura.js"></script>
+        <script defer src="gurur.js"></script>
+        <style>
+            #gurur {
+                font-size: 14pt;
+            }
+            #gurur div span {
+                display: inline-block;
+                width: 98px;
+                border-width: 1px;
+                border-color: black;
+                border-style: solid;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Gurur Brahma</h2>
+        <div><span id="text_svara">Svarasthānās</span> | <span id="text_eng">Roman</span> | <span id="text_deva">देवनागरी</span></div>
+        <br/>
+        <div>
+            <svg id="text_table" width="1200" height="400">
+            <circle id="baton" cx="10" cy="100" r="5" fill="black"/>
+            </svg>
+        </div>
+        <br/>
+        <div>
+            <input type="button" id="play" value="Play"/> 
+            <input type="button" id="stop" value="Stop"/>
+            <!-- <input type="button" id="pause" value="Pause"/> -->
+            <!--<input type="button" id="canon" value="Canon"/>-->
+            Tempo: <input id="tempo" type="range" min="0" max="1" step="0.001"/>
+            Volume: <input id="volume" type="range" min="0" max="1" step="0.001"/>
+            Tonic: <input id="tonic" type="range" min="0" max="1" step="0.001"/>
+        </div>
+        <div id="loading">
+            (Loading vina samples ...)
+        </div>
+        <!-- <div id="stats">
+        </div> -->
+    </body>
+</html>
+
