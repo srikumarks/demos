@@ -6,13 +6,22 @@
     var models = steller.Models(sh);
     var gamaka = nishabdam.audio.gamaka;
     var pasr = nishabdam.audio.pasr;
+    var ps = pasr.pasr;
+
+    // Disable controls until vina samples are loaded.
+    elem('play').disabled = true;
+    elem('stop').disabled = true;
+    
+    // Make a vina model.
     var vina = nishabdam.audio.vina(sh);
     vina.level.value = 0.5;
     vina.connect(AC.destination);
-    elem('play').disabled = true;
-    elem('stop').disabled = true;
+    
+    // Bind the vina controls to the UI.
     vina.tonic.bind('#tonic');
     vina.level.bind('#volume');
+
+    // Make long and short chime sounds for the conductor track.
     var chimeLong = models.chime();
     chimeLong.halfLife.value *= 2;
     var chimeShort = models.chime();
@@ -20,53 +29,27 @@
     chimeLong.connect(AC.destination);
     chimeShort.connect(AC.destination);
 
+    // The chimeTonic tracks the vina's tonic with an octave offset.
+    var chimeTonic = steller.Param({min: 0, max: 128, 
+        getter: function () { return vina.tonic.value + 48; },
+        setter: function (v) { return vina.tonic.value + 48; }
+    });
+
+    // Map the choice of whether you want to bounce *on* the letters
+    // instead of merely in sync with them.
     var bounceOnLetters = steller.Param({min: 0, max: 1, value: 1});
     bounceOnLetters.bind('#bounce');
-    
-    var ps = pasr.pasr;
-
-    function sequence(sel) {
-        return Array.prototype.slice.call(document.querySelectorAll(sel), 0);
-    }
-
-    function pitch(e) {
-        return parseFloat(e.getAttribute('pitch'));
-    }
-
-    function dur(e) {
-        return parseFloat(e.getAttribute('dur'));
-    }
-
-    var sync = sh.sync();
-    var comma = sh.gate();
-
-    function flatten(aa) {
-        return Array.prototype.concat.apply([], aa);
-    }
-
-    function elem(n) {
-        return document.getElementById(n);
-    }
-
-    var sahityam = models.sample('gururbrahma-malahari-sahityam.mp3');
-    var svaram = models.sample('gururbrahma-malahari-svaram.mp3');
-    var recitation = models.sample('gururbrahma-recitation.mp3');
-    var samplesLoaded = sh.sync();
-    if (false) {
-        sh.play(sh.track([sh.fork([sahityam.load, svaram.load, recitation.load]), sh.log("all samples loaded"), samplesLoaded]));
-        recitation.connect(AC.destination);
-        samplesLoaded.play(recitation.play);
-    }
-
-    var solfa = {
-        "m": 65, "P": 67, "d": 68, "Ṡ": 72, "G": 64, "r": 61, "S": 60, "ṙ": 73
-    };
-
-    var preparation = [3, 2, 2, 3, 2, 2];
+  
+    // Bind the tempo slider.
+    var rate = steller.Param({min: 1.0, max: 4.0, value: 2.0, mapping: 'log'});
+    rate.bind('#tempo');
+     
+    // Description of melody.
     var tune = [
         [65, 67, 68, 72, 68, 67, 65, 67],
         [68, 67, 65, 64, 61, 60, 60, 60, 60],
         [60, 61, 65, 65, 61, 65, 67, 67],
+        // Can also give PASR form of note.
         [65, 67, [[68,0,3,1], [73,1,1,0]], 72, 72, 72, 72, 72, 72]
             ];
     var jalra = [[3, chimeLong], [2, chimeShort], [2, chimeShort]];
@@ -77,6 +60,7 @@
         [2, 2, 2, 1, 1, 2, 1, 1, 2]
             ];
     var stoppages = [
+        // Given as fraction of note duration.
         [0.8, 0.5, 0.95, 0.95, 0.8, 0.5, 0.5, 0.95],
         [0.8, 0.5, 0.95, 0.95, 0.95, 0.8, 0.95, 0.95, 0.8],
         [0.8, 0.5, 0.8, 0.8, 0.8, 0.5, 0.95, 0.95],
@@ -100,10 +84,6 @@
         ['S', 'r', 'm', 'm', 'r', 'm', 'P', 'P'],
         ['m', 'P', 'dṙ', 'Ṡ', 'Ṡ', 'Ṡ', 'Ṡ', 'Ṡ', 'Ṡ']
             ];
-
-    function svgelem(n) {
-        return document.createElementNS('http://www.w3.org/2000/svg', n);
-    }
 
     var normalFontSize = '16pt';
     var bigFontSize = '20pt';
@@ -177,6 +157,7 @@
 
         svg.setAttribute('height', height);
         svg.setAttribute('width', xOffset + width * cellWidth);
+
         baton.setAttribute('cx', batonX);
         baton.setAttribute('cy', height - 11);
         conductor.setAttribute('cx', conductorX);
@@ -201,6 +182,8 @@
             n[2].textContent = text[i];
         });
     });
+
+    // The text display selector elements. These behave like buttons.
     elem('text_svara').onclick = function (e) {
         textToDisplay.value = 0;
         elem('text_svara').style.fontWeight = 'bold';
@@ -223,9 +206,8 @@
         document.querySelector('h1').innerText = 'गुरुर् ब्रह्मा';
     };
 
+    // Select the svara text by default.
     elem('text_svara').onclick();
-
-    var durs = Array.prototype.concat.apply([], tune_durs);
 
     var ftune = flatten(tune);
     var ftune_durs = flatten(tune_durs);
@@ -233,6 +215,9 @@
     var svgHeight = parseFloat(svg.attributes.height.value);
     var batonBase = svgHeight - 11;
 
+    // Bounces the given baton (or conductor) for the given duration
+    // over the given height. If bbox is given, it will bounce it on
+    // the box. Otherwise it will bounce it in the corner of the display.
     function bounce(baton, duration, height, bbox) {
         return sh.frames(duration, 
                         function (clock, tStart, tEnd) {
@@ -250,8 +235,14 @@
                         });
     }
 
-    var syncs = sh.sync(7);
-    var commas = sh.gate(7);
+    // Determine the cycle length
+    var cycleLength = jalra.reduce(function (a, b) { return a + b[0]; }, 0);
+    console.assert(cycleLength === 7);
+
+    // Make sync and gate objects. One for each tick of the cycle.
+    var syncs = sh.sync(cycleLength);
+    var commas = sh.gate(cycleLength);
+
     function oneNote(i) {
         var noteSpec = ftune[i];
         var durn = ftune_durs[i];
@@ -263,7 +254,6 @@
 
         var note = sh.track([
                 commas[beat], 
-                //sync, 
                 sh.display(function () {
                     text[1].setAttribute('fill-opacity', 0.15);
                     //text[2].setAttribute('fill', 'white');
@@ -282,18 +272,12 @@
         return note;
     }
 
-    function generate(l, u, f) {
-        var arr = [], i;
-        for (i = l; i < u; ++i) {
-            arr.push(f(i));
-        }
-        return arr;
-    }
-
-    var rate = steller.Param({min: 1.0, max: 4.0, value: 2.0, mapping: 'log'});
-    rate.bind('#tempo');
+    // The playing/paused state.
     var playing = 0;
     var paused = false;
+
+    // Turn the given composition so that it will set the playing
+    // state depending on whether play is actually happening.
     function trackPlayState(comp) {
         return sh.track([
                 sh.fire(function () { playing++; }), 
@@ -306,30 +290,26 @@
                 })
                 ]);
     }
-    var notes = sh.track(generate(0, ftune.length, oneNote));
-    var chimeTonic = steller.Param({min: 0, max: 128, 
-        getter: function () { return vina.tonic.value + 48; },
-        setter: function (v) { return vina.tonic.value + 48; }
-    });
-    var tick = sh.delay(0.5);
-    var syncTrack = sh.loop(sh.track([
-                syncs[0], tick,
-                syncs[1], tick,
-                syncs[2], tick,
-                syncs[3], tick,
-                syncs[4], tick,
-                syncs[5], tick,
-                syncs[6], tick
-                ]));
 
+    // Make the "notes" of the tune. This includes the animation.
+    var notes = sh.track(generate(0, ftune.length, oneNote));
+
+    // Make the sync track. This is an eternal loop.
+    var tick = sh.delay(0.5);
+    var syncTrack = sh.loop(sh.track(flatten(generate(0, cycleLength, function (i) { return [syncs[i], tick]; }))));
+
+    // The jalra track combines the sync track as well as the chime sounds that
+    // keep track of the talam.
     var jalraTrack = sh.track(sh.spawn(syncTrack), sh.loop(sh.track(jalra.map(function (j, i) {
-        var d = j[0];
-        var bounceBaton = bounce(conductor, 0.5 * d, yOffset);
-        var delay = sh.delay(0.5 * d);
-        return sh.track([sh.spawn(bounceBaton), j[1].play(chimeTonic, 0.15), delay]);
+        // j[0] is the duration and j[1] is the chime to use for this beat.
+        var d = j[0] * 0.5;
+        var bounceBaton = bounce(conductor, d, yOffset);
+        return sh.track([sh.spawn(bounceBaton), j[1].play(chimeTonic, 0.15), sh.delay(d)]);
     }))));
 
+    // The main notes track.
     var gurur = trackPlayState(notes);
+
     textNodes.forEach(function (n, i) {
         n[0].onmousedown = function (e) {
             if (!playing) {
@@ -338,15 +318,22 @@
         };
     });
 
+    //
+    // The play/stop/pause/resume button states.
+    //
     function playButton(e) {
         if (!playing) {
             var i;
+
+            // Open all the gates.
             for (i = 0; i < commas.length; ++i) {
                 commas[i].cancel();
                 commas[i].open();
             }
-            //sh.play(sh.track(sh.rate(rate), sh.spawn([jalraTrack, gurur])));
+
+            // Play in sync with the first beat of the tala.
             syncs[0].play(gurur);
+
             this.value = 'Pause';
             this.onclick = pauseButton;
         }
@@ -355,9 +342,14 @@
     function pauseButton(e) {
         if (playing) {
             var i;
+
+            // Close all the gates. The sequence will
+            // remember the point at which the playing
+            // actually ended.
             for (i = 0; i < commas.length; ++i) {
                 commas[i].close();
             }
+
             paused = true;
             this.value = 'Resume';
             this.onclick = resumeButton;
@@ -368,9 +360,13 @@
     function resumeButton(e) {
         if (playing) {
             var i;
+
+            // Resume the sequence from where it stopped,
+            // in sync with the tala cycle.
             for (i = 0; i < syncs.length; ++i) {
                 syncs[i].play(commas[i].open);
             }
+
             paused = false;
             this.value = 'Pause';
             this.onclick = pauseButton;
@@ -382,9 +378,12 @@
     function stopButton(e) {
         if (playing) {
             var i;
+
+            // Close all the gates.
             for (i = 0; i < commas.length; ++i) {
                 commas[i].close();
             }
+
             playing--;
             var play = elem('play');
             play.onclick = playButton;
@@ -392,9 +391,11 @@
         }
     }
 
+    // Set the play/stop handlers.
     elem('play').onclick = playButton;
     elem('stop').onclick = stopButton;
 
+    // Map the space bar to play/pause.
     window.onkeypress = function (e) {
         var s = String.fromCharCode(e.keyCode);
         if (s === ' ') {
@@ -402,6 +403,11 @@
         }
     };
     
+    // Load the vina samples first, then enable the 
+    // controls when that succeeds and then start the
+    // jalra track. Once the jalra track starts, you'll
+    // be able to play the Guru Brahma sequence in sync
+    // with the jalra track.
     sh.play(sh.track([
                 vina.load,
                 sh.fire(function () {
@@ -415,7 +421,6 @@
                 jalraTrack
                 ]));
 
-
     var statsElem = elem('stats');
     if (statsElem) {
         sh.play(sh.loop(sh.track([
@@ -426,4 +431,28 @@
                         ])));
     }
 
+    //////////////////////////
+    // Some utilities
+    //
+    function flatten(aa) {
+        return Array.prototype.concat.apply([], aa);
+    }
+
+    function elem(n) {
+        return document.getElementById(n);
+    }
+
+    function svgelem(n) {
+        return document.createElementNS('http://www.w3.org/2000/svg', n);
+    }
+
+    function generate(l, u, f) {
+        var arr = [], i;
+        for (i = l; i < u; ++i) {
+            arr.push(f(i));
+        }
+        return arr;
+    }
+
+    
 }(org.anclab.steller));
