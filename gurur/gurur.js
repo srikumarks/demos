@@ -310,13 +310,20 @@
     // The main notes track.
     var gurur = trackPlayState(notes);
 
-    textNodes.forEach(function (n, i) {
-        n[0].onmousedown = function (e) {
-            if (!playing) {
-                sh.play(sh.track(vina.load, sh.rate(rate), sh.slice(notes, i, i+1)));
-            }
-        };
-    });
+    if (false) {
+        textNodes.forEach(function (n, i) {
+            n[0].onmousedown = function (e) {
+                if (playing <= 0 && !paused) {
+                    var j;
+                    for (j = 0; j < commas.length; ++j) {
+                        commas[j].cancel();
+                        commas[j].open();
+                    }
+                    sh.play(sh.track(vina.load, sh.rate(rate), sh.slice(notes, i, i+1)));
+                }
+            };
+        });
+    }
 
     //
     // The play/stop/pause/resume button states.
@@ -385,6 +392,7 @@
             }
 
             playing--;
+            paused = false;
             var play = elem('play');
             play.onclick = playButton;
             play.value = 'Play';
