@@ -98,7 +98,7 @@ nishabdam.audio.vina = function (sh) {
             setter: function (v) { return samplePitch - vina.tonic.value + 60 }
         });
 
-        var note        = sample.note(rate, 0, pitch.duration, pitch.duration - pitch.stoppage);
+        var note        = sample.note(rate, 0.04, pitch.duration, pitch.duration - pitch.stoppage);
         var rateAnim    = pasr.gamaka(sh, rate, pitch, offset);
         return sh.track([sh.spawn(rateAnim), note]);
     };
