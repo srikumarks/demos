@@ -1107,6 +1107,8 @@ org.anclab.steller = org.anclab.steller || {};
             };
         }
 
+        var kFrameAdvance = 0;//kFrameInterval;
+
         // ### display
         //
         // Very similar to fire(), except that the given callback will be
@@ -1120,7 +1122,7 @@ org.anclab.steller = org.anclab.steller || {};
 
                 function show() { 
                     var t = time_secs();
-                    if (t + kFrameInterval > t1) {
+                    if (t + kFrameAdvance > t1) {
                         callback(clock, t1, t); 
                     } else {
                         // Not yet time to display it. Delay by one
@@ -1156,7 +1158,7 @@ org.anclab.steller = org.anclab.steller || {};
 
                 function show() {
                     var t = time_secs();
-                    if (t + kFrameInterval > t1) {
+                    if (t + kFrameAdvance > t1) {
                         clock.jumpTo(t);
                         callback(clock);
                         next(sched, clock, stop);
@@ -1201,7 +1203,7 @@ org.anclab.steller = org.anclab.steller || {};
                     // appropriate since browsers have a one frame delay. For others,
                     // if software rendering is used, it may not have a one frame delay,
                     // but if a canvas is accelerated, the delay may be there.
-                    if (t + kFrameInterval > t1) {
+                    if (t + kFrameAdvance > t1) {
                         var endtr = t1r + duration.valueOf();
                         if (animClock.t1r < endtr) {
                             callback(animClock, t1r, endtr);
