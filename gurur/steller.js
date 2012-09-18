@@ -586,12 +586,23 @@ org.anclab.steller = org.anclab.steller || {};
             var spec = param.spec;
             var mapfn = spec.mapping ? Param.mappings[spec.mapping] : Param.mappings.linear;
 
-            function onchange(e) {
-                param.value = mapfn.fromNorm(param, parseFloat(elem.value));
-            }
-
-            function updateElem(v) {
-                elem.value = mapfn.toNorm(param);
+            var onchange, updateElem;
+            if (elem.type === 'checkbox') {
+                onchange = function (e) {
+                    param.value = elem.checked ? 1 : 0;
+                };
+                updateElem = function (v) {
+                    elem.checked = v ? true : false;
+                };
+            } else if (elem.type === 'range') {
+                onchange = function (e) {
+                    param.value = mapfn.fromNorm(param, parseFloat(elem.value));
+                };
+                updateElem = function (v) {
+                    elem.value = mapfn.toNorm(param);
+                };
+            } else {
+                throw new Error('org.anclab.steller.Param.bind: Unsupported control type - ' + elem.type);
             }
 
             updateElem.elem = elem;
@@ -602,7 +613,7 @@ org.anclab.steller = org.anclab.steller || {};
 
             elem.addEventListener('change', onchange);
             param.watch(updateElem);
-            elem.value = mapfn.toNorm(param);
+            updateElem(param.value);
         } else if (typeof elem === 'string') {
             var elems = document.querySelectorAll(elem);
             var i, N;
@@ -810,10 +821,7 @@ org.anclab.steller = org.anclab.steller || {};
         //
         // Wraps the concept of "performing" a model so that
         // the representation of the model as a continuation 
-        // is not strewn all over the place. Note that the
-        // "current scheduler" is used by perform via "this",
-        // so perform *must* be called like a method on the 
-        // scheduler.
+        // is not strewn all over the place. 
         function perform(model, clock, next) {
             model(self, clock, next);
         }
@@ -1115,8 +1123,8 @@ org.anclab.steller = org.anclab.steller || {};
         // This approach appears to keep the scheduled versus actual time
         // error to within about 6ms mostly .. I guess that's roughly
         // within the jitter of requestAnimationFrame.
-        var timingError = {display: 0.5 * kVisualDt, frame: 0};
-        var timingErrorTC = {display: 0.05, frame: 0.03};
+        var timingError = 0.5 * kVisualDt;
+        var timingErrorTC = 0.03;
 
         // ### display
         //
@@ -1131,8 +1139,8 @@ org.anclab.steller = org.anclab.steller || {};
 
                 function show() { 
                     var t = time_secs();
-                    if (t - timingError.display > t1) {
-                        timingError.display += timingErrorTC.display * (t1 - t - timingError.display);
+                    if (t - timingError > t1) {
+                        timingError += timingErrorTC * (t1 - t - timingError);
                         callback(clock, t1, t); 
                     } else {
                         // Not yet time to display it. Delay by one
@@ -1168,8 +1176,8 @@ org.anclab.steller = org.anclab.steller || {};
 
                 function show() {
                     var t = time_secs();
-                    if (t - timingError.display  > t1) {
-                        timingError.frame += timingErrorTC.frame * (t1 - t - timingError.frame);
+                    if (t - timingError  > t1) {
+                        timingError += timingErrorTC * (t1 - t - timingError);
                         clock.jumpTo(t);
                         callback(clock);
                         next(sched, clock, stop);
@@ -1214,15 +1222,16 @@ org.anclab.steller = org.anclab.steller || {};
                     // appropriate since browsers have a one frame delay. For others,
                     // if software rendering is used, it may not have a one frame delay,
                     // but if a canvas is accelerated, the delay may be there.
-                    if (t - timingError.frame > t1) {
-                        animClock.tick();
+                    if (t - timingError > t1) {
+                        //animClock.tick();
                         var endtr = t1r + duration.valueOf();
                         if (animClock.t1r < endtr) {
-                            timingError.frame += timingErrorTC.frame * (animClock.t1 - t - timingError.frame);
+                            timingError += timingErrorTC * (animClock.t1 - t - timingError);
                             callback(animClock, t1r, endtr);
 
                             if (animClock.t1r < endtr) {
                                 // Animation is not finished yet.
+                                animClock.tick();
                                 requestAnimationFrame(show);
                             }
                         }
@@ -1387,23 +1396,27 @@ org.anclab.steller = org.anclab.steller || {};
         // in your composition. Keep a reference around to it and call its
         // `.play` with a model that has to be started when the sync point is
         // hit. Multiple models played will all be `spawn`ed.
-        function sync() {
+        function sync(N) {
+            if (arguments.length > 0) {
+                // If N is given, make that many syncs.
+                return (function (i, N, syncs) {
+                    for (; i < N; ++i) {
+                        syncs.push(sync());
+                    }
+                    return syncs;
+                }(0, N, []));
+            }
+
             var models = [];
 
             function syncModel(sched, clock, next) {
-                var i, N, temp;
+                var i, N, actions;
                 if (models.length > 0) {
-                    for (i = 0, N = models.length; i < N; ++i) {
-                        // We need to delay the performance of the
-                        // given models, lest they also end up invoking
-                        // this sync point.
-                        schedule((function (m, clk) {
-                            return function () {
-                                m(sched, clk, stop);
-                            };
-                        }(models[i], clock.copy())));
+                    actions = models;
+                    models = [];
+                    for (i = 0, N = actions.length; i < N; ++i) {
+                        actions[i](sched, clock.copy(), stop);
                     }
-                    models.splice(0, models.length);
                 } 
 
                 next(sched, clock, stop);
@@ -1440,8 +1453,19 @@ org.anclab.steller = org.anclab.steller || {};
         //  - g.isOpen property gives open status of gate.
         //  - g.cancel() discards all pending resume actions.
         //      
-        function gate() {
+        function gate(N) {
+            if (arguments.length > 0) {
+                // If N is given, make that many gates.
+                return (function (i, N, gates) {
+                    for (; i < N; ++i) {
+                        gates.push(gate());
+                    }
+                    return gates;
+                }(0, N, []));
+            }
+
             var cache = [];
+            var state_stack = [];
             var isOpen = true;
 
             function gateModel(sched, clock, next) {
@@ -1453,13 +1477,13 @@ org.anclab.steller = org.anclab.steller || {};
                 }
             }
 
-            function release() {
+            function release(clock) {
                 var actions = cache;
                 var i, N, a;
                 cache = [];
                 for (i = 0, N = actions.length; i < N; ++i) {
                     a = actions[i];
-                    a.next(a.sched, a.clock.jumpTo(time_secs()), stop);
+                    a.next(a.sched, clock ? clock.copy() : a.clock.jumpTo(time_secs()), stop);
                 }
             }
 
@@ -1473,27 +1497,51 @@ org.anclab.steller = org.anclab.steller || {};
                 return v;
             });
 
-            gateModel.open = function () {
+            gateModel.open = function (sched, clock, next) {
                 isOpen = true;
-                release();
-                return isOpen;
-            };
-
-            gateModel.close = function () {
-                return (isOpen = false);
-            };
-
-            gateModel.toggle = function () {
-                if (isOpen) {
-                    gateModel.close();
-                } else {
-                    gateModel.open();
+                release(clock);
+                if (next) {
+                    next(sched, clock, stop);
                 }
-                return isOpen;
             };
 
-            gateModel.cancel = function () {
+            gateModel.close = function (sched, clock, next) {
+                isOpen = false;
+                if (next) {
+                    next(sched, clock, stop);
+                }
+            };
+
+            gateModel.toggle = function (sched, clock, next) {
+                if (isOpen) {
+                    return gateModel.close(sched, clock, next);
+                } else {
+                    return gateModel.open(sched, clock, next);
+                }
+            };
+
+            gateModel.cancel = function (sched, clock, next) {
                 cache.splice(0, cache.length);
+                if (next) {
+                    next(sched, clock, stop);
+                }
+            };
+
+            gateModel.push = function (sched, clock, next) {
+                state_stack.push({isOpen: isOpen, cache: cache});
+                cache = [];
+                if (next) {
+                    next(sched, clock, stop);
+                }
+            };
+
+            gateModel.pop = function (sched, clock, next) {
+                var state = state_stack.pop();
+                cache.push.apply(cache, state.cache);
+                this.isOpen = state.isOpen;
+                if (next) {
+                    next(sched, clock, stop);
+                }
             };
 
             return gateModel;
@@ -1501,8 +1549,7 @@ org.anclab.steller = org.anclab.steller || {};
 
         function stats() {
             return {
-                display_jitter_ms: Math.round(timingError.display * 10000) / 10,
-                frame_jitter_ms: Math.round(timingError.frame * 10000) / 10
+                frame_jitter_ms: Math.round(timingError * 10000) / 10
             };
         }
 
