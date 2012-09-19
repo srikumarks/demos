@@ -54,7 +54,36 @@
 
     setupMenu('div#nadai', nadai);
 
-    var nadaiTypes = [2, 4, 3/2, 3, 6, 5/2, 5, 7/2, 7, 9/2, 9];
+    var nadaiTypes = [
+    { div: 2, patterns: ['xx', '-x'] },
+    { div: 4, patterns: ['xxxx', '-x-x', '-x--', '--x-', '---x'] },
+    { div: 3/2, patterns: ['xxx', 'xx-', 'x-x', '-xx', '-x-', '--x'] },
+    { div: 3, patterns: ['xxx', 'xx-', 'x-x', '-xx', '-x-', '--x'] },
+    { div: 6, patterns: ['xxx', 'x-', '-x', 'xx-', 'x-x', '-xx', '-x-', '--x'] },
+    { div: 5/2, patterns: ['xxxxx','x-x--', 'x--x-', 'x---x', 'xx---'] },
+    { div: 5, patterns: ['xxxxx','x-x--', 'x--x-', 'x---x', 'xx---'] },
+    { div: 7/2, patterns: ['xxxxxxx', 'x--x-x-', 'x--x---', 'x---x--', 'x-x-x--'] },
+    { div: 7, patterns: ['xxxxxxx', 'x--x-x-', 'x--x---', 'x---x--', 'x-x-x--'] },
+    { div: 9/2, patterns: ['xxxxxxxxx','x---x-x--', 'x---x--x-', 'x-x--x-x-', 'x--x-x-x-', 'x--x--x--'] },
+    { div: 9, patterns: ['xxxxxxxxx','x---x-x--', 'x---x--x-', 'x-x--x-x-', 'x--x-x-x-', 'x--x--x--'] }
+    ];
+
+    var patternNumbers = [0,0,0,0,0,0,0,0,0,0,0];
+    var patternNode = document.getElementById('patternText');
+    
+    function pattern() {
+        return nadaiTypes[nadai.value].patterns[patternNumbers[nadai.value]];
+    }
+    function displayPattern() {
+        patternNode.innerText = pattern();
+    }
+    nadai.watch(displayPattern);
+    document.getElementById('nextPattern').onclick = function () {
+        patternNumbers[nadai.value] = (patternNumbers[nadai.value] + 1) % nadaiTypes[nadai.value].patterns.length;
+        displayPattern();
+    };
+    displayPattern();
+
 
     var chimeMain = models.chime();
     chimeMain.connect(AC.destination);
@@ -71,17 +100,18 @@
     console.assert(baton);
     var pulseBaton = document.querySelector('svg#anim circle#pulse');
     console.assert(pulseBaton);
+    var contpulseBaton = document.querySelector('svg#anim circle#contpulse');
 
     var change = {sync: sh.sync(), gate: sh.gate()};
 
     function makeTala(change) {
 
-        var count = nadaiTypes[nadai.value];
+        var count = nadaiTypes[nadai.value].div;
         var base = parseFloat(svg.attributes.height.value) - 10;
         var h = base * 0.5;
-        var mainBatonAnimLR = bounce(baton, 1, -50, 50, base-2-5, h, 0.25);
-        var mainBatonAnimRL = bounce(baton, 1, 50, -50, base-2-5, h, 0.25);
-        var pulseBatonAnim = bounce(pulseBaton, 1/count, 0, 0, base-2-5, 0.75 * h, 1);
+        var mainBatonAnimLR = sh.frames(1, bounce(baton, -50, 50, base-2-5, 1.5 * h, 0.25));
+        var mainBatonAnimRL = sh.frames(1, bounce(baton, 50, -50, base-2-5, 1.5 * h, 0.25));
+        var pulseBatonAnim = bounce(pulseBaton, 0, 0, base-2-5, h, 1);
         
         var main = sh.track([
                 change.sync,
@@ -92,32 +122,59 @@
                 mainBatonAnimRL
                 ]);
 
+        var pulseChime = chimeSub.play(60+24, 0.25);
+        var pulseDelay = sh.delay(1/count);
+
+        var pulse = function (i) {
+            return sh.dynamic(function () {
+                var p = pattern(), p2 = p+p;
+                var n = 1;
+                i %= p.length;
+                switch (p.charAt(i)) {
+                    case 'X':
+                    case 'x':
+                        while (p2.charAt(i + n) === '-') {
+                            ++n;
+                        }
+                        return sh.track([pulseChime, sh.spawn(sh.frames(n/count, pulseBatonAnim)), pulseDelay]);
+                    default:
+                        return pulseDelay;
+                }
+            });
+        };
+
         var sub = sh.track(gen(0, count * 2, function (i) {
             return sh.track([
                 (i === 0 ? change.gate : sh.cont),
-                chimeSub.play(60+24, 0.25),
-                pulseBatonAnim
+                pulse(i)
+                ]);
+        }));
+
+        var cp = sh.track(gen(0, count * 2, function (i) {
+            return sh.track([
+                (i === 0 ? change.gate : sh.cont),
+                chimeSub.play(60+48, 0.1), 
+                sh.frames(1/count, bounce(contpulseBaton, -100, -100, base-2-5, 0.5 * h, 1.0))
                 ]);
         }));
         
-        return sh.spawn([sh.loop(main), sh.loop(sub)]);
+        return sh.spawn([sh.loop(main), sh.loop(sub), sh.loop(cp)]);
     }
 
     // Bounces the given baton (or conductor) for the given duration
     // over the given height. 
-    function bounce(baton, duration, x1, x2, y0, height, pow) {
+    function bounce(baton, x1, x2, y0, height, pow) {
         var midx = 0.5 * parseFloat(svg.attributes.width.value);
-        return sh.frames(duration, 
-                        function (clock, tStart, tEnd) {
-                            //tEnd = Math.max(clock.t2r, tEnd);
-                            var dt = Math.min(clock.t2r, tEnd) - clock.t1r;
-                            var f = Math.max(0, Math.min(1, (clock.t1r - tStart) / (tEnd - tStart - dt)));
-                            var r = clock.rate.valueOf();
-                            var y = Math.pow(tEnd - tStart - dt, pow || 1) * 3 * height * f * (1 - f) / Math.max(0.7, r);
-                            var x = (x1 + f * (x2 - x1)) / Math.max(1, r);
-                            baton.setAttribute('cx', midx + x);
-                            baton.setAttribute('cy', y0 - y);
-                        });
+        return function (clock, tStart, tEnd) {
+            //tEnd = Math.max(clock.t2r, tEnd);
+            var dt = Math.min(clock.t2r, tEnd) - clock.t1r;
+            var f = Math.max(0, Math.min(1, (clock.t1r - tStart) / (tEnd - tStart - dt)));
+            var r = clock.rate.valueOf();
+            var y = Math.pow(tEnd - tStart - dt, pow || 1) * 3 * height * f * (1 - f) / Math.max(0.7, r);
+            var x = (x1 + f * (x2 - x1)) / Math.max(1, r);
+            baton.setAttribute('cx', midx + x);
+            baton.setAttribute('cy', y0 - y);
+        };
     }
 
 
@@ -161,14 +218,29 @@
 
     function gen(m, n, f) {
         var i, r = [];
-        for (i = m; i < n; ++i) {
-            r.push(f(i));
+        if (arguments.length < 3) {
+            for (i = m; i < n; ++i) {
+                r.push(i);
+            }
+        } else if (typeof f === 'function') {
+            for (i = m; i < n; ++i) {
+                r.push(f(i));
+            }
+        } else {
+            for (i = m; i < n; ++i) {
+                r.push(f);
+            }
         }
+
         return r;
     }
 
     function sum(a) {
         return a.reduce(function (x, y) { return x + y; });
+    }
+
+    function chars(s) {
+        return Array.prototype.slice.call(s, 0);
     }
 
 }(org.anclab.steller));

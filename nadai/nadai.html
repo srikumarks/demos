@@ -15,7 +15,8 @@
             div.menu span {
                 padding: 4pt;
             }
-            div.menu h2 {
+            span.pattern {
+                font-size: 20pt;
             }
         </style>
     </head>
@@ -36,7 +37,8 @@
                     <svg id="anim" width="240" height="240">
                     <line x1="0" y1="230" x2="360" y2="230" stroke="black" style="stroke-width: 4"/>
                     <circle id="baton" cx="60" cy="290" r="5" fill="black"/>
-                    <circle id="pulse" cx="60" cy="290" r="5" fill="black"/>
+                    <circle id="pulse" cx="60" cy="290" r="5" fill="red"/>
+                    <circle id="contpulse" cx="5" cy="290" r="5" fill="gray"/>
                     </svg>
                 </div>
                 <div class="span3 menu" id="nadai">
@@ -51,6 +53,11 @@
                     <span class="span3">(7) Miśram</span>
                     <span class="span3">(9/2) Saṅkīrṇam</span>
                     <span class="span3">(9) Saṅkīrṇam</span>
+                </div>
+                <div class="span2">
+                    <div class="row"><button class="btn btn-large btn-primary span2" id="nextPattern">Next pattern</button></div>
+                    <hr/>
+                    <div class="row"><span class="span2 pattern" id="patternText"></span></div>
                 </div>
             </div>
         </div>
