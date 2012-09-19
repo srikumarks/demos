@@ -129,11 +129,11 @@
             return sh.dynamic(function () {
                 var p = pattern(), p2 = p+p;
                 var n = 1;
-                i %= p.length;
-                switch (p.charAt(i)) {
+                var j = i % p.length;
+                switch (p.charAt(j)) {
                     case 'X':
                     case 'x':
-                        while (p2.charAt(i + n) === '-') {
+                        while (p2.charAt(j + n) === '-') {
                             ++n;
                         }
                         return sh.track([pulseChime, sh.spawn(sh.frames(n/count, pulseBatonAnim)), pulseDelay]);
