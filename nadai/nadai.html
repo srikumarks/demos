@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <!-- Bootstrap -->
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <title>Nadai change practice</title>
+        <script src="../lib/steller.js"></script>
+        <script src="../lib/models.js"></script>
+        <script defer src="nadai.js"></script>
+        <style>
+            div.menu {
+                font-size: 16pt;
+            }
+            div.menu span {
+                padding: 4pt;
+            }
+            div.menu h2 {
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="hero-unit">
+                <h1>Nadai changer</h1>
+                <p/>
+                <div class="row">
+                    <span class="span7">Tempo: 
+                        <input id="tempo" class="span5" type="range" min="0" max="1" step="0.001"/>
+                        (<span id="tempo_display"></span> aksh/min)
+                    </span>
+                </div>
+            </div>
+            <div class="row span 10">
+                <div class="span4">
+                    <svg id="anim" width="240" height="240">
+                    <line x1="0" y1="230" x2="360" y2="230" stroke="black" style="stroke-width: 4"/>
+                    <circle id="baton" cx="60" cy="290" r="5" fill="black"/>
+                    <circle id="pulse" cx="60" cy="290" r="5" fill="black"/>
+                    </svg>
+                </div>
+                <div class="span3 menu" id="nadai">
+                    <span class="span3">(2) Catuśram</span>
+                    <span class="span3">(4) Catuśram</span>
+                    <span class="span3">(3/2) Tiśram</span>
+                    <span class="span3">(3) Tiśram</span>
+                    <span class="span3">(6) Tiśram</span>
+                    <span class="span3">(5/2) Kaṇḍam</span>
+                    <span class="span3">(5) Kaṇḍam</span>
+                    <span class="span3">(7/2) Miśram</span>
+                    <span class="span3">(7) Miśram</span>
+                    <span class="span3">(9/2) Saṅkīrṇam</span>
+                    <span class="span3">(9) Saṅkīrṇam</span>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+
