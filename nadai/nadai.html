@@ -7,6 +7,7 @@
         <title>Nadai change practice</title>
         <script src="../lib/steller.js"></script>
         <script src="../lib/models.js"></script>
+        <script src="../lib/kinetic-core.min.js"></script>
         <script defer src="nadai.js"></script>
         <style>
             div.menu {
@@ -34,12 +35,15 @@
             </div>
             <div class="row span 10">
                 <div class="span4">
+                    <!--
                     <svg id="anim" width="240" height="240">
                     <line x1="0" y1="230" x2="360" y2="230" stroke="black" style="stroke-width: 4"/>
                     <circle id="baton" cx="60" cy="290" r="5" fill="black"/>
                     <circle id="pulse" cx="60" cy="290" r="5" fill="red"/>
                     <circle id="contpulse" cx="5" cy="290" r="5" fill="gray"/>
                     </svg>
+                    -->
+                    <div id="bouncingBalls"></div>
                 </div>
                 <div class="span3 menu" id="nadai">
                     <span class="span3">(2) Catuśram</span>
