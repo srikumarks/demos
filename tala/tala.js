@@ -134,8 +134,8 @@
         var pulseBounce = bounce(pulseBaton, speedFactor / ticksPerAksh, 0, 0, base-2-5, 0.75 * h, 1);
         var pulseTrk = sh.track(gen(0, aksh * ticksPerAksh * kalaiFactor, function (i) {
             return sh.track([
-                change.sync,
-                change.gate,
+//                change.sync,
+                (i % 1 === 0 ? change.gate : sh.cont),
                 chimeSub.play(60+24, 0.25), 
                 sh.spawn(pulseBounce),
                 sh.delay(speedFactor / ticksPerAksh)
