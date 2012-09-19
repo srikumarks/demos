@@ -16,6 +16,33 @@
 
     load();
 
+    var stage, baton, pulseBaton;
+
+    function setupStage() {
+        stage = new Kinetic.Stage({
+            container: 'anim',
+            width: 240,
+              height: 240
+        });
+
+        var bkg = new Kinetic.Layer({name: 'bkg'});
+        bkg.add(new Kinetic.Line({points: [0, 230, 360, 230], stroke: 'black', strokeWidth: 4}));
+        stage.add(bkg);
+
+        var ballsLayer = new Kinetic.Layer({name: 'balls'});
+        ballsLayer.add(baton = new Kinetic.Circle({x: 60, y: 290, radius: 5, fill: 'black'}));
+        ballsLayer.add(pulseBaton = new Kinetic.Circle({x: 60, y: 290, radius: 5, fill: 'black'}));
+        stage.add(ballsLayer);
+
+        var raf = window.requestAnimationFrame || window.webkitRequestAnimationFrame;
+        raf(function draw() {
+            stage.draw();
+            raf(draw);
+        });
+    }
+
+    setupStage();
+
     function setupMenu(selector, param) {
         var options = nodeArr(document.querySelectorAll(selector + ' span'));
         var selected = options[param.value];
@@ -85,12 +112,6 @@
     chimeSub.halfLife.value *= 0.1;
     chimeSub.attackTime.value = 0;
 
-    var svg = document.querySelector('svg#anim');
-    var baton = document.querySelector('svg#anim circle#baton');
-    console.assert(baton);
-    var pulseBaton = document.querySelector('svg#anim circle#pulse');
-    console.assert(pulseBaton);
-
     var change = {sync: sh.sync(), gate: sh.gate()};
 
     function makeTala(change) {
@@ -119,7 +140,7 @@
                 sh.delay(p * kalaiFactor)
                 ]);
         }));
-        var base = parseFloat(svg.attributes.height.value) - 10;
+        var base = stage.getHeight() - 10;
         var h = base * 0.5;
         var left2right = bounce(baton, kalaiFactor, -50, 50, base-2-5, h, 0.25);
         var right2left = bounce(baton, kalaiFactor, 50, -50, base-2-5, h, 0.25);
@@ -152,7 +173,7 @@
     // Bounces the given baton (or conductor) for the given duration
     // over the given height. 
     function bounce(baton, duration, x1, x2, y0, height, pow) {
-        var midx = 0.5 * parseFloat(svg.attributes.width.value);
+        var midx = 0.5 * stage.getWidth();
         return sh.frames(duration, 
                         function (clock, tStart, tEnd) {
                             //tEnd = Math.max(clock.t2r, tEnd);
@@ -161,8 +182,8 @@
                             var r = clock.rate.valueOf();
                             var y = Math.pow(tEnd - tStart - dt, pow || 1) * 3 * height * f * (1 - f) / Math.max(0.7, r);
                             var x = (x1 + f * (x2 - x1)) / Math.max(1, r);
-                            baton.setAttribute('cx', midx + x);
-                            baton.setAttribute('cy', y0 - y);
+                            baton.setX(midx + x);
+                            baton.setY(y0 - y);
                         });
     }
 
