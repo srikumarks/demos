@@ -118,17 +118,17 @@
                 sh.delay(p * kalaiFactor)
                 ]);
         }));
-        var left2right = bounce(baton, kalaiFactor, -50, 50, 300-2-5, 200);
-        var right2left = bounce(baton, kalaiFactor, 50, -50, 300-2-5, 200);
-        var left2left = bounce(baton, kalaiFactor, -50, -50, 300-2-5, 200);
-        var right2right = bounce(baton, kalaiFactor, 50, 50, 300-2-5, 200);
+        var left2right = bounce(baton, kalaiFactor, -50, 50, 300-2-5, 160, 0.25);
+        var right2left = bounce(baton, kalaiFactor, 50, -50, 300-2-5, 160, 0.25);
+        var left2left = bounce(baton, kalaiFactor, -50, -50, 300-2-5, 160, 0.25);
+        var right2right = bounce(baton, kalaiFactor, 50, 50, 300-2-5, 160, 0.25);
         var akshTrk = sh.track(pattern.map(function (p) {
             return sh.track(gen(0, p, function (i) {
                 var b = (i === 0 ? (i + 1 < p ? left2right : left2left) : (i + 1 === p ? right2left : right2right));
                 return sh.track([change.sync, change.gate, chimeAksh.play(60+36, 0.25), sh.spawn(b), sh.delay(kalaiFactor)]);
             }));
         }));
-        var pulseBounce = bounce(pulseBaton, speedFactor / ticksPerAksh, 0, 0, 300-2-5, 150);
+        var pulseBounce = bounce(pulseBaton, speedFactor / ticksPerAksh, 0, 0, 300-2-5, 120, 1);
         var pulseTrk = sh.track(gen(0, aksh * ticksPerAksh * kalaiFactor, function (i) {
             return sh.track([
                 change.sync,
@@ -148,14 +148,14 @@
 
     // Bounces the given baton (or conductor) for the given duration
     // over the given height. 
-    function bounce(baton, duration, x1, x2, y0, height) {
+    function bounce(baton, duration, x1, x2, y0, height, pow) {
         return sh.frames(duration, 
                         function (clock, tStart, tEnd) {
                             //tEnd = Math.max(clock.t2r, tEnd);
                             var dt = Math.min(clock.t2r, tEnd) - clock.t1r;
                             var f = Math.max(0, Math.min(1, (clock.t1r - tStart) / (tEnd - tStart - dt)));
                             var r = clock.rate.valueOf();
-                            var y = Math.pow(tEnd - tStart - dt, 0.75) * 3 * height * f * (1 - f) / Math.max(0.7, r);
+                            var y = Math.pow(tEnd - tStart - dt, pow || 1) * 3 * height * f * (1 - f) / Math.max(0.7, r);
                             var x = (x1 + f * (x2 - x1)) / Math.max(1, r);
                             baton.setAttribute('cx', 60 + x);
                             baton.setAttribute('cy', y0 - y);
