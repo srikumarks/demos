@@ -140,21 +140,19 @@
         var randomNadaiChangeCounter = 0;
 
         return sh.fire(function () {
+            var currNadai, newNadai, newPat;
             if ((randomNadaiChangeCounter % 4) === 0) {
                 if (randomnad.checked) {
-                    change.sync.play(sh.fire(function () {
-                        var n = rand(nadaiTypes.length, nadai.value);
-                        if (randompat.checked) {
-                            patternNumbers[n] = rand(nadaiTypes[n].patterns.length, patternNumbers[n]);
-                        } else {
-                            patternNumbers[n] = 0;
-                        }
-                        nadai.value = n;
-                    }));
+                    // Choose a new nadai and pattern.
+                    currNadai = nadai.value;
+                    newNadai = rand(nadaiTypes.length, nadai.value);
+                    newPat = rand(nadaiTypes[newNadai].patterns.length, patternNumbers[newNadai]);
+                    patternNumbers[newNadai] = randompat.checked ? newPat : 0;
+                    nadai.value = newNadai;
                 } else if (randompat.checked) {
                     // Compute a new pattern to switch to.
-                    var currNadai = nadai.value;
-                    var newPat = rand(nadaiTypes[currNadai].patterns.length, patternNumbers[currNadai]);
+                    currNadai = nadai.value;
+                    newPat = rand(nadaiTypes[currNadai].patterns.length, patternNumbers[currNadai]);
 
                     // Display the new choice.
                     displayPattern(currNadai, newPat);
@@ -197,11 +195,15 @@
         var pulseDelay = sh.delay(1/count);
 
         var pulse = function (i) {
+            // Save the nadai and don't let it change for the pattern
+            // only.
+            var currNadai = nadai.value;
+
             // Respond to pattern changes immediately. We need
             // to determine the bounce duration depending on
             // the pattern chosen though.
             return sh.dynamic(function () {
-                var p = pattern();
+                var p = pattern(currNadai);
                 var n = 1;
                 var j = i % p.length;
                 switch (p.charAt(j)) {
