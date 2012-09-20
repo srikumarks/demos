@@ -152,10 +152,10 @@
 
         var count = nadaiTypes[nadai.value].div;
         var base = stage.getHeight() - 10;
-        var h = base * 0.5;
-        var mainBatonAnimLR = sh.frames(1, bounce(baton, -50, 50, base-2-5, 1.5 * h, 0.25));
-        var mainBatonAnimRL = sh.frames(1, bounce(baton, 50, -50, base-2-5, 1.5 * h, 0.25));
-        var pulseBatonAnim = bounce(pulseBaton, 0, 0, base-2-5, h, 1);
+        var h = 0.8 * base;
+        var mainBatonAnimLR = sh.frames(1, bounce(baton, -50, 50, base-2-5, h));
+        var mainBatonAnimRL = sh.frames(1, bounce(baton, 50, -50, base-2-5, h));
+        var pulseBatonAnim = bounce(pulseBaton, 0, 0, base-2-5, h);
         
         var main = sh.track([
                 change.sync,
@@ -202,11 +202,12 @@
                 ]);
         }));
 
+        var contsub = sh.frames(1/count, bounce(contpulseBaton, -100, -100, base-2-5, 0.5 * h));
         var cp = sh.track(gen(0, count * 2, function (i) {
             return sh.track([
                 (i === 0 ? change.gate : sh.cont),
                 chimeSub.play(60+48, 0.1), 
-                sh.frames(1/count, bounce(contpulseBaton, -100, -100, base-2-5, 0.5 * h, 1.0))
+                contsub
                 ]);
         }));
         
@@ -215,15 +216,16 @@
 
     // Bounces the given baton (or conductor) for the given duration
     // over the given height. 
-    function bounce(baton, x1, x2, y0, height, pow) {
+    function bounce(baton, x1, x2, y0, height) {
         var midx = 0.5 * stage.getWidth();
         return function (clock, tStart, tEnd) {
             //tEnd = Math.max(clock.t2r, tEnd);
             var dt = Math.min(clock.t2r, tEnd) - clock.t1r;
             var f = Math.max(0, Math.min(1, (clock.t1r - tStart) / (tEnd - tStart - dt)));
             var r = clock.rate.valueOf();
-            var y = Math.pow(tEnd - tStart - dt, pow || 1) * 3 * height * f * (1 - f) / Math.max(0.7, r);
-            var x = (x1 + f * (x2 - x1)) / Math.max(1, r);
+            var hfrac = 4 * f * (1 - f);
+            var y = hfrac * height * Math.atan((tEnd - tStart - dt) / r) / (Math.PI / 2);
+            var x = (x1 + f * (x2 - x1)) * Math.atan(1/r) / (Math.PI/2);
             baton.setX(midx + x);
             baton.setY(y0 - y);
         };
