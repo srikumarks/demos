@@ -95,13 +95,27 @@
     var patternNumbers = [0,0,0,0,0,0,0,0,0,0,0];
     var patternNode = document.getElementById('patternText');
     
-    function pattern() {
-        return nadaiTypes[nadai.value].patterns[patternNumbers[nadai.value]];
+    function pattern(n,p) {
+        if (arguments.length < 1) {
+            n = nadai.value;
+            p = patternNumbers[n];
+        }
+        if (arguments.length < 2) {
+            p = patternNumbers[n];
+        }
+        return nadaiTypes[n].patterns[p];
     }
-    function displayPattern() {
-        patternNode.innerHTML = document.querySelectorAll('div#nadai span')[nadai.value].innerHTML + '<br/><br/>' + pattern();
+    function displayPattern(n,p) {
+        if (arguments.length < 1) {
+            n = nadai.value;
+            p = patternNumbers[n];
+        }
+        if (arguments.length < 2) {
+            p = patternNumbers[n];
+        }
+        patternNode.innerHTML = document.querySelectorAll('div#nadai span')[n].innerHTML + '<br/><br/>' + pattern(n,p);
     }
-    nadai.watch(displayPattern);
+    nadai.watch(function () { displayPattern(); });
     document.getElementById('nextPattern').onclick = function () {
         patternNumbers[nadai.value] = (patternNumbers[nadai.value] + 1) % nadaiTypes[nadai.value].patterns.length;
         displayPattern();
@@ -138,9 +152,21 @@
                         nadai.value = n;
                     }));
                 } else if (randompat.checked) {
+                    // Compute a new pattern to switch to.
+                    var currNadai = nadai.value;
+                    var newPat = rand(nadaiTypes[currNadai].patterns.length, patternNumbers[currNadai]);
+
+                    // Display the new choice.
+                    displayPattern(currNadai, newPat);
+
+                    // Schedule a pattern change.
                     change.sync.play(sh.fire(function () {
-                        patternNumbers[nadai.value] = rand(nadaiTypes[nadai.value].patterns.length, patternNumbers[nadai.value]);
-                        displayPattern();
+                        // Make sure the nadai didn't change in the interval
+                        // between the random pattern change and when the 
+                        // scheduled change runs.
+                        if (nadai.value === currNadai) {
+                            patternNumbers[currNadai] = newPat;
+                        }
                     }));
                 }
             }
