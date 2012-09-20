@@ -73,6 +73,8 @@
         store(settings);
     });
     tempo_display.innerText = Math.round(rate.value * 60);
+    var randomnad = document.getElementById('randomnad');
+    var randompat = document.getElementById('randompat');
 
     setupMenu('div#nadai', nadai);
 
@@ -97,7 +99,7 @@
         return nadaiTypes[nadai.value].patterns[patternNumbers[nadai.value]];
     }
     function displayPattern() {
-        patternNode.innerText = pattern();
+        patternNode.innerHTML = document.querySelectorAll('div#nadai span')[nadai.value].innerHTML + '<br/><br/>' + pattern();
     }
     nadai.watch(displayPattern);
     document.getElementById('nextPattern').onclick = function () {
@@ -119,6 +121,33 @@
 
     var change = {sync: sh.sync(), gate: sh.gate()};
 
+    var randomNadaiChanger = (function () {
+
+        var randomNadaiChangeCounter = 0;
+
+        return sh.fire(function () {
+            if ((randomNadaiChangeCounter % 4) === 0) {
+                if (randomnad.checked) {
+                    change.sync.play(sh.fire(function () {
+                        var n =  rand(0, nadaiTypes.length);
+                        if (randompat.checked) {
+                            patternNumbers[n] = rand(0, nadaiTypes[n].patterns.length);
+                        } else {
+                            patternNumbers[n] = 0;
+                        }
+                        nadai.value = n;
+                    }));
+                } else if (randompat.checked) {
+                    change.sync.play(sh.fire(function () {
+                        patternNumbers[nadai.value] = rand(0, nadaiTypes[nadai.value].patterns.length);
+                        displayPattern();
+                    }));
+                }
+            }
+            randomNadaiChangeCounter++;
+        });
+    }());
+
     function makeTala(change) {
 
         var count = nadaiTypes[nadai.value].div;
@@ -131,6 +160,7 @@
         var main = sh.track([
                 change.sync,
                 change.gate,
+                randomNadaiChanger,
                 chimeMain.play(60+36, 0.25),
                 mainBatonAnimLR,
                 chimeMain.play(60+43, 0.25),
@@ -141,14 +171,21 @@
         var pulseDelay = sh.delay(1/count);
 
         var pulse = function (i) {
+            // Respond to pattern changes immediately. We need
+            // to determine the bounce duration depending on
+            // the pattern chosen though.
             return sh.dynamic(function () {
-                var p = pattern(), p2 = p+p;
+                var p = pattern();
                 var n = 1;
                 var j = i % p.length;
                 switch (p.charAt(j)) {
                     case 'X':
                     case 'x':
-                        while (p2.charAt(j + n) === '-') {
+                        // Determine the duration of the bounce based on
+                        // the number of hyphens following the X or x.
+                        // The loop is guaranteed to terminate because
+                        // we already know that p has an 'X' or 'x' in it.
+                        while (p.charAt((j + n) % p.length) === '-') {
                             ++n;
                         }
                         return sh.track([pulseChime, sh.spawn(sh.frames(n/count, pulseBatonAnim)), pulseDelay]);
@@ -262,6 +299,10 @@
 
     function chars(s) {
         return Array.prototype.slice.call(s, 0);
+    }
+
+    function rand(m, n) {
+        return m + Math.floor(0.9999 * Math.random() * (n - m));
     }
 
 }(org.anclab.steller));

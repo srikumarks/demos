@@ -19,6 +19,18 @@
             span.pattern {
                 font-size: 20pt;
             }
+            span, .copy {
+                color: #460c05;
+            }
+            div.hero-unit h1 {
+                color: #460c05;
+            }
+            body {
+                background-color: #eeefbf;
+            }
+            div.hero-unit {
+                background-color: #f5c767;
+            }
         </style>
     </head>
     <body>
@@ -58,10 +70,15 @@
                     <span class="span3">(9/2) Saṅkīrṇam</span>
                     <span class="span3">(9) Saṅkīrṇam</span>
                 </div>
-                <div class="span2">
+                <div class="span3">
                     <div class="row"><button class="btn btn-large btn-primary span2" id="nextPattern">Next pattern</button></div>
                     <hr/>
-                    <div class="row"><span class="span2 pattern" id="patternText"></span></div>
+                    <div class="row"><span class="span3 pattern" id="patternText"></span></div>
+                    <hr/>
+                    <div class="row">
+                        <span class="span3 copy"><input type="checkbox" id="randomnad"/> Change nadai randomly</span>
+                        <span class="span3 copy"><input type="checkbox" id="randompat"/> Change pattern randomly</span>
+                    </div>
                 </div>
             </div>
         </div>
