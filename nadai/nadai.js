@@ -129,9 +129,9 @@
             if ((randomNadaiChangeCounter % 4) === 0) {
                 if (randomnad.checked) {
                     change.sync.play(sh.fire(function () {
-                        var n =  rand(0, nadaiTypes.length);
+                        var n = rand(nadaiTypes.length, nadai.value);
                         if (randompat.checked) {
-                            patternNumbers[n] = rand(0, nadaiTypes[n].patterns.length);
+                            patternNumbers[n] = rand(nadaiTypes[n].patterns.length, patternNumbers[n]);
                         } else {
                             patternNumbers[n] = 0;
                         }
@@ -139,7 +139,7 @@
                     }));
                 } else if (randompat.checked) {
                     change.sync.play(sh.fire(function () {
-                        patternNumbers[nadai.value] = rand(0, nadaiTypes[nadai.value].patterns.length);
+                        patternNumbers[nadai.value] = rand(nadaiTypes[nadai.value].patterns.length, patternNumbers[nadai.value]);
                         displayPattern();
                     }));
                 }
@@ -301,8 +301,12 @@
         return Array.prototype.slice.call(s, 0);
     }
 
-    function rand(m, n) {
-        return m + Math.floor(0.9999 * Math.random() * (n - m));
+    function rand(n, v) {
+        if (arguments.length > 1 && n > 1) {
+            return (v + 1 + Math.floor(0.9999 * Math.random() * (n - 1))) % n;
+        } else {
+            return Math.floor(0.9999 * Math.random() * n);
+        }
     }
 
 }(org.anclab.steller));
