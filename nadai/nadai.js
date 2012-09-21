@@ -246,10 +246,10 @@
     // over the given height. 
     function bounce(baton, x1, x2, y0, height) {
         var midx = 0.5 * stage.getWidth();
-        return function (clock, tStart, tEnd) {
+        return function (clock, t1r, t2r, tStart, tEnd) {
             //tEnd = Math.max(clock.t2r, tEnd);
-            var dt = Math.min(clock.t2r, tEnd) - clock.t1r;
-            var f = Math.max(0, Math.min(1, (clock.t1r - tStart) / (tEnd - tStart - dt)));
+            var dt = Math.min(t2r, tEnd) - t1r;
+            var f = Math.max(0, Math.min(1, (t1r - tStart) / (tEnd - tStart - dt)));
             var r = clock.rate.valueOf();
             var hfrac = 4 * f * (1 - f);
             var y = hfrac * height * Math.atan((tEnd - tStart - dt) / r) / (Math.PI / 2);

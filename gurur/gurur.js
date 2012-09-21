@@ -220,10 +220,10 @@
     // the box. Otherwise it will bounce it in the corner of the display.
     function bounce(baton, duration, height, bbox) {
         return sh.frames(duration, 
-                        function (clock, tStart, tEnd) {
+                        function (clock, t1r, t2r, tStart, tEnd) {
                             //tEnd = Math.max(clock.t2r, tEnd);
-                            var dt = Math.min(clock.t2r, tEnd) - clock.t1r;
-                            var f = Math.max(0, Math.min(1, (clock.t1r - tStart) / (tEnd - tStart - dt)));
+                            var dt = Math.min(t2r, tEnd) - t1r;
+                            var f = Math.max(0, Math.min(1, (t1r - tStart) / (tEnd - tStart - dt)));
                             var y = (tEnd - tStart - dt) * 3 * height * f * (1 - f) / clock.rate.valueOf();
                             if (bbox && bounceOnLetters.value) {
                                 baton.setAttribute('cy', bbox.y - y);

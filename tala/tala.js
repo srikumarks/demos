@@ -175,10 +175,10 @@
     function bounce(baton, duration, x1, x2, y0, height, pow) {
         var midx = 0.5 * stage.getWidth();
         return sh.frames(duration, 
-                        function (clock, tStart, tEnd) {
+                        function (clock, t1r, t2r, tStart, tEnd) {
                             //tEnd = Math.max(clock.t2r, tEnd);
-                            var dt = Math.min(clock.t2r, tEnd) - clock.t1r;
-                            var f = Math.max(0, Math.min(1, (clock.t1r - tStart) / (tEnd - tStart - dt)));
+                            var dt = Math.min(t2r, tEnd) - t1r;
+                            var f = Math.max(0, Math.min(1, (t1r - tStart) / (tEnd - tStart - dt)));
                             var r = clock.rate.valueOf();
                             var y = Math.pow(tEnd - tStart - dt, pow || 1) * 3 * height * f * (1 - f) / Math.max(0.7, r);
                             var x = (x1 + f * (x2 - x1)) / Math.max(1, r);
