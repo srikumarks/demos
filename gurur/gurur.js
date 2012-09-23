@@ -220,11 +220,11 @@
     // the box. Otherwise it will bounce it in the corner of the display.
     function bounce(baton, duration, height, bbox) {
         return sh.frames(duration, 
-                        function (clock, t1r, t2r, tStart, tEnd) {
+                        function (clock, t1r, t2r, tStart, tEnd, r) {
                             //tEnd = Math.max(clock.t2r, tEnd);
                             var dt = Math.min(t2r, tEnd) - t1r;
                             var f = Math.max(0, Math.min(1, (t1r - tStart) / (tEnd - tStart - dt)));
-                            var y = (tEnd - tStart - dt) * 3 * height * f * (1 - f) / clock.rate.valueOf();
+                            var y = (tEnd - tStart - dt) * 3 * height * f * (1 - f) / r;
                             if (bbox && bounceOnLetters.value) {
                                 baton.setAttribute('cy', bbox.y - y);
                                 baton.setAttribute('cx', bbox.x + 10 + bbox.width * f);
@@ -294,18 +294,29 @@
     // Make the "notes" of the tune. This includes the animation.
     var notes = sh.track(generate(0, ftune.length, oneNote));
 
-    // Make the sync track. This is an eternal loop.
+    // Make the sync track. This is an eternal loop. It also 
+    // contains the jalra sound synchronized with the ticks
+    // of the sync track.
     var tick = sh.delay(0.5);
-    var syncTrack = sh.loop(sh.track(flatten(generate(0, cycleLength, function (i) { return [syncs[i], tick]; }))));
-
-    // The jalra track combines the sync track as well as the chime sounds that
-    // keep track of the talam.
-    var jalraTrack = sh.track(sh.spawn(syncTrack), sh.loop(sh.track(jalra.map(function (j, i) {
-        // j[0] is the duration and j[1] is the chime to use for this beat.
-        var d = j[0] * 0.5;
-        var bounceBaton = bounce(conductor, d, yOffset);
-        return sh.track([sh.spawn(bounceBaton), j[1].play(chimeTonic, 0.15), sh.delay(d)]);
-    }))));
+    var syncTrack = sh.loop(sh.track(flatten(generate(0, cycleLength, (function () {
+        var j = 0, jix = 0;
+        return function (i) { 
+            var result;
+            if (i === j) {
+                result = [
+                    syncs[i], 
+                    sh.spawn(bounce(conductor, jalra[jix][0] * 0.5, yOffset)), 
+                    jalra[jix][1].play(chimeTonic, 0.15), 
+                    tick
+                ];
+                j += jalra[jix][0];
+                jix++;
+            } else {
+                result = [syncs[i], tick];
+            }
+            return result;
+        };
+    }())))));
 
     // The main notes track.
     var gurur = trackPlayState(notes);
@@ -335,7 +346,7 @@
             // Open all the gates.
             for (i = 0; i < commas.length; ++i) {
                 commas[i].cancel();
-                commas[i].open();
+                syncs[i].play(commas[i].open);
             }
 
             // Play in sync with the first beat of the tala.
@@ -426,7 +437,7 @@
                 }),
                 sh.rate(rate),
                 sh.delay(0.1),
-                jalraTrack
+                syncTrack
                 ]));
 
     var statsElem = elem('stats');
