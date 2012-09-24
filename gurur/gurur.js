@@ -42,7 +42,7 @@
   
     // Bind the tempo slider.
     var rate = steller.Param({min: 1.0, max: 4.0, value: 2.0, mapping: 'log'});
-    rate.bind('#tempo');
+    rate.bind('#tempo', sh);
      
     // Description of melody.
     var tune = [

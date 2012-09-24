@@ -65,7 +65,7 @@
 
     var nadai = steller.Param({min: 0, max: 6, key: 'nadai', value: settings.nadai});
     var rate = steller.Param({min: 1/4, max: 4, key: 'tempo', mapping: 'log', value: settings.tempo});
-    rate.bind('#tempo');
+    rate.bind('#tempo', sh);
     var tempo_display = document.querySelector('#tempo_display');
     rate.watch(function (v) {
         tempo_display.innerText = Math.round(v * 60);

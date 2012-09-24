@@ -76,7 +76,7 @@
     var kalai = steller.Param({min: 0, max: 3, key: 'kalai', value: settings.kalai});
     var speed = steller.Param({min: 0, max: 2, key: 'speed', value: settings.speed});
     var rate = steller.Param({min: 1/4, max: 4, key: 'tempo', mapping: 'log', value: settings.tempo});
-    rate.bind('#tempo');
+    rate.bind('#tempo', sh);
     var tempo_display = document.querySelector('#tempo_display');
     rate.watch(function (v) {
         tempo_display.innerText = Math.round(v * 60);
