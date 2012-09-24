@@ -91,6 +91,31 @@
     setupMenu('div#speed', speed);
     setupMenu('div#kalai', kalai);
 
+    //////////////////////////////////////////////
+    // Buttons for setting common talas.
+    // They only touch the tala type and jati, leaving
+    // other settings intact.
+
+    $('com_adi').onclick = function () {
+        tala.value = 4;
+        jati.value = 0;
+    };
+
+    $('com_rupaka').onclick = function () {
+        tala.value = 2;
+        jati.value = 0;
+    };
+
+    $('com_mcapu').onclick = function () {
+        tala.value = 4;
+        jati.value = 1;
+    };
+
+    $('com_ata').onclick = function () {
+        tala.value = 5;
+        jati.value = 3;
+    };
+
     var talaTypes = ['ldll', 'ldl', 'dl', 'lad', 'ldd', 'lldd', 'l'];
     var jatiTypes = [4, 3, 7, 5, 9];
     var nadaiTypes = [4, 3, 7, 5, 9];
@@ -230,6 +255,10 @@
 
     function sum(a) {
         return a.reduce(function (x, y) { return x + y; });
+    }
+
+    function $(id) {
+        return document.getElementById(id);
     }
 
 }(org.anclab.steller));
