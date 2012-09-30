@@ -2,30 +2,31 @@
 	<head>
 		<title>Karunimpa, Sahana, Rajeswari Padmanabhan</title>
 		<script src="jquery.js" type="text/javascript"></script>
-		<script src="audio-control.js" type="text/javascript"></script>
+        <script src="../lib/nishabdam.js"></script>
+        <script src="../lib/ndb.js"></script>
+        <script src="karunimpa_notation.json" charset="UTF-8"></script>
+        <script src="karunimpa.json" charset="UTF-8"></script>
+        <script defer src="prepare.js"></script>
+        <script defer src="audio-control.js"></script>
 	</head>
 	<body>
-		<h2>Varnam: Karunimpa</h2>
+        <h2><span id="category"></span>: <span id="title"></span></h2>
 		<table>
 		<tr><td valign="top">
 		<table border="0">
-			<tr><th align="left">Raga:</th><td align="left">Sahana</td></tr>
-			<tr><th align="left">Arohana:</th><td align="left">SRGmPmDnS</td></tr>
-			<tr><th align="left">Avarohana:</th><td align="left">SnDPmGmRGRS</td></tr>
-			<tr><th align="left">Tala:</th><td align="left">Adi</td></tr>
-			<tr><th align="left">Composer:</th><td align="left">Tiruvotriyur Tyagayyar</td></tr>
-			<tr><th align="left">Performer:</th><td align="left">Smt. Rajeswari Padmanabhan</td></tr>
-			<tr><th align="left">Album:</th><td align="left">Surabhi</td></tr>
-			<tr><th align="left">Notation:</th><td align="left"><a href="http://github.com/srikumarks/notations/raw/master/pdf/varnam-sahana-adi-karunimpa.pdf">pdf</a></td></tr>
-			<tr><th align="left">See also:</th><td align="left"><a href="karunimpa-rr-amsterdam.html">Perf by Smt. Ranganayaki Rajagopalan</a></td>
+			<tr><th align="left">Raga:</th><td align="left" id="raga"></td></tr>
+			<tr><th align="left">Arohana:</th><td align="left" id="arohana"></td></tr>
+			<tr><th align="left">Avarohana:</th><td align="left" id="avarohana"></td></tr>
+			<tr><th align="left">Tala:</th><td align="left" id="tala"></td></tr>
+			<tr><th align="left">Composer:</th><td align="left" id="composer"></td></tr>
+			<tr><th align="left">Performer:</th><td align="left" id="performer"></td></tr>
+			<tr><th align="left">Album:</th><td align="left" id="album"></td></tr>
+			<tr><th align="left">Notation:</th><td align="left"><a href="http://github.com/srikumarks/notations/raw/master/pdf/varnam-sahana-adi-karunimpa.pdf">pdf</a> (also scroll down)</td></tr>
+            <!-- <tr><th align="left">See also:</th><td align="left"><a href="karunimpa-rr-amsterdam.html">Perf by Smt. Ranganayaki Rajagopalan</a></td> -->
 			</table>
 		<br/>
-		<audio id="recording_normal" controls>
-			<source src="karunimpa-rp.mp3" type="audio/mpeg"/>
-		</audio>
-		<audio id="recording_slow" controls>
-			<source src="karunimpa-rp-slow.mp3" type="audio/mpeg"/>
-		</audio>
+        <audio id="recording_normal" controls></audio>
+        <audio id="recording_slow" controls></audio>
 		<div><small><b>Status:</b> <span id="status">Please wait. Loading ...</span></small> <small><b>Duration:</b> <span id="duration">N/A</span></small></div>
 		<div><small><b>Current time:</b> <span id="currentTime">N/A</span></small></div>
 		<div><small><b>Speed:</b> <span id="speed">normal</span> (<a href="javascript:toggleSpeed()">change</a>)</small></div>
@@ -39,66 +40,10 @@ Press '}' to go forward by <span class="smallJump"></span> second.
 		</pre></small>
 		</td>
 		<td  valign="top">
-		<ul>
-			<li><a href="javascript:playFrom(9.2)">Alapana</a></li>
-			<li><a href="javascript:playFrom(63.8)">Pallavi</a>
-				<ul>
-				<li><a href="javascript:playFrom(63.8)">Karunimpa idi manci</a></li>
-				<li><a href="javascript:playFrom(77.6)">Karunimpa idi manci</a> (repeat)</li>
-				<li><a href="javascript:playFrom(91.75)">Tarunamu sami</a></li>
-				<li><a href="javascript:playFrom(105.55)">Tarunamu sami</a> (repeat)</li>
-				</ul>
-			</li>
-			<li><a href="javascript:playFrom(119.3)">Anupallavi</a>
-				<ul>
-				<li><a href="javascript:playFrom(119.3)">Parula vedalenu na</a> (sangathi 1)</li>
-				<li><a href="javascript:playFrom(133)">Parula vedalenu na</a> (sangathi 2)</li>
-				<li><a href="javascript:playFrom(146.6)">Pali sri venugopala deva</a></li>
-				<li><a href="javascript:playFrom(160.3)">Pali sri venugopala deva</a></li>
-				</ul>
-			</li>
-			<li><a href="javascript:playFrom(173.7)">Muktayi svaram</a>
-				<ul>
-				<li><a href="javascript:playFrom(173.7)">P,,PmGm,,</a> (sangathi 1)</li>
-				<li><a href="javascript:playFrom(187.3)">P,,PmGm,,</a> (sangathi 2)</li>
-				<li><a href="javascript:playFrom(200.7)">P,DnSnSR</a></li>
-				</ul>
-			</li>
-            <li><a href="javascript:playFrom(214.1)">Second speed</a> (<a href="javascript:playFrom(253.5)">ending</a>)
-                <ul>
-                <li><a href="javascript:playFrom(214.1)">Pallavi</a></li>
-                <li><a href="javascript:playFrom(227.55)">Anupallavi</a></li>
-                <li><a href="javascript:playFrom(240.6)">Muktayisvaram</a></li>
-                </ul>
-            </li>
-			<li><a href="javascript:playFrom(267)">Caranam</a>
-				<ul>
-				<li><a href="javascript:playFrom(267)">Sangathi 1</a></li>
-				<li><a href="javascript:playFrom(273.7)">Sangathi 2</a></li>
-				<li><a href="javascript:playFrom(280.5)">Sangathi 3</a> (with unintended pause)</li>
-				<li><a href="javascript:playFrom(293.9)">Sangathi 4</a></li>
-				</ul>
-			</li>
-			<li><a href="javascript:playFrom(300.6)">Cittasvaram</a>
-				<ul>
-				<li><a href="javascript:playFrom(300.6)">First</a> (<a href="javascript:playFrom(307.2)">krpa</a>)</li>
-				<li><a href="javascript:playFrom(313.9)">First</a> (repeat) (<a href="javascript:playFrom(320.6)">krpa2</a>)</li>
-				<li><a href="javascript:playFrom(327.2)">Second</a> (<a href="javascript:playFrom(333.9)">krpa3</a>)</li>
-				<li><a href="javascript:playFrom(340.4)">Third</a> (<a href="javascript:playFrom(353.4)">krpa4</a>)</li>
-				<li><a href="javascript:playFrom(359.9)">Fourth</a> (<a href="javascript:playFrom(392.5)">krpa5</a>)
-					<ul>
-					<li><a href="javascript:playFrom(359.9)">First phrase</a></li>
-					<li><a href="javascript:playFrom(366.5)">First phrase repeated</a></li>
-					<li><a href="javascript:playFrom(373)">Second phrase</a></li>
-					<li><a href="javascript:playFrom(379.5)">Third phrase</a></li>
-					<li><a href="javascript:playFrom(386)">Fourth phrase</a></li>
-					</ul>
-				</li>
-				</ul>
-			</li>
-			<li><a href="javascript:playFrom(399)">Ending</a></li>
-		</ul>
+		<ul id="tree"></ul>
 		</td>
-		</table>
+    </table>
+    <svg>
+    </svg>
 	</body>
 </html>
