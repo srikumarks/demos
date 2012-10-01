@@ -21,8 +21,14 @@ $e('#tala').innerText        = metaNot.content.tala.name;
 $e('#composer').innerText    = metaNot.content.composer.name;
 $e('#performer').innerText   = metaPerf.content.performer.name;
 $e('#album').innerText       = metaPerf.content.album.name;
-$e('#recording_normal').innerHTML = '<source src="' + metaPerf.content.audio.normal.url + '" type="' + metaPerf.content.audio.normal.mime_type + '"/>';
-$e('#recording_slow').innerHTML = '<source src="' + metaPerf.content.audio.slow.url + '" type="' + metaPerf.content.audio.slow.mime_type + '"/>';
+$e('#audio').innerHTML = [
+    '<audio id="recording_normal" controls>',
+    '<source src="' + metaPerf.content.audio.normal.url + '" type="' + metaPerf.content.audio.normal.mime_type + '"/>',
+    '</audio>',
+    '<audio id="recording_slow" controls>',
+    '<source src="' + metaPerf.content.audio.slow.url + '" type="' + metaPerf.content.audio.slow.mime_type + '"/>',
+    '</audio>'
+    ].join('');
 
 	
 var tree = $e('#tree');
