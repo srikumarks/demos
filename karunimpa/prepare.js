@@ -286,7 +286,8 @@ function playTime(atom) {
         t = atom.time.real[0];
     } else {
         with (karunimpa) {
-            t = order(select([around, time('real'), or(tag('level', 2), tag('level', 3)), not(tag('meta'))], 'metric', [atom]), 'real')[0].time.real[0];
+            var s = smallest(select([around, time('real'), or(tag('level', (atom.tags.level || 3)), tag('level', (atom.tags.level || 2))), not(tag('meta'))], 'metric', [atom]), 'real');
+            t = s[0].time.real[0];
         }
     }
     return t;
