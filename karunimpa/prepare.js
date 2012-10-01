@@ -75,6 +75,12 @@ function svgtext(x, y, str, style) {
     return t;
 }
 
+function svgline(x1, y1, x2, y2, thickness) {
+    var l = svgelem('line', {x1: x1, y1: y1, x2: x2, y2: y2, "stroke-width": thickness, stroke: 'black'});
+    svg.appendChild(l);
+    return l;
+}
+
 karunimpa.defaults.time_type = 'metric';
 var sections;
 with (karunimpa) {
@@ -88,10 +94,14 @@ sections.forEach(function (sec, seci) {
     svgtext(x, y, text(sec.tags.section), "font-family: sans-serif; font-weight:bold; font-size:18pt");
     y += 35;
 
-    var subsecs;
+    var subsecs, tala;
     with (karunimpa) {
+        tala = order(select([around, tag('tala'), not(time('real'))], 'metric', [sec]))[0];
         subsecs = select([children_and_siblings, tag('level', 2), not(time('real'))], 'metric', [sec]);
     }
+    var groups = tala.content.divisions.split(/[\s]+/).filter(nonEmptyStr);
+    var groupIx = 0, akshIx = 0;
+
     if (subsecs.length > 0) {
         subsecs.forEach(function (subsec, ssi) {
             svgtext(x, y, '(' + subsec.tags.index + ')');
@@ -114,19 +124,44 @@ sections.forEach(function (sec, seci) {
 
         lines.forEach(function (l, i) {
             var aksharas = Array.prototype.slice.call(l.content, 0);
+
             aksharas.forEach(function (a, j) {
-                if (j % 4 === 0) {
-                    // Only place some assumption about tala is being made.
+                var tpos = (l.time.metric[0] + j) % 32;
+                var b = groups[groupIx];
+                if (b === '||') {
+                    svgline(x + 10, y - 20, x + 10, y + 3, 2);
+                    svgline(x + 15, y - 20, x + 15, y + 3, 2);
+                    groupIx = (groupIx + 1) % groups.length;
+                    b = groups[groupIx];
+                } else if (b === '|') {
+                    svgline(x + 15, y - 20, x + 15, y + 3, 2);
+                    groupIx = (groupIx + 1) % groups.length;
+                    b = groups[groupIx];
+                } else if (akshIx % b.length === b.length - 1 && groupIx + 1 < groups.length && groups[groupIx+1] === '||') {
+                    svgline(x + 25 + 10, y - 20, x + 25 + 10, y + 3, 2);
+                    svgline(x + 25 + 15, y - 20, x + 25 + 15, y + 3, 2);
+                    groupIx = (groupIx + 1) % groups.length;
+                    b = groups[groupIx];
+                }
+
+                if (akshIx === 0) {
                     x += 25;
                 }
                 var aksh = svgtext(x, y, a, "font-size: 14pt");
                 var t = playTime(l);
                 if (typeof t === 'number') {
                     aksh.onmousedown = function (e) {
+                        console.log('playing from ' + t + ' secs');
                         playFrom(t);
                     };
                 }
                 x += 25;
+
+                if (akshIx % b.length === b.length - 1) {
+                    groupIx = (groupIx + 1) % groups.length;
+                }
+
+                akshIx = (akshIx + 1) % b.length;
             });
             x = x0;
 
@@ -245,10 +280,16 @@ function playTime(atom) {
         t = atom.time.real[0];
     } else {
         with (karunimpa) {
-            t = order(select([around, time('real'), not(tag('meta'))], 'metric', [atom]), 'real')[0].time.real[0];
+            t = order(select([around, time('real'), or(tag('level', 2), tag('level', 3)), not(tag('meta'))], 'metric', [atom]), 'real')[0].time.real[0];
         }
     }
     return t;
 }
 
+function nonEmptyStr(s) {
+    return s.length > 0;
+}
 
+function flatten(arr) {
+    return Array.prototype.concat.apply([], arr);
+}
