@@ -22,20 +22,20 @@ nishabdam.notations.karunimpa_sahana = [
             kalai: {roman: "kaḷai"}}}},
 
 // Section divisions in notation
-{time: {metric: [0, 192]}, tags: {tala: true}, content: {kalai: 2}},
+{time: {metric: [0, 192]}, tags: {kalai: 2}},
 {time: {metric: [0, 64]}, tags: {section: "pallavi", level: 1}},
 {time: {metric: [64, 128]}, tags: {section: "anupallavi", level: 1}},
 {time: {metric: [128, 192]}, tags: {section: "muktayisvaram", level: 1}},
-{time: {metric: [192, 480]}, tags: {tala: true}, content: {kalai: 1}},
+{time: {metric: [192, 672]}, tags: {kalai: 1}},
 {time: {metric: [224, 256]}, tags: {section: "caranam", level: 1}},
-{time: {metric: [256, 656]}, tags: {section: "cittasvaram", level: 1}},
-{time: {metric: [256, 304]}, tags: {section: "cittasvaram", index: 1, level: 2}},
-{time: {metric: [320, 368]}, tags: {section: "cittasvaram", index: 2, level: 2}},
-{time: {metric: [384, 464]}, tags: {section: "cittasvaram", index: 3, level: 2}},
-{time: {metric: [480, 624]}, tags: {section: "cittasvaram", index: 4, level: 2}},
+{time: {metric: [256, 640]}, tags: {section: "cittasvaram", level: 1}},
+{time: {metric: [256, 288]}, tags: {section: "cittasvaram", index: 1, level: 2}},
+{time: {metric: [320, 352]}, tags: {section: "cittasvaram", index: 2, level: 2}},
+{time: {metric: [384, 448]}, tags: {section: "cittasvaram", index: 3, level: 2}},
+{time: {metric: [480, 608]}, tags: {section: "cittasvaram", index: 4, level: 2}},
 
 // Tala divisions
-{time: {metric: [0, 480]}, tags: {tala: true}, content: {divisions: "|| ,,,, ,,,, ,,,, ,,,, | ,,,, ,,,, | ,,,, ,,,, ||"}},
+{time: {metric: [0, 672]}, tags: {tala: true}, content: {divisions: "|| ,,,, ,,,, ,,,, ,,,, | ,,,, ,,,, | ,,,, ,,,, ||"}},
 
 // Prescriptive notation
 {time: {metric: [0, 16]},    tags: {prescription: "svarasthana"}, content: "P,m,G,GmR,GRS,,,"},
@@ -55,19 +55,19 @@ nishabdam.notations.karunimpa_sahana = [
 {time: {metric: [224, 240]}, tags: {prescription: "svarasthana"}, content: "D,D,,,n,,,nṠD,nD"},
 {time: {metric: [240, 256]}, tags: {prescription: "svarasthana"}, content: "P,,,,,DPmGmRGmPm"},
 
-{time: {metric: [256, 288]}, tags: {prescription: "svarasthana"}, content: "P,,,,,m,,,D,P,m,"},
-{time: {metric: [288, 304]}, tags: {prescription: "svarasthana"}, content: "G,,m,,R,,G,m,P,m"},
-{time: {metric: [304, 320]}, tags: {repeat: {metric: [224, 256]}}},
+{time: {metric: [256, 272]}, tags: {prescription: "svarasthana"}, content: "P,,,,,m,,,D,P,m,"},
+{time: {metric: [272, 288]}, tags: {prescription: "svarasthana"}, content: "G,,m,,R,,G,m,P,m"},
+{time: {metric: [288, 320]}, tags: {repeat: {metric: [224, 256]}}},
 
-{time: {metric: [320, 352]}, tags: {prescription: "svarasthana"}, content: "D,PmGmR,GmPṇSRGm"},
-{time: {metric: [352, 368]}, tags: {prescription: "svarasthana"}, content: "P,mG,mR,GRSRGmPm"},
-{time: {metric: [368, 384]}, tags: {repeat: {metric: [224, 256]}}},
+{time: {metric: [320, 336]}, tags: {prescription: "svarasthana"}, content: "D,PmGmR,GmPṇSRGm"},
+{time: {metric: [336, 352]}, tags: {prescription: "svarasthana"}, content: "P,mG,mR,GRSRGmPm"},
+{time: {metric: [352, 384]}, tags: {repeat: {metric: [224, 256]}}},
 
 {time: {metric: [384, 400]}, tags: {prescription: "svarasthana"}, content: "PDmPGmRGmPmGmRGR"},
 {time: {metric: [400, 416]}, tags: {prescription: "svarasthana"}, content: "SRṇSḍṇSRGmSRGmPD"},
-{time: {metric: [416, 448]}, tags: {prescription: "svarasthana"}, content: "PmDnṠṘṠṘnṠṘĠṁṘĠṘ"},
-{time: {metric: [448, 464]}, tags: {prescription: "svarasthana"}, content: "ṠṘnṘṠDnṠDnDPDmPm"},
-{time: {metric: [464, 480]}, tags: {repeat: {metric: [224, 256]}}},
+{time: {metric: [416, 432]}, tags: {prescription: "svarasthana"}, content: "PmDnṠṘṠṘnṠṘĠṁṘĠṘ"},
+{time: {metric: [432, 448]}, tags: {prescription: "svarasthana"}, content: "ṠṘnṘṠDnṠDnDPDmPm"},
+{time: {metric: [448, 480]}, tags: {repeat: {metric: [224, 256]}}},
 
 {time: {metric: [480, 496]}, tags: {prescription: "svarasthana"}, content: "n,,ṠṘṠnṘṠnṠnD,nD"},
 {time: {metric: [496, 512]}, tags: {prescription: "svarasthana"}, content: "P,,R,,GmPmGmRGRS"},
@@ -75,10 +75,10 @@ nishabdam.notations.karunimpa_sahana = [
 {time: {metric: [528, 544]}, tags: {prescription: "svarasthana"}, content: "PDmPGmRGRS,RGmP,"},
 {time: {metric: [544, 560]}, tags: {prescription: "svarasthana"}, content: "PmGmR,DPmGmR,GmP"},
 {time: {metric: [560, 576]}, tags: {prescription: "svarasthana"}, content: "ṇS,RGmPmD,nṠṘ,Ṙ,"},
-{time: {metric: [576, 608]}, tags: {prescription: "svarasthana"}, content: "ĠṁṘĠṘṠnṘṠnṠDPmDn"},
-{time: {metric: [608, 624]}, tags: {prescription: "svarasthana"}, content: "ṠṠ,PP,RR,ṇSRGmPm"},
-{time: {metric: [624, 656]}, tags: {repeat: {metric: [224, 256]}}},
-{time: {metric: [656, 688]}, tags: {repeat: {metric: [224, 256]}}},
+{time: {metric: [576, 592]}, tags: {prescription: "svarasthana"}, content: "ĠṁṘĠṘṠnṘṠnṠDPmDn"},
+{time: {metric: [592, 608]}, tags: {prescription: "svarasthana"}, content: "ṠṠ,PP,RR,ṇSRGmPm"},
+{time: {metric: [608, 640]}, tags: {repeat: {metric: [224, 256]}}},
+{time: {metric: [640, 672]}, tags: {repeat: {metric: [224, 256]}}},
 
 
 // Loop points

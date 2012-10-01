@@ -51,21 +51,21 @@ nishabdam.performances.karunimpa_sahana = [
 
 // Cittasvaram
 {time: {real: [300.6, 399]}, tags: {section: "cittasvaram", level: 1}},
-{time: {real: [300.6, 307.2], metric: [256, 304]}, tags: {section: "cittasvaram", index: 1, level: 2}},
-{time: {real: [307.2, 313.9], metric: [304, 320]}, tags: {inter: "caranam", level: 2}},
-{time: {real: [313.9, 320.6], metric: [256, 304]}, tags: {section: "cittasvaram", index: 1, level: 2}},
-{time: {real: [320.6, 327.2], metric: [304, 320]}, tags: {inter: "caranam", level: 2}},
-{time: {real: [327.2, 333.9], metric: [320, 368]}, tags: {section: "cittasvaram", index: 2, level: 2}},
-{time: {real: [333.9, 340.4], metric: [368, 384]}, tags: {inter: "caranam", level: 2}},
-{time: {real: [340.4, 353.4], metric: [384, 464]}, tags: {section: "cittasvaram", index: 3, level: 2}},
-{time: {real: [353.4, 359.9], metric: [464, 480]}, tags: {inter: "caranam", level: 2}},
-{time: {real: [359.9, 392.5], metric: [480, 624]}, tags: {section: "cittasvaram", index: 4, level: 2}},
+{time: {real: [300.6, 307.2], metric: [256, 288]}, tags: {section: "cittasvaram", index: 1, level: 2}},
+{time: {real: [307.2, 313.9], metric: [288, 320]}, tags: {inter: "caranam", level: 2}},
+{time: {real: [313.9, 320.6], metric: [256, 288]}, tags: {section: "cittasvaram", index: 1, level: 2}},
+{time: {real: [320.6, 327.2], metric: [288, 320]}, tags: {inter: "caranam", level: 2}},
+{time: {real: [327.2, 333.9], metric: [320, 352]}, tags: {section: "cittasvaram", index: 2, level: 2}},
+{time: {real: [333.9, 340.4], metric: [352, 384]}, tags: {inter: "caranam", level: 2}},
+{time: {real: [340.4, 353.4], metric: [384, 448]}, tags: {section: "cittasvaram", index: 3, level: 2}},
+{time: {real: [353.4, 359.9], metric: [448, 480]}, tags: {inter: "caranam", level: 2}},
+{time: {real: [359.9, 392.5], metric: [480, 608]}, tags: {section: "cittasvaram", index: 4, level: 2}},
 {time: {real: [359.9, 366.5], metric: [480, 512]}, tags: {line: 1, level: 3}},
 {time: {real: [366.5, 392.5], metric: [480, 512]}, tags: {line: 1, level: 3}},
 {time: {real: [373, 392.5], metric: [512, 544]}, tags: {line: 2, level: 3}},
 {time: {real: [379.5, 392.5], metric: [544, 576]}, tags: {line: 3, level: 3}},
-{time: {real: [386, 392.5], metric: [576, 624]}, tags: {line: 4, level: 3}},
-{time: {real: [392.5, 399], metric: [624, 656]}, tags: {inter: "caranam", level: 2}},
-{time: {real: [399, undefined], metric: [656, 688]}, tags: {section: "ending", level: 1}}
+{time: {real: [386, 392.5], metric: [576, 608]}, tags: {line: 4, level: 3}},
+{time: {real: [392.5, 399], metric: [608, 640]}, tags: {inter: "caranam", level: 2}},
+{time: {real: [399, undefined], metric: [640, 672]}, tags: {section: "ending", level: 1}}
 
 ];
