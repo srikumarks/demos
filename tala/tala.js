@@ -214,8 +214,7 @@
 
     function onchange() {
         var newChange = {sync: sh.sync(), gate: sh.gate()};
-        change.gate.close();
-        change.sync.play(sh.track(sh.rate(rate), makeTala(newChange)));
+        change.sync.play(sh.track(change.gate.close, sh.rate(rate), makeTala(newChange)));
         change = newChange;
     }
 
