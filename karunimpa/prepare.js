@@ -75,16 +75,12 @@ getLevel(1).forEach(expandLevel(tree, 1));
 var svg = document.querySelector('svg');
 console.assert(svg);
 
-function svgtext(x, y, str, style) {
-    var t = svgelem('text', {x: x, y: y, style: style}, str);
-    svg.appendChild(t);
-    return t;
+function svgtext(elem, x, y, str, style) {
+    return svgelem(elem, 'text', {x: x, y: y, style: style}, str);
 }
 
-function svgline(x1, y1, x2, y2, thickness) {
-    var l = svgelem('line', {x1: x1, y1: y1, x2: x2, y2: y2, "stroke-width": thickness, stroke: 'black'});
-    svg.appendChild(l);
-    return l;
+function svgline(elem, x1, y1, x2, y2, thickness) {
+    return svgelem(elem, 'line', {x1: x1, y1: y1, x2: x2, y2: y2, "stroke-width": thickness, stroke: 'black'});
 }
 
 karunimpa.defaults.time_type = 'metric';
@@ -97,7 +93,7 @@ var x0 = 50, y0 = 50, x = x0, y = y0;
 sections.forEach(function (sec, seci) {
 
     y += 20;
-    svgtext(x, y, text(sec.tags.section), "font-family: sans-serif; font-weight:bold; font-size:18pt");
+    svgtext(svg, x, y, text(sec.tags.section), "font-family: sans-serif; font-weight:bold; font-size:18pt");
     y += 35;
 
     var subsecs, tala;
@@ -110,7 +106,7 @@ sections.forEach(function (sec, seci) {
 
     if (subsecs.length > 0) {
         subsecs.forEach(function (subsec, ssi) {
-            svgtext(x, y, '(' + subsec.tags.index + ')');
+            svgtext(svg, x, y, '(' + subsec.tags.index + ')');
             x0 += 30;
             x += 30;
             renderSec(subsec);
@@ -129,23 +125,32 @@ sections.forEach(function (sec, seci) {
         }
 
         lines.forEach(function (l, i) {
+            var g = svgelem(svg, 'g');
+            var t = playTime(l);
+            if (typeof t === 'number') {
+                g.onmousedown = function (e) {
+                    console.log('playing from ' + t + ' secs');
+                    playFrom(t);
+                };
+            }
+
             var aksharas = Array.prototype.slice.call(l.content, 0);
 
             aksharas.forEach(function (a, j) {
                 var tpos = (l.time.metric[0] + j) % 32;
                 var b = groups[groupIx];
                 if (b === '||') {
-                    svgline(x + 10, y - 20, x + 10, y + 3, 2);
-                    svgline(x + 15, y - 20, x + 15, y + 3, 2);
+                    svgline(g, x + 10, y - 20, x + 10, y + 3, 2);
+                    svgline(g, x + 15, y - 20, x + 15, y + 3, 2);
                     groupIx = (groupIx + 1) % groups.length;
                     b = groups[groupIx];
                 } else if (b === '|') {
-                    svgline(x + 15, y - 20, x + 15, y + 3, 2);
+                    svgline(g, x + 15, y - 20, x + 15, y + 3, 2);
                     groupIx = (groupIx + 1) % groups.length;
                     b = groups[groupIx];
                 } else if (akshIx % b.length === b.length - 1 && groupIx + 1 < groups.length && groups[groupIx+1] === '||') {
-                    svgline(x + 25 + 10, y - 20, x + 25 + 10, y + 3, 2);
-                    svgline(x + 25 + 15, y - 20, x + 25 + 15, y + 3, 2);
+                    svgline(g, x + 25 + 10, y - 20, x + 25 + 10, y + 3, 2);
+                    svgline(g, x + 25 + 15, y - 20, x + 25 + 15, y + 3, 2);
                     groupIx = (groupIx + 1) % groups.length;
                     b = groups[groupIx];
                 }
@@ -153,14 +158,7 @@ sections.forEach(function (sec, seci) {
                 if (akshIx === 0) {
                     x += 25;
                 }
-                var aksh = svgtext(x, y, a, "font-size: 14pt");
-                var t = playTime(l);
-                if (typeof t === 'number') {
-                    aksh.onmousedown = function (e) {
-                        console.log('playing from ' + t + ' secs');
-                        playFrom(t);
-                    };
-                }
+                var aksh = svgtext(g, x, y, a, "font-size: 14pt");
                 x += 25;
 
                 if (akshIx % b.length === b.length - 1) {
@@ -185,7 +183,7 @@ sections.forEach(function (sec, seci) {
                         x += 25;
                     }
                     if (s !== ',') {
-                        svgtext(x, y, s, "font-family: serif; font-style:italic; font-size: 14pt");
+                        svgtext(g, x, y, s, "font-family: serif; font-style:italic; font-size: 14pt");
                     }
                     x += 25;
                 });
@@ -265,7 +263,7 @@ function $e(sel) {
     return document.querySelector(sel);
 }
 
-function svgelem(n, attrs, content) {
+function svgelem(elem, n, attrs, content) {
     var tag = document.createElementNS('http://www.w3.org/2000/svg', n);
     if (attrs) {
         for (var k in attrs) {
@@ -277,6 +275,7 @@ function svgelem(n, attrs, content) {
     if (content) {
         tag.textContent = content;
     }
+    elem.appendChild(tag);
     return tag;
 }
 
@@ -286,8 +285,9 @@ function playTime(atom) {
         t = atom.time.real[0];
     } else {
         with (karunimpa) {
-            var s = smallest(select([around, time('real'), or(tag('level', (atom.tags.level || 3)), tag('level', (atom.tags.level || 2))), not(tag('meta'))], 'metric', [atom]), 'real');
-            t = s[0].time.real[0];
+            var s0 = select([parents_and_siblings, time('real'), not(tag('meta'))], 'metric', [atom]);
+            var s = smallest(s0, 'metric');
+            t = s[0] && s[0].time.real[0];
         }
     }
     return t;
