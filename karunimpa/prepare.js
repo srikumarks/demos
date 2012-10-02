@@ -134,6 +134,15 @@ sections.forEach(function (sec, seci) {
                 };
             }
 
+            var rect = svgelem(g, 'rect', {x: x, y: y, width: 0, height: 0, style: "fill-opacity: 0"});
+            rect.box = {x1: x, y1: y, x2: x, y2: y};
+            g.onmouseover = function (e) {
+                rect.setAttribute('style', 'fill-opacity: 0.075');
+            };
+            g.onmouseout = function (e) {
+                rect.setAttribute('style', 'fill-opacity: 0');
+            };
+
             var aksharas = Array.prototype.slice.call(l.content, 0);
 
             aksharas.forEach(function (a, j) {
@@ -144,22 +153,27 @@ sections.forEach(function (sec, seci) {
                     svgline(g, x + 15, y - 20, x + 15, y + 3, 2);
                     groupIx = (groupIx + 1) % groups.length;
                     b = groups[groupIx];
+                    extendRect(rect, x + 10, y - 20)(rect, x + 10, y + 3)(rect, x + 15, y - 20)(rect, x + 15, y + 3);
                 } else if (b === '|') {
                     svgline(g, x + 15, y - 20, x + 15, y + 3, 2);
                     groupIx = (groupIx + 1) % groups.length;
                     b = groups[groupIx];
+                    extendRect(rect, x + 15, y - 20)(rect, x + 15, y + 3);
                 } else if (akshIx % b.length === b.length - 1 && groupIx + 1 < groups.length && groups[groupIx+1] === '||') {
                     svgline(g, x + 25 + 10, y - 20, x + 25 + 10, y + 3, 2);
                     svgline(g, x + 25 + 15, y - 20, x + 25 + 15, y + 3, 2);
                     groupIx = (groupIx + 1) % groups.length;
                     b = groups[groupIx];
+                    extendRect(rect, x + 25 + 10, y - 20)(rect, x + 25 + 10, y + 3)(rect, x + 25 + 15, y - 20)(rect, x + 25 + 15, y + 3);
                 }
 
                 if (akshIx === 0) {
                     x += 25;
+                    extendRect(rect, x, y);
                 }
                 var aksh = svgtext(g, x, y, a, "font-size: 14pt");
                 x += 25;
+                extendRect(rect, x, y);
 
                 if (akshIx % b.length === b.length - 1) {
                     groupIx = (groupIx + 1) % groups.length;
@@ -178,14 +192,17 @@ sections.forEach(function (sec, seci) {
                 lyrics = lyrics[0];
                 var syl = lyrics.content.split(/\s+/).filter(function (s) { return s.length > 0; });
                 y += 20;
+                extendRect(rect, x, y + 5);
                 syl.forEach(function (s, j) {
                     if (j % 4 === 0) {
                         x += 25;
+                        extendRect(rect, x, y);
                     }
                     if (s !== ',') {
                         svgtext(g, x, y, s, "font-family: serif; font-style:italic; font-size: 14pt");
                     }
                     x += 25;
+                    extendRect(rect, x, y);
                 });
                 x = x0;
                 y += 10;
@@ -300,3 +317,22 @@ function nonEmptyStr(s) {
 function flatten(arr) {
     return Array.prototype.concat.apply([], arr);
 }
+
+function extendRect(rect, x0, y0) {
+    var x1a = Math.min(rect.box.x1, x0 - 3);
+    var y1a = Math.min(rect.box.y1, y0 - 3);
+    var x2a = Math.max(rect.box.x2, x0 + 3);
+    var y2a = Math.max(rect.box.y2, y0 + 3);
+
+    rect.box.x1 = x1a;
+    rect.box.y1 = y1a;
+    rect.box.x2 = x2a;
+    rect.box.y2 = y2a;
+
+    rect.setAttribute('x', rect.box.x1);
+    rect.setAttribute('y', rect.box.y1);
+    rect.setAttribute('width', (rect.box.x2 - rect.box.x1));
+    rect.setAttribute('height', (rect.box.y2 - rect.box.y1));
+    return extendRect;
+}
+
