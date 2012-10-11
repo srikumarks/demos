@@ -14,6 +14,15 @@
 
     var settings = load(defaults);
 
+    // Design:
+    //
+    // The display stage consists of a background layer containing the floor
+    // on which three balls bounce. These balls are called "batons" since they
+    // bounce to musical time. The 'baton' is the main baton, the 'pulseBaton'
+    // indicates nadai subdivisions using patterns and the 'contpulseBaton' 
+    // bounces on all nadai subdivisions and not just those indicated by the
+    // pattern being played.
+    //
     var stage, background, ballsLayer;
     var baton, pulseBaton, contpulseBaton;
 
@@ -24,8 +33,12 @@
             height: 240
         });
         background = new Kinetic.Layer({name: 'background'});
+
+        // The "floor" on which the batons bounce.
         background.add(new Kinetic.Line({points: [0, 230, 360, 230], stroke: 'black', strokeWidth: 4}));
         stage.add(background);
+
+        // A layer for the bouncing balls .. a.k.a. "batons".
         ballsLayer = new Kinetic.Layer({name: 'balls'});
         ballsLayer.add(baton = new Kinetic.Circle({x: 60, y: 290, radius: 5, fill: 'black'}));
         ballsLayer.add(pulseBaton = new Kinetic.Circle({x: 60, y: 290, radius: 5, fill: 'red'}));
@@ -52,10 +65,12 @@
                     }
                 }
 
+                // Update param
                 param.value = i;
             };
         });
 
+        // Also update UI when a param changes.
         param.watch(function (v) {
             options[v].onclick();
             settings[param.spec.key] = v;
@@ -63,7 +78,11 @@
         });
     }
 
+    // The main nadai parameter controlled by the Nadai selector menu.
     var nadai = steller.Param({min: 0, max: 6, key: 'nadai', value: settings.nadai});
+
+    // Setup the tempo GUI. This involves binding the tempo slider to the 'rate'
+    // parameter and also updating the displayed tempo vlaue.
     var rate = steller.Param({min: 1/4, max: 4, key: 'tempo', mapping: 'log', value: settings.tempo});
     rate.bind('#tempo', sh);
     var tempo_display = document.querySelector('#tempo_display');
@@ -73,11 +92,17 @@
         store(settings);
     });
     tempo_display.innerText = Math.round(rate.value * 60);
+    
     var randomnad = document.getElementById('randomnad');
     var randompat = document.getElementById('randompat');
 
     setupMenu('div#nadai', nadai);
 
+    // A nadai can be shown using various rhythmic patterns.
+    // These patterns are represented as sequences of stress
+    // and non-stress. The pulseBaton will bounce on the stress
+    // parts and travel during the non-stress parts. The patterns
+    // are all considered as looping.
     var nadaiTypes = [
     { div: 2, patterns: ['xx', '-x'] },
     { div: 4, patterns: ['xxxx', '-x-x', '-x--', '--x-', '---x'] },
@@ -93,29 +118,36 @@
     ];
 
     var patternNumbers = [0,0,0,0,0,0,0,0,0,0,0];
+        // Array of numbers indicating which pattern was the last chosen one
+        // for each nadai. patternNumbers[nadai] = index of chosen pattern.
+
     var patternNode = document.getElementById('patternText');
     
     function pattern(n,p) {
         if (arguments.length < 1) {
             n = nadai.value;
-            p = patternNumbers[n];
         }
         if (arguments.length < 2) {
             p = patternNumbers[n];
         }
         return nadaiTypes[n].patterns[p];
     }
+
     function displayPattern(n,p) {
         if (arguments.length < 1) {
             n = nadai.value;
-            p = patternNumbers[n];
         }
         if (arguments.length < 2) {
             p = patternNumbers[n];
         }
         patternNode.innerHTML = document.querySelectorAll('div#nadai span')[n].innerHTML + '<br/><br/>' + pattern(n,p);
     }
+    
+    // Display the current pattern whenever the nadai changes.
     nadai.watch(function () { displayPattern(); });
+
+    // Upon change of pattern using the "Next pattern" button, cycle
+    // through the list of patterns available for the current nadai.
     document.getElementById('nextPattern').onclick = function () {
         patternNumbers[nadai.value] = (patternNumbers[nadai.value] + 1) % nadaiTypes[nadai.value].patterns.length;
         displayPattern();
@@ -133,8 +165,21 @@
     chimeSub.halfLife.value *= 0.2;
     chimeSub.attackTime.value = 0;
 
+    // Synchronization objects. 
+    //
+    // The 'sync' object placed at a point where we allow nadai change
+    // to happen and the 'gate' object is placed at a point we can
+    // terminate one composition in order to transition to another.
+    // In this case though, their use is trivial and the sync and gate
+    // objects occur in sequence at the beginning of every nadai cycle.
     var change = {sync: sh.sync(), gate: sh.gate()};
 
+    // Prepare an action - the "randomNadaiChange" - which when
+    // fired will result in the nadai changing to some other one
+    // randomly. This change has to happen one cycle in advance
+    // of the point at which the nadai actually changes, so that
+    // the viewer is given some indication of the next nadai to
+    // prepare for it. This is useful for practice purposes.
     var randomNadaiChanger = (function () {
 
         var randomNadaiChangeCounter = 0;
@@ -177,14 +222,26 @@
         var count = nadaiTypes[nadai.value].div;
         var base = stage.getHeight() - 10;
         var h = 0.8 * base;
+
+        // Make the left->right bounce animation over a duration of
+        // 1 second. We use 1 second as the base time unit for the cycle.
+        // This will automatically scale depending on the clock rate 
+        // value decided by the tempo slider.
         var mainBatonAnimLR = sh.frames(1, bounce(baton, -50, 50, base-2-5, h));
+
+        // Make the right->left bounce animation.
         var mainBatonAnimRL = sh.frames(1, bounce(baton, 50, -50, base-2-5, h));
+
+        // Compute the pulse baton animation. This baton doesn't move left
+        // or right and just bounces in the same place. However, at this point
+        // in the code, we don't yet know the duration of its bounce, which will
+        // be decided in the pulse(i) function.
         var pulseBatonAnim = bounce(pulseBaton, 0, 0, base-2-5, h);
         
+        // The overall structure of the nadai cycle is described by this
+        // "main" track, which consists of a left->right bounce followed
+        // by a right->left bounce and hence is 2 seconds long at 60bpm.
         var main = sh.track([
-                change.sync,
-                change.gate,
-                randomNadaiChanger,
                 chimeMain.play(60+36, 0.25),
                 mainBatonAnimLR,
                 chimeMain.play(60+43, 0.25),
@@ -194,7 +251,7 @@
         var pulseChime = chimeSub.play(60+24, 0.25);
         var pulseDelay = sh.delay(1/count);
 
-        var pulse = function (i) {
+        function pulse(i) {
             // Save the nadai and don't let it change for the pattern
             // only.
             var currNadai = nadai.value;
@@ -221,33 +278,31 @@
                         return pulseDelay;
                 }
             });
-        };
+        }
 
-        var sub = sh.track(gen(0, count * 2, function (i) {
-            return sh.track([
-                (i === 0 ? change.gate : sh.cont),
-                pulse(i)
-                ]);
-        }));
+        // The pulse that bounces according to the current pattern.
+        var pulseTrk = sh.track(gen(0, count * 2, pulse));
 
-        var contsub = sh.frames(1/count, bounce(contpulseBaton, -100, -100, base-2-5, 0.5 * h));
-        var cp = sh.track(gen(0, count * 2, function (i) {
-            return sh.track([
-                (i === 0 ? change.gate : sh.cont),
-                chimeSub.play(60+48, 0.1), 
-                contsub
-                ]);
-        }));
-        
-        return sh.spawn([sh.loop(main), sh.loop(sub), sh.loop(cp)]);
+        // The continuous pulse baton. This bounces on every 1/count interval.
+        var contPulse = sh.repeat(count * 2,
+                sh.track([
+                    chimeSub.play(60+48, 0.1), 
+                    sh.frames(1/count, bounce(contpulseBaton, -100, -100, base-2-5, 0.5 * h))
+                    ]));
+
+        return sh.loop(sh.track([
+                    change.sync,
+                    change.gate,
+                    randomNadaiChanger,
+                    sh.fork([main, pulseTrk, contPulse])
+                    ]));
     }
 
-    // Bounces the given baton (or conductor) for the given duration
-    // over the given height. 
+    // Bounces the given baton for the given duration from x1 to x2, 
+    // over the given height relative to the base position given by y0.
     function bounce(baton, x1, x2, y0, height) {
         var midx = 0.5 * stage.getWidth();
         return function (clock, t1r, t2r, tStart, tEnd, r) {
-            //tEnd = Math.max(clock.t2r, tEnd);
             var dt = Math.min(t2r, tEnd) - t1r;
             var f = Math.max(0, Math.min(1, (t1r - tStart) / (tEnd - tStart - dt)));
             var hfrac = 4 * f * (1 - f);
@@ -259,10 +314,9 @@
     }
 
     // Start the draw loop.
-    var requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame;
-    requestAnimationFrame(function draw() {
+    steller.requestAnimationFrame(function draw() {
         stage.draw();
-        requestAnimationFrame(draw);
+        steller.requestAnimationFrame(draw);
     });
 
     function onchange() {
