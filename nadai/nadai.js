@@ -7,9 +7,10 @@
     var storageKey = "nishabdam.utilities.nadai";
 
     var defaults = {
-        version: 1,
+        version: 2,
         tempo: 1,
-        nadai: 0
+        nadai: 0,
+        tuning: 60
     };
 
     var settings = load(defaults);
@@ -93,6 +94,29 @@
     });
     tempo_display.innerText = Math.round(rate.value * 60);
     
+    // Setup the tuning.
+    var tuning = steller.Param({min: 48, max: 72, value: settings.tuning});
+    var tuningElem = document.querySelector('#tuning');
+    var tuningNameElem = document.querySelector('#tuning_display');
+    tuningElem.addEventListener('change', function (e) {
+        tuning.value = Math.round(parseFloat(this.value));
+        tuningMainL.value = tuning.value + 36;
+        tuningMainR.value = tuning.value + 43;
+        tuningPulse.value = tuning.value + 24;
+        tuningContPulse.value = tuning.value + 48;
+        tuningNameElem.innerText = tuningNames[60 + tuning.value % 12] + (5 + Math.floor((tuning.value - 60) / 12));
+        settings.tuning = tuning.value;
+        store(settings);
+    });
+    var tuningMainL = steller.Param({min: 60, max: 108, value: settings.tuning+36});
+    var tuningMainR = steller.Param({min: 60, max: 108, value: settings.tuning+43});
+    var tuningPulse = steller.Param({min: 60, max: 108, value: settings.tuning+24});
+    var tuningContPulse = steller.Param({min: 60, max: 108, value: settings.tuning+48});
+    var tuningNames = {
+        60: 'C', 61: 'C#', 62: 'D', 63: 'D#', 64: 'E', 65: 'F', 66: 'F#', 67: 'G', 68: 'G#', 69: 'A', 70: 'A#', 71: 'B'
+    };
+    tuningNameElem.innerText = tuningNames[60 + tuning.value % 12] + (5 + Math.floor((tuning.value - 60) / 12));
+
     var randomnad = document.getElementById('randomnad');
     var randompat = document.getElementById('randompat');
 
@@ -242,13 +266,13 @@
         // "main" track, which consists of a left->right bounce followed
         // by a right->left bounce and hence is 2 seconds long at 60bpm.
         var main = sh.track([
-                chimeMain.play(60+36, 0.25),
+                chimeMain.play(tuningMainL, 0.25),
                 mainBatonAnimLR,
-                chimeMain.play(60+43, 0.25),
+                chimeMain.play(tuningMainR, 0.25),
                 mainBatonAnimRL
                 ]);
 
-        var pulseChime = chimeSub.play(60+24, 0.25);
+        var pulseChime = chimeSub.play(tuningPulse, 0.25);
         var pulseDelay = sh.delay(1/count);
 
         function pulse(i) {
@@ -286,7 +310,7 @@
         // The continuous pulse baton. This bounces on every 1/count interval.
         var contPulse = sh.repeat(count * 2,
                 sh.track([
-                    chimeSub.play(60+48, 0.1), 
+                    chimeSub.play(tuningContPulse, 0.1), 
                     sh.frames(1/count, bounce(contpulseBaton, -100, -100, base-2-5, 0.5 * h))
                     ]));
 
@@ -355,6 +379,7 @@
             var vals = JSON.parse(localStorage[storageKey]);
             copy(vals, settings);
         }
+        settings.version = defaults.version;
         return settings;
     }
 
