@@ -294,7 +294,8 @@
                     change.sync,
                     change.gate,
                     randomNadaiChanger,
-                    sh.fork([main, pulseTrk, contPulse])
+                    sh.spawn([main, pulseTrk, contPulse]),
+                    sh.delay(2)
                     ]));
     }
 
