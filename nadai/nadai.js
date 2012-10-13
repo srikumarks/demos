@@ -100,22 +100,21 @@
     var tuningNameElem = document.querySelector('#tuning_display');
     tuningElem.addEventListener('change', function (e) {
         tuning.value = Math.round(parseFloat(this.value));
-        tuningMainL.value = tuning.value + 36;
-        tuningMainR.value = tuning.value + 43;
-        tuningPulse.value = tuning.value + 24;
-        tuningContPulse.value = tuning.value + 48;
-        tuningNameElem.innerText = tuningNames[60 + tuning.value % 12] + (5 + Math.floor((tuning.value - 60) / 12));
+        displayTuning();
         settings.tuning = tuning.value;
         store(settings);
     });
-    var tuningMainL = steller.Param({min: 60, max: 108, value: settings.tuning+36});
-    var tuningMainR = steller.Param({min: 60, max: 108, value: settings.tuning+43});
-    var tuningPulse = steller.Param({min: 60, max: 108, value: settings.tuning+24});
-    var tuningContPulse = steller.Param({min: 60, max: 108, value: settings.tuning+48});
+    var tuningMainL = steller.Param({min: 60, max: 108, getter: function () { return tuning.value + 24; }});
+    var tuningMainR = steller.Param({min: 60, max: 108, getter: function () { return tuning.value + 31; }});
+    var tuningPulse = steller.Param({min: 60, max: 108, getter: function () { return tuning.value + 12; }});
+    var tuningContPulse = steller.Param({min: 60, max: 108, getter: function () { return tuning.value + 36; }});
     var tuningNames = {
         60: 'C', 61: 'C#', 62: 'D', 63: 'D#', 64: 'E', 65: 'F', 66: 'F#', 67: 'G', 68: 'G#', 69: 'A', 70: 'A#', 71: 'B'
     };
-    tuningNameElem.innerText = tuningNames[60 + tuning.value % 12] + (5 + Math.floor((tuning.value - 60) / 12));
+    displayTuning();
+    function displayTuning() {
+        tuningNameElem.innerText = tuningNames[60 + tuning.value % 12] + (5 + Math.floor((tuning.value - 60) / 12));        
+    }
 
     var randomnad = document.getElementById('randomnad');
     var randompat = document.getElementById('randompat');
