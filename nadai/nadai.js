@@ -104,6 +104,7 @@
         settings.tuning = tuning.value;
         store(settings);
     });
+    tuningElem.value = tuning.value;
     var tuningMainL = steller.Param({min: 60, max: 108, getter: function () { return tuning.value + 24; }});
     var tuningMainR = steller.Param({min: 60, max: 108, getter: function () { return tuning.value + 31; }});
     var tuningPulse = steller.Param({min: 60, max: 108, getter: function () { return tuning.value + 12; }});

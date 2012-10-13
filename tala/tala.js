@@ -4,17 +4,18 @@
     var models = steller.Models(sh);
     var storageKey = "nishabdam.utilities.tala";
 
-    var settings = {
-        version: 1,
+    var defaults = {
+        version: 2,
         tempo: 1,
         tala: 4,
         jati: 0,
         nadai: 0,
         kalai: 0,
-        speed: 0
+        speed: 0,
+        tuning: 60
     };
 
-    load();
+    var settings = load(defaults);
 
     var stage, baton, pulseBaton;
 
@@ -22,7 +23,7 @@
         stage = new Kinetic.Stage({
             container: 'anim',
             width: 240,
-              height: 240
+            height: 240
         });
 
         var bkg = new Kinetic.Layer({name: 'bkg'});
@@ -62,7 +63,7 @@
         param.watch(function (v) {
             options[v].onclick();
             settings[param.spec.key] = v;
-            store();
+            store(settings);
         });
     }
 
@@ -77,10 +78,34 @@
     rate.watch(function (v) {
         tempo_display.innerText = Math.round(v * 60);
         settings.tempo = v;
-        store();
+        store(settings);
     });
     tempo_display.innerText = Math.round(rate.value * 60);
 
+    // Setup the tuning.
+    var tuning = steller.Param({min: 36, max: 84, value: settings.tuning});
+    var tuningElem = document.querySelector('#tuning');
+    var tuningNameElem = document.querySelector('#tuning_display');
+    tuningElem.addEventListener('change', function (e) {
+        tuning.value = Math.round(parseFloat(this.value));
+        displayTuning();
+        settings.tuning = tuning.value;
+        store(settings);
+    });
+    tuningElem.value = tuning.value;
+    var tuningMainPa = steller.Param({min: 60, max: 108, getter: function () { return tuning.value + 43; }});
+    var tuningMainSa = steller.Param({min: 60, max: 108, getter: function () { return tuning.value + 48; }});
+    var tuningAksh = steller.Param({min: 60, max: 108, getter: function () { return tuning.value + 36; }});
+    var tuningSub = steller.Param({min: 60, max: 108, getter: function () { return tuning.value + 24; }});
+    var tuningGong = steller.Param({min: 60, max: 108, getter: function () { return tuning.value + 12; }});
+    var tuningNames = {
+        60: 'C', 61: 'C#', 62: 'D', 63: 'D#', 64: 'E', 65: 'F', 66: 'F#', 67: 'G', 68: 'G#', 69: 'A', 70: 'A#', 71: 'B'
+    };
+    function displayTuning() {
+        tuningNameElem.innerText = tuningNames[60 + tuning.value % 12] + (5 + Math.floor((tuning.value - 60) / 12));        
+    }
+    displayTuning();
+    
     setupMenu('div#tala', tala);
     setupMenu('div#jati', jati);
     setupMenu('div#nadai', nadai);
@@ -155,9 +180,9 @@
         var mainTrk = sh.track(pattern.map(function (p, i) {
             return sh.track([
                 change.gate, 
-                chimeMain.play(60+43, 0.25), 
-                chimeMain.play(60+48, 0.25), 
-                (i === 0 ? chimeMain.play(60+12, 0.25) : sh.cont),
+                chimeMain.play(tuningMainPa, 0.25), 
+                chimeMain.play(tuningMainSa, 0.25), 
+                (i === 0 ? chimeMain.play(tuningGong, 0.25) : sh.cont),
                 sh.delay(p * kalaiFactor)
                 ]);
         }));
@@ -170,7 +195,7 @@
         var akshTrk = sh.track(pattern.map(function (p) {
             return sh.track(gen(0, p, function (i) {
                 var b = (i === 0 ? (i + 1 < p ? left2right : left2left) : (i + 1 === p ? right2left : right2right));
-                return sh.track([change.sync, change.gate, chimeAksh.play(60+36, 0.25), sh.spawn(b), sh.delay(kalaiFactor)]);
+                return sh.track([change.sync, change.gate, chimeAksh.play(tuningAksh, 0.25), sh.spawn(b), sh.delay(kalaiFactor)]);
             }));
         }));
         var pulseBounce = bounce(pulseBaton, speedFactor / ticksPerAksh, 0, 0, base-2-5, 0.75 * h, 1);
@@ -178,7 +203,7 @@
             return sh.track([
 //                change.sync,
                 (i % 1 === 0 ? change.gate : sh.cont),
-                chimeSub.play(60+24, 0.25), 
+                chimeSub.play(tuningSub, 0.25), 
                 sh.spawn(pulseBounce),
                 sh.delay(speedFactor / ticksPerAksh)
                 ]);
@@ -227,17 +252,25 @@
     }
     
 
-    function store() {
+    function store(settings) {
         localStorage[storageKey] = JSON.stringify(settings);
     }
     
-    function load() {
+    function copy(src, dest) {
+        for (var k in src) {
+            dest[k] = src[k];
+        }
+    }
+
+    function load(defaults) {
+        var settings = {}
+        copy(defaults, settings);
         if (localStorage[storageKey]) {
             var vals = JSON.parse(localStorage[storageKey]);
-            for (var k in vals) {
-                settings[k] = vals[k];
-            }
+            copy(vals, settings);
         }
+        settings.version = defaults.version;
+        return settings;
     }
 
     function gen(m, n, f) {

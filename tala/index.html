@@ -27,20 +27,26 @@
                     <div class="row">
                         <h1 class="span5">Tala keeper</h1>
                         <div class="span5">
-                            <div class="span5">
-                                <button id="com_adi">Ādi</button>
-                                <button id="com_rupaka">Rūpaka</button>
-                                <button id="com_mcapu">Miśra Cāpu</button>
-                                <button id="com_ata">Ata</button>
-                            </div>
-                            <br/>
-                            <br/>
-                            <div class="span5">
-                                <span class="span4"><input id="tempo" class="span4" type="range" min="0" max="1" step="0.001"/></span>
-                                <span class="span2">(<span id="tempo_display"></span> aksh/min)</span>
-                            </div>
+                            <b>Presets:</b>
+                            <button id="com_adi">Ādi</button>
+                            <button id="com_rupaka">Rūpaka</button>
+                            <button id="com_mcapu">Miśra Cāpu</button>
+                            <button id="com_ata">Ata</button>
                         </div>
-                    </div>
+                     </div>
+                     <br/>
+                     <div class="row">
+                         <div class="span7">
+                             <div class="row">
+                                 <span>Tempo:</span> <span><input id="tempo" class="span4" type="range" min="0" max="1" step="0.001"/></span>
+                                 <span>(<span id="tempo_display"></span> aksh/min)</span>
+                             </div>
+                             <div class="row">
+                                 <span>Tuning:</span> <span><input id="tuning" class="span4" type="range" min="36" max="84" step="1"/></span>
+                                 <span><span id="tuning_display"></span></span>
+                             </div>
+                         </div>
+                     </div>
                 </div>
             </div>
             <div class="row span 10">
