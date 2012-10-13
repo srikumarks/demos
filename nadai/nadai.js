@@ -95,7 +95,7 @@
     tempo_display.innerText = Math.round(rate.value * 60);
     
     // Setup the tuning.
-    var tuning = steller.Param({min: 48, max: 72, value: settings.tuning});
+    var tuning = steller.Param({min: 48, max: 84, value: settings.tuning});
     var tuningElem = document.querySelector('#tuning');
     var tuningNameElem = document.querySelector('#tuning_display');
     tuningElem.addEventListener('change', function (e) {
