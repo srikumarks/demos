@@ -1,6 +1,6 @@
 (function (steller) {
     var AC = new webkitAudioContext();
-    var sh = new steller.Scheduler(AC);
+    var sh = new steller.Scheduler(AC, {diagnostics: true});
     var models = steller.Models(sh);
     var storageKey = "nishabdam.utilities.tala";
 
@@ -34,11 +34,7 @@
         ballsLayer.add(pulseBaton = new Kinetic.Circle({x: 60, y: 290, radius: 5, fill: 'black'}));
         stage.add(ballsLayer);
 
-        var raf = window.requestAnimationFrame || window.webkitRequestAnimationFrame;
-        raf(function draw() {
-            stage.draw();
-            raf(draw);
-        });
+        sh.ontick = function () { stage.draw(); };
     }
 
     setupStage();

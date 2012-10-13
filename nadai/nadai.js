@@ -2,7 +2,7 @@
     var AC = new webkitAudioContext();
     AC.createGainNode(); // Starts the time running.
 
-    var sh = new steller.Scheduler(AC);
+    var sh = new steller.Scheduler(AC, {diagnostics: true});
     var models = steller.Models(sh);
     var storageKey = "nishabdam.utilities.nadai";
 
@@ -337,11 +337,9 @@
         };
     }
 
-    // Start the draw loop.
-    steller.requestAnimationFrame(function draw() {
-        stage.draw();
-        steller.requestAnimationFrame(draw);
-    });
+    // Install the "draw frame" function to run at the end
+    // of every scheduler tick.
+    sh.ontick = function () { stage.draw(); };
 
     function onchange() {
         var newChange = {sync: sh.sync(), gate: sh.gate()};
