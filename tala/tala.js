@@ -94,7 +94,8 @@
     });
     tuningElem.value = tuning.value;
     var tuningMainPa = steller.Param({min: 60, max: 108, getter: function () { return tuning.value + 43; }});
-    var tuningMainSa = steller.Param({min: 60, max: 108, getter: function () { return tuning.value + 48; }});
+    var tuningMainSa = steller.Param({min: 60, max: 108, getter: function () { return tuning.value + 36; }});
+    var tuningMainSa2 = steller.Param({min: 60, max: 108, getter: function () { return tuning.value + 48; }});
     var tuningAksh = steller.Param({min: 60, max: 108, getter: function () { return tuning.value + 36; }});
     var tuningSub = steller.Param({min: 60, max: 108, getter: function () { return tuning.value + 24; }});
     var tuningGong = steller.Param({min: 60, max: 108, getter: function () { return tuning.value + 12; }});
@@ -180,8 +181,9 @@
         var mainTrk = sh.track(pattern.map(function (p, i) {
             return sh.track([
                 change.gate, 
-                chimeMain.play(tuningMainPa, 0.25), 
+//                chimeMain.play(tuningMainPa, 0.25), 
                 chimeMain.play(tuningMainSa, 0.25), 
+                chimeMain.play(tuningMainSa2, 0.25), 
                 (i === 0 ? chimeMain.play(tuningGong, 0.25) : sh.cont),
                 sh.delay(p * kalaiFactor)
                 ]);
