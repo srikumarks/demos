@@ -11,7 +11,7 @@ console.assert(srikumarks.audio.pitch);
     var spec = sh.models.spectrum(1024, 0.25);
     mic.connect(spec);
 
-    var options = {lowSignificance: 8, highSignificance: 14};
+    var options = {significance: 12};
 
     spec.time.watch(function (t) {
         var p = pitch(spec, options);
@@ -24,7 +24,7 @@ console.assert(srikumarks.audio.pitch);
             display.frequency.innerText = '';
             display.pitch.innerText = '';
             display.note.innerText = '';
-            display.sig.innerText = '< ' + options.lowSignificance;
+            display.sig.innerText = '< ' + options.significance;
         }
     });
 

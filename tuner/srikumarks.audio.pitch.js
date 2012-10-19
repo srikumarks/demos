@@ -22,7 +22,7 @@
 // the power spectrum.
 //
 // Call like this -
-//      var p = sh.models.pitch(spectrumModel, {lowSignificance: 8, highSignificance: 12});
+//      var p = sh.models.pitch(spectrumModel, {significance: 12});
 // where 
 //      spectrumModel.bins = array of frequency bin powers (power spectrum)
 //      spectrumModel.freqs = array of bin centre frequencies
@@ -47,14 +47,14 @@ srikumarks.audio.pitch = (function () {
     // The top level function.
     function pitch(spec, options) {
         var stats = specStats(spec.bins, spec.freqs);
-        var peaks = filterPeaks(findPeaks(spec.bins, spec.freqs), stats, options.lowSignificance);
+        var peaks = filterPeaks(findPeaks(spec.bins, spec.freqs), stats, 0.7 * options.significance);
         if (peaks.length > 0) {
             // The "tallest peak" heuristic is rather naive actually and can result in
             // harmonic and octave jumps. You can improve on this by looking at multiple
             // peaks in the above peaks array.
             var tallest = findTallest(peaks);
             var sig = (tallest.power - stats.power.mean) / stats.power.sigma;
-            if (sig > options.highSignificance) {
+            if (sig > options.significance) {
                 return {
                     frequency: prec(tallest.frequency, 100),
                     pitch: midic(tallest.frequency),
