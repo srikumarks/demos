@@ -22,7 +22,7 @@
 // the power spectrum.
 //
 // Call like this -
-//      var p = sh.models.pitch(spectrumModel, {significance: 12});
+//      var p = srikumarks.audio.pitch(spectrumModel, {significance: 12});
 // where 
 //      spectrumModel.bins = array of frequency bin powers (power spectrum)
 //      spectrumModel.freqs = array of bin centre frequencies
