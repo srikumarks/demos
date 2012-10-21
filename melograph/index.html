@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <title>Naive melograph</title>
+        <script src="../lib/steller/steller.js"></script>
+        <script src="../lib/steller/models.js"></script>
+        <script src="srikumarks.audio.pitch.js"></script>
+        <script defer src="melograph.js"></script>
+    </head>
+    <body style="padding: 12px">
+        <h2>A naive melograph</h2>
+        <div class="row"><span class="span2">Frequency:</span> <span id="frequency" class="span1"></span></div>
+        <div class="row"><span class="span2">Pitch:</span> <span id="pitch" class="span2"></span></div>
+        <div class="row"><span class="span2">Note:</span> <span id="note" class="span2"></span></div>
+        <div class="row"><span class="span2">Significance:</span> <span id="sig" class="span2"></span></div>
+        <canvas id="gram" width="1200" height="600"/>
+    </body>
+</html>
