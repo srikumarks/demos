@@ -85,7 +85,7 @@ srikumarks.audio.pitch = (function () {
     function considerPeak(gaussians, peak, decayFactor, spawnThreshold, dieThreshold, minVarSt) {
         // First try to fit the peak within one of the gaussians.
         var i, N, p, g, pmax = 0, maxpower = 0, f, factor;
-        var minVar = Math.pow(2, minVarSt / 12) - 1;
+        var minVar = Math.pow(2, minVarSt / 12) - 1, life = 1;
         for (i = 0, N = gaussians.length; i < N; ++i) {
             g = gaussians[i];
             for (factor = 1; factor < 5; ++factor) {
@@ -96,10 +96,11 @@ srikumarks.audio.pitch = (function () {
                 g.frequency2 += p * (sq(f) - g.frequency2);
                 g.life += p;
                 g.coeff = 1 / Math.max(sq(minVar * g.frequency), g.frequency2 - sq(g.frequency));
-                g.power += p * peak.sig / Math.sqrt(factor);
+                g.power += p * peak.sig / Math.pow(factor, 2);
                 maxpower = Math.max(maxpower, g.power);
                 pmax += p;
             }
+            life += g.life;
             g.life *= 0.9;
         }
 
@@ -109,7 +110,7 @@ srikumarks.audio.pitch = (function () {
             gaussians[i].power *= decayFactor;
         }
 
-        if (pmax < spawnThreshold) {
+        if (pmax < spawnThreshold * life) {
             // Less than 10% chance of matching any of the gaussians.
             // Make a new one for this.
             gaussians.push({
@@ -125,7 +126,7 @@ srikumarks.audio.pitch = (function () {
 
         // Remove all gaussians below 1/10 of maxpower.
         var filtered = gaussians.filter(function (g) {
-            return g.life > 0.5;
+            return g.life > dieThreshold * life;
             // return g.power > dieThreshold * maxpower;
         });
 

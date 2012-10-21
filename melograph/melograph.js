@@ -133,7 +133,7 @@ console.assert(srikumarks.audio.pitch);
     var spec = sh.models.spectrum(1024, 0.25);
     mic.connect(spec);
 
-    var options = {significance: 20, decayFactor: 0.9, spawnThreshold: 0.1, dieThreshold: 0.3, minVar_st: 0.75};
+    var options = {significance: 15, decayFactor: 0.9, spawnThreshold: 1, dieThreshold: 0.2, minVar_st: 1};
 
     spec.time.watch(function (t) {
         var p = pitch(spec, options);
