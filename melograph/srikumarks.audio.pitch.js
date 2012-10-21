@@ -42,75 +42,89 @@
 try { srikumarks = srikumarks || {}; } catch (e) { srikumarks = {}; }
 srikumarks.audio = srikumarks.audio || {};
 
-srikumarks.audio.pitch = (function () {
+srikumarks.audio.PitchTracker = function PitchTracker(options) {
 
-    // The top level function, options.dieThreshold.
-    function pitch() {
+    // Process options
+    var kDecayFactor        = options && options.hasOwnProperty('decayFactor') ? options.decayFactor : 0.9;
+    var kSignificance       = options && options.hasOwnProperty('significance') ? options.significance : 15;
+    var kDieThreshold       = options && options.hasOwnProperty('dieThreshold') ? options.dieThreshold : 0.2;
+    var kSpawnThreshold     = options && options.hasOwnProperty('spawnThreshold') ? options.spawnThreshold : 1.0;
+    var kMinVar_st          = options && options.hasOwnProperty('minVar_st') ? options.minVar_st : 1.0;
+    var kMinLife            = options && options.hasOwnProperty('minLife') ? options.minLife : 2.0;
+    var kSubharmonics       = options && options.hasOwnProperty('subharmonics') ? options.subharmonics : 5;
+    var kTrackingCoeff      = options && options.hasOwnProperty('trackingCoeff') ? options.trackingCoeff : 0.5;
+    var kLifeDecayFactor    = options && options.hasOwnProperty('lifeDecayFactor') ? options.lifeDecayFactor : 0.9;
+    var kMinOctave          = (options && options.hasOwnProperty('octaveRange') ? options.octaveRange[0] : 1) * 12;
+    var kMaxOctave          = (options && options.hasOwnProperty('octaveRange') ? options.octaveRange[1] : 10) * 12;
 
-        var gaussians = [];
+    // The gaussians that track pitch.
+    var gaussians = [];
 
-        return function (spec, options) {
-            var stats = specStats(spec.bins, spec.freqs);
-            var peaks = filterPeaks(findPeaks(spec.bins, spec.freqs), stats, 0.4 * options.significance);
-            if (peaks.length > 0) {
-                var i, N;
-                for (i = 0, N = peaks.length; i < N; ++i) {
-                    peaks[i].sig = (peaks[i].power - stats.power.mean) / stats.power.sigma;
-                    considerPeak(gaussians, peaks[i], options.decayFactor, options.spawnThreshold, options.dieThreshold, options.minVar_st);
-                }
-
-                // The "tallest peak" heuristic is rather naive actually and can result in
-                // harmonic and octave jumps. You can improve on this by looking at multiple
-                // peaks in the above peaks array.
-                var tallest = findTallest(gaussians);
-                if (tallest) {
-                    var sig = tallest.power; // (tallest.power - stats.power.mean) / stats.power.sigma;
-                    if (sig > options.significance) {
-                        return {
-                            frequency: prec(tallest.frequency, 100),
-                                pitch: midic(tallest.frequency),
-                                note: {midi: midi(tallest.frequency), name: pitchName(midi(tallest.frequency))},
-                                error: Math.round(1200 * Math.log(hz(midi(tallest.frequency)) / tallest.frequency) / Math.LN2),
-                                sig: prec(sig, 100),
-                                peaks: copyGaussians(gaussians)
-                        };
-                    }
-                }
+    // The top level function. Call with the spectrum object as argument 
+    // and it will return an object with info about the frequencies in the spectrum.
+    // If the spectrum isn't considered "pitchy", then the return will be null.
+    function pitch(spec) {
+        var stats = specStats(spec.bins, spec.freqs);
+        var peaks = filterPeaks(findPeaks(spec.bins, spec.freqs), stats, 0.4 * kSignificance);
+        if (peaks.length > 0) {
+            var i, N;
+            for (i = 0, N = peaks.length; i < N; ++i) {
+                peaks[i].sig = (peaks[i].power - stats.power.mean) / stats.power.sigma;
+                considerPeak(gaussians, peaks[i]);
             }
 
-            return null;
+            // The "tallest peak" heuristic is rather naive actually and can result in
+            // harmonic and octave jumps. You can improve on this by looking at multiple
+            // peaks in the above peaks array.
+            var tallest = findTallest(gaussians);
+            if (tallest) {
+                var sig = tallest.power; // (tallest.power - stats.power.mean) / stats.power.sigma;
+                if (true || sig > kSignificance) {
+                    return {
+                        frequency: prec(tallest.frequency, 100),
+                        pitch: midic(tallest.frequency),
+                        note: {midi: midi(tallest.frequency), name: pitchName(midi(tallest.frequency))},
+                        error: Math.round(1200 * Math.log(hz(midi(tallest.frequency)) / tallest.frequency) / Math.LN2),
+                        sig: prec(sig, 100),
+                        peaks: copyGaussians(gaussians)
+                    };
+                }
+            }
         }
+
+        return null;
     }
 
-    function considerPeak(gaussians, peak, decayFactor, spawnThreshold, dieThreshold, minVarSt) {
+    function considerPeak(gaussians, peak) {
         // First try to fit the peak within one of the gaussians.
-        var i, N, p, g, pmax = 0, maxpower = 0, f, factor;
-        var minVar = Math.pow(2, minVarSt / 12) - 1, life = 1;
+        var i, N, p, presp, g, pmax = 0, maxpower = 0, f, factor;
+        var minVar = Math.pow(2, kMinVar_st / 12) - 1, life = 1;
         for (i = 0, N = gaussians.length; i < N; ++i) {
             g = gaussians[i];
-            for (factor = 1; factor < 5; ++factor) {
+            for (factor = 1; factor <= kSubharmonics; ++factor) {
                 // Consider sub harmonics too.
                 f = peak.frequency / factor;
-                p = 0.5 * Math.exp(- 0.5 * g.coeff * sq(f - g.frequency));
-                g.frequency += p * (f - g.frequency);
-                g.frequency2 += p * (sq(f) - g.frequency2);
+                p = Math.exp(- 0.5 * g.coeff * sq(f - g.frequency));
+                presp = p * kTrackingCoeff;
+                g.frequency += presp * (f - g.frequency);
+                g.frequency2 += presp * (sq(f) - g.frequency2);
                 g.life += p;
                 g.coeff = 1 / Math.max(sq(minVar * g.frequency), g.frequency2 - sq(g.frequency));
-                g.power += p * peak.sig / Math.pow(factor, 2);
+                g.power += p * Math.pow(2, 0 * g.life) * peak.sig / Math.pow(factor, 2);
                 maxpower = Math.max(maxpower, g.power);
-                pmax += p;
+                pmax += p * g.power;
             }
             life += g.life;
-            g.life *= 0.9;
+            g.life *= kLifeDecayFactor;
         }
 
         // The peak didn't belong to any gaussian. Add a new gaussian for it
         // and decay the rest of the gaussians.
         for (i = 0, N = gaussians.length; i < N; ++i) {
-            gaussians[i].power *= decayFactor;
+            gaussians[i].power *= kDecayFactor;
         }
 
-        if (pmax < spawnThreshold * life) {
+        if (pmax < kSpawnThreshold * peak.power * Math.max(0.5, life)) {
             // Less than 10% chance of matching any of the gaussians.
             // Make a new one for this.
             gaussians.push({
@@ -118,33 +132,55 @@ srikumarks.audio.pitch = (function () {
                 frequency2: sq(peak.frequency),
                 coeff: 1 / sq(minVar * peak.frequency),
                 power: peak.sig,
-                life: 1
+                life: 1,
+                octaveOffset: octaveOffset(peak.frequency),
+                func: gaussianFunc
             });
 
             maxpower = Math.max(maxpower, 0.1 * peak.sig);
         }
 
-        // Remove all gaussians below 1/10 of maxpower.
+       // Remove all gaussians below 1/10 of maxpower.
         var filtered = gaussians.filter(function (g) {
-            return g.life > dieThreshold * life;
-            // return g.power > dieThreshold * maxpower;
+            //return g.life * g.power > kDieThreshold * (maxpower * life);
+            return g.life > kDieThreshold * Math.max(0.1, life);
+            //return g.power > dieThreshold * maxpower;
         });
 
         gaussians.splice(0, gaussians.length);
         gaussians.push.apply(gaussians, filtered);
+        return gaussians;
+    }
+
+    function octaveOffset(f) {
+        var st = midi(f);
+        var offset = 0;
+        while (st + offset > kMaxOctave) {
+            offset -= 12;
+        }
+        while (st + offset < kMinOctave) {
+            offset += 12;
+        }
+        return offset;
+    }
+
+    function gaussianFunc(f) {
+        return Math.exp( - 0.5 * this.coeff * sq(f - this.frequency) );
     }
 
     function copyGaussians(gaussians) {
-        var gs = gaussians.slice(0);
-        var g, i, N;
-        for (i = 0, N = gs.length; i < N; ++i) {
-            g = {};
-            g.frequency = gs[i].frequency;
-            g.frequency2 = gs[i].frequency2;
-            g.coeff = gs[i].coeff;
-            g.power = gs[i].power;
-            g.life = gs[i].life;
-            gs[i] = g;
+        var gs = [];
+        var i, N;
+        for (i = 0, N = gaussians.length; i < N; ++i) {
+            gs.push({
+                frequency:      gaussians[i].frequency,
+                frequency2:     gaussians[i].frequency2,
+                coeff:          gaussians[i].coeff,
+                power:          gaussians[i].power,
+                life:           gaussians[i].life,
+                octaveOffset:   gaussians[i].octaveOffset,
+                func:           gaussians[i].func
+            });
         }
 
         return gs;
@@ -177,13 +213,17 @@ srikumarks.audio.pitch = (function () {
     function findTallest(peaks) {
         var i, N, tallest_ix, power = 0;
         for (i = 0, N = peaks.length; i < N; ++i) {
-            if (peaks[i].life > 2 && peaks[i].power > power) {
+            if (peaks[i].life > kMinLife && peaks[i].power > power) {
                 tallest_ix = i;
                 power = peaks[i].power;
             }
         }
 
-        return peaks[tallest_ix];
+        if (tallest_ix !== undefined) {
+            return peaks[tallest_ix];
+        }
+
+        return undefined;
     }
 
     // Pares down the given list of peaks based on whole spectrum
@@ -253,4 +293,4 @@ srikumarks.audio.pitch = (function () {
     }
 
     return pitch;
-}());
+};

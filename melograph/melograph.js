@@ -1,11 +1,11 @@
 console.assert(org.anclab.steller);
-console.assert(srikumarks.audio.pitch);
+console.assert(srikumarks.audio.PitchTracker);
 
-(function (Scheduler, AudioContext, pitch) {
+(function (Scheduler, AudioContext, PitchTracker) {
     var sh = new Scheduler(new AudioContext());
     console.assert(sh.models);
 
-    var display = elements(['frequency', 'pitch', 'note', 'sig', 'gram']);
+    var display = elements(['frequency', 'pitch', 'note', 'sig', 'gram', 'gcount']);
 
     function setupGram(container, octRange) {
         var canvas = display[container];
@@ -19,14 +19,9 @@ console.assert(srikumarks.audio.pitch);
 
         // Frequency to y. Fold octaves beyond the range.
         var dy = height / (12 * (octRange[1] - octRange[0]));
-        function f2y(f) {
-            var p = 57 + 12 * Math.log(f/220) / Math.LN2;
-            while (p > octRange[1] * 12) {
-                p -= 12;
-            }
-            while (p < octRange[0] * 12) {
-                p += 12;
-            }
+        function f2y(peak) {
+            var f = peak.frequency;
+            var p = peak.octaveOffset + 57 + 12 * Math.log(f/220) / Math.LN2;
             return gram.height - dy * (p - octRange[0] * 12);
         }
 
@@ -91,7 +86,7 @@ console.assert(srikumarks.audio.pitch);
                 return;
             }
 
-            var i, j, M, N, pmax1, pmax2, w, y1, y2;
+            var i, j, M, N, pmax1, pmax2, pmax, w, y1, y2;
             context.strokeStyle = 'yellow';
             context.lineWidth = 1;
             pmax1 = 0;
@@ -103,14 +98,15 @@ console.assert(srikumarks.audio.pitch);
                 pmax2 = Math.max(pmax2, peaks[i].power);
             }
 
+            pmax = Math.max(pmax1, pmax2);
 
             for (i = 0, M = prevPeaks.length; i < M; ++i) {
-                y1 = f2y(prevPeaks[i].frequency);
+                y1 = f2y(prevPeaks[i]);
                 for (j = 0, N = peaks.length; j < N; ++j) {
-                    if (peaks[j].life + prevPeaks[i].life > 3) {
-                        w = Math.exp(- 0.5 * prevPeaks[i].coeff * sq(prevPeaks[i].frequency - peaks[j].frequency));
-                        y2 = f2y(peaks[j].frequency);
-                        context.globalAlpha = w * peaks[j].power * prevPeaks[i].power / (pmax1 * pmax2);
+                    if (true || peaks[j].life + prevPeaks[i].life > 1) {
+                        w = prevPeaks[i].func(peaks[j].frequency);
+                        y2 = f2y(peaks[j]);
+                        context.globalAlpha = w * peaks[j].power / pmax;// * prevPeaks[i].power / (pmax * pmax);
                         context.beginPath();
                         context.moveTo(prevX, y1);
                         context.lineTo(x, y2);
@@ -126,18 +122,20 @@ console.assert(srikumarks.audio.pitch);
         return gram;
     }
 
-    var gram = setupGram('gram', [2, 6]);
+    var gram = setupGram('gram', [3, 6]);
 
 
     var mic = sh.models.mic();
     var spec = sh.models.spectrum(1024, 0.25);
     mic.connect(spec);
 
-    var options = {significance: 15, decayFactor: 0.9, spawnThreshold: 1, dieThreshold: 0.2, minVar_st: 1};
+    var options = {significance: 15, decayFactor: 0.9, spawnThreshold: 1, dieThreshold: 0.4, minVar_st: 1, octaveRange: gram.octaveRange, lifeDecayFactor: 0.75};
+    var pitch = PitchTracker(options);
 
     spec.time.watch(function (t) {
-        var p = pitch(spec, options);
+        var p = pitch(spec);
         gram.updateTime(t);
+        display.gcount.innerText = (p ? p.peaks.length : '');
         if (p && p.sig > options.significance) {
             display.frequency.innerText = p.frequency;
             display.pitch.innerText = p.pitch;
@@ -166,4 +164,4 @@ console.assert(srikumarks.audio.pitch);
 
     function sq(x) { return x * x; }
 
-}(org.anclab.steller.Scheduler, org.anclab.steller.AudioContext, srikumarks.audio.pitch()));
+}(org.anclab.steller.Scheduler, org.anclab.steller.AudioContext, srikumarks.audio.PitchTracker));
