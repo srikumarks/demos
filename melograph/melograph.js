@@ -17,9 +17,6 @@ console.assert(srikumarks.audio.pitch);
         var context = canvas.getContext('2d');
         console.assert(canvas && context);
 
-        var bandActivation = new Float32Array(1200);
-
-        
         // Frequency to y. Fold octaves beyond the range.
         var dy = height / (12 * (octRange[1] - octRange[0]));
         function f2y(f) {
@@ -33,6 +30,7 @@ console.assert(srikumarks.audio.pitch);
             return gram.height - dy * (p - octRange[0] * 12);
         }
 
+        var kPitchSteps = [1, 3, 1, 2, 1, 3, 1]; // Mayamalavagaula scale.
 
         function clear() {
             context.clearRect(0, 0, canvas.width, canvas.height);
@@ -40,13 +38,25 @@ console.assert(srikumarks.audio.pitch);
             context.fillStyle = 'black';
             context.fillRect(0, 0, canvas.width, canvas.height);
 
+            // draw pitch lines.
             var p_start = octRange[0] * 12, p_end = octRange[1] * 12;
-            var p, py = height / (p_end - p_start), y;
-            context.strokeStyle = 'red';
-            context.globalAlpha = 0.75;
-            context.lineWidth = 0.5;
+            var p, py = height / (p_end - p_start), y, i;
+            context.strokeStyle = 'rgb(128, 0, 0)';
+            context.globalAlpha = 1;
+            context.lineWidth = 1;
             context.beginPath();
-            for (p = p_start; p < p_end; ++p) {
+            for (p = p_start, i = 0; p < p_end; p += kPitchSteps[i], i = (i + 1) % kPitchSteps.length) {
+                y = height - py * (p - p_start);
+                context.moveTo(0, y);
+                context.lineTo(width, y);
+            }
+            context.stroke();
+
+            // draw octave lines.
+            context.lineWidth = 2;
+            context.strokeStyle = 'rgb(255,0,0)';
+            context.beginPath();
+            for (p = p_start; p < p_end; p += 12) {
                 y = height - py * (p - p_start);
                 context.moveTo(0, y);
                 context.lineTo(width, y);
@@ -59,15 +69,9 @@ console.assert(srikumarks.audio.pitch);
         gram.width = width;
         gram.height = height;
         gram.octaveRange = octRange;
-        gram.activation = bandActivation;
         gram.decayFactor = 0.2;
         gram.maxDecayFactor = 0.99;
         gram.maxLevel = 0;
-        gram.activate = function (f, level) {
-            var p = Math.round(570 + 120 * Math.log(f/220) / Math.LN2);
-            bandActivation[p] += level;
-            gram.maxLevel = Math.max(gram.maxLevel, bandActivation[p]);
-        };
         gram.updateTime = function (t) {
             t %= kMaxTime;
             if (t < prevTime) {
@@ -118,58 +122,6 @@ console.assert(srikumarks.audio.pitch);
             prevTime = t;
             prevPeaks = peaks;
         };
-        gram.drawX = function () {
-            var t = sh.audioContext.currentTime % kMaxTime;
-            var x = Math.round(t * this.width / kMaxTime);
-
-            if (t < prevTime) {
-                clear();
-                prevTime = t;
-            }
-
-            var prevX = Math.round(prevTime * this.width / kMaxTime);
-
-            if (gram.maxLevel > 0) {
-                var dy = this.height / (120 * (this.octaveRange[1] - this.octaveRange[0]));
-                var lo = this.octaveRange[0] * 120, hi = this.octaveRange[1] * 120;
-                var i = 0, N, y = 0;
-                context.fillStyle = 'yellow';
-                for (i = 0, y = 0; y < this.height; y += dy, ++i) {
-                    context.globalAlpha = Math.pow(this.activation[lo + i] / gram.maxLevel, 0.5);
-                    context.fillRect(prevX, this.height - y, x - prevX, dy);
-                }
-
-                // Indicate the strongest one.
-                var strongest = -1,  maxStrength = 0;
-                for (i = 0, N = this.activation.length; i < N; ++i) {
-                    if (maxStrength < this.activation[i]) {
-                        strongest = i;
-                        maxStrength = this.activation[i];
-                    }
-                }
-
-                if (false && strongest > 0) {
-                    context.globalAlpha = 1.0;
-                    context.fillStyle = 'red';
-                    x = dx * (strongest - lo);
-                    context.beginPath();
-                    context.moveTo(x, this.height);
-                    context.lineTo(x + 6, this.height + 6);
-                    context.lineTo(x - 6, this.height + 6);
-                    context.lineTo(x, this.height);
-                    context.fill();
-                }
-
-                // Decay the activations
-                for (i = 0, N = this.activation.length; i < N; ++i) {
-                    this.activation[i] *= this.decayFactor;
-                }
-
-                gram.maxLevel *= this.maxDecayFactor;
-            }
-
-            prevTime = t;
-        };
 
         return gram;
     }
@@ -191,18 +143,7 @@ console.assert(srikumarks.audio.pitch);
             display.pitch.innerText = p.pitch;
             display.note.innerText = p.note.name + (p.error < 0 ? ' +' : ' ') + (-p.error) + ' cents';
             display.sig.innerText = p.sig;
-            var f, f_end, i, N, c;
             gram.draw(t, p.peaks);
-            if (false) {
-                for (i = 0, N = p.peaks.length; i < N; ++i) {
-                    if (p.peaks[i].life > 2) {
-                        for (f = 0.05 * (Math.pow(2, -1/12) - 1) * p.peaks[i].frequency, f_end = -f; f < f_end; f += 0.2) {
-                            c = Math.exp(- 0.5 * p.peaks[i].coeff * f * f);
-                            gram.activate(p.peaks[i].frequency + f, c * p.peaks[i].power);
-                        }
-                    }
-                }
-            }
         } else {
             display.frequency.innerText = '';
             display.pitch.innerText = '';
