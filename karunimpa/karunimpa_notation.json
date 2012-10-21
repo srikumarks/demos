@@ -1,0 +1,127 @@
+nishabdam.provide('nishabdam.notations.karunimpa_sahana');
+
+nishabdam.notations.karunimpa_sahana = [
+{time: {metric: [0, null], real: [0, null]}, 
+    tags: {meta: true, type: "notation"}, 
+    content: {
+        title: {name: 'Karuṇimpa', url: 1111},
+        category: {name: 'Varṇam', url: 11112},
+        composer: {name: 'Tiruvottiyur Tyāgayyar', url: 2222},
+        raga: {name: 'Sahānā', url: 5555, arohana: "SRGmPmDnṠ", avarohana: "ṠnDPmGmRGRS"},
+        tala: {name: 'Ādi', url: 6666},
+        tempo: {value: 140, units: 'bpm'},
+        time_units: {metric: 'ticks'},
+        text: {
+            pallavi: {roman: "pallavi"},
+            anupallavi: {roman: "anupallavi"},
+            muktayisvaram: {roman: "muktāyisvaram"},
+            caranam: {roman: "caraṇam"},
+            cittasvaram: {roman: "ciṭṭasvaram"},
+            alapana: {roman: "ālāpana"},
+            tala: {roman: "tāla"},
+            kalai: {roman: "kaḷai"}}}},
+
+// Section divisions in notation
+{time: {metric: [0, 192]}, tags: {kalai: 2}},
+{time: {metric: [0, 64]}, tags: {section: "pallavi", level: 1}},
+{time: {metric: [64, 128]}, tags: {section: "anupallavi", level: 1}},
+{time: {metric: [128, 192]}, tags: {section: "muktayisvaram", level: 1}},
+{time: {metric: [192, 672]}, tags: {kalai: 1}},
+{time: {metric: [224, 256]}, tags: {section: "caranam", level: 1}},
+{time: {metric: [256, 640]}, tags: {section: "cittasvaram", level: 1}},
+{time: {metric: [256, 288]}, tags: {section: "cittasvaram", index: 1, level: 2}},
+{time: {metric: [320, 352]}, tags: {section: "cittasvaram", index: 2, level: 2}},
+{time: {metric: [384, 448]}, tags: {section: "cittasvaram", index: 3, level: 2}},
+{time: {metric: [480, 608]}, tags: {section: "cittasvaram", index: 4, level: 2}},
+
+// Tala divisions
+{time: {metric: [0, 672]}, tags: {tala: true}, content: {divisions: "|| ,,,, ,,,, ,,,, ,,,, | ,,,, ,,,, | ,,,, ,,,, ||"}},
+
+// Prescriptive notation
+{time: {metric: [0, 16]},    tags: {prescription: "svarasthana"}, content: "P,m,G,GmR,GRS,,,"},
+{time: {metric: [16, 32]},   tags: {prescription: "svarasthana"}, content: "ṇSRGRSṇSḍpṃḍ,ṇSR"},
+{time: {metric: [32, 48]},   tags: {prescription: "svarasthana"}, content: "PmGmRGRS,RGmPmD,"},
+{time: {metric: [48, 64]},   tags: {prescription: "svarasthana"}, content: "n,ṠP,,RGmDPPmGmR"},
+{time: {metric: [64, 80]},   tags: {prescription: "svarasthana"}, content: "DnDDPPDPPmDPmGmR"},
+{time: {metric: [80, 96]},   tags: {prescription: "svarasthana"}, content: "GmPṇSRGmP,m,DnṠ,"},
+{time: {metric: [96, 112]},  tags: {prescription: "svarasthana"}, content: "DnṠṘ,ṘnṠṘĠṁṘ,ĠṘṠ"},
+{time: {metric: [112, 128]}, tags: {prescription: "svarasthana"}, content: "Ṙn,ṠD,nDPDPPmGmR"},
+{time: {metric: [128, 144]}, tags: {prescription: "svarasthana"}, content: "P,,PmGm,,RGmPmGm"},
+{time: {metric: [144, 160]}, tags: {prescription: "svarasthana"}, content: "R,,GRSṇSRGmPmDnṠ"},
+{time: {metric: [160, 176]}, tags: {prescription: "svarasthana"}, content: "P,DnṠnṠṘĠṁṘ,ĠṘSn"},
+{time: {metric: [176, 192]}, tags: {prescription: "svarasthana"}, content: "ṠṘnṠ,ṠPDmP,ṇSRGm"},
+{time: {metric: [192, 224]}, tags: {repeat: {metric: [0, 32]}}},
+
+{time: {metric: [224, 240]}, tags: {prescription: "svarasthana"}, content: "D,D,,,n,,,nṠD,nD"},
+{time: {metric: [240, 256]}, tags: {prescription: "svarasthana"}, content: "P,,,,,DPmGmRGmPm"},
+
+{time: {metric: [256, 272]}, tags: {prescription: "svarasthana"}, content: "P,,,,,m,,,D,P,m,"},
+{time: {metric: [272, 288]}, tags: {prescription: "svarasthana"}, content: "G,,m,,R,,G,m,P,m"},
+{time: {metric: [288, 320]}, tags: {repeat: {metric: [224, 256]}}},
+
+{time: {metric: [320, 336]}, tags: {prescription: "svarasthana"}, content: "D,PmGmR,GmPṇSRGm"},
+{time: {metric: [336, 352]}, tags: {prescription: "svarasthana"}, content: "P,mG,mR,GRSRGmPm"},
+{time: {metric: [352, 384]}, tags: {repeat: {metric: [224, 256]}}},
+
+{time: {metric: [384, 400]}, tags: {prescription: "svarasthana"}, content: "PDmPGmRGmPmGmRGR"},
+{time: {metric: [400, 416]}, tags: {prescription: "svarasthana"}, content: "SRṇSḍṇSRGmSRGmPD"},
+{time: {metric: [416, 432]}, tags: {prescription: "svarasthana"}, content: "PmDnṠṘṠṘnṠṘĠṁṘĠṘ"},
+{time: {metric: [432, 448]}, tags: {prescription: "svarasthana"}, content: "ṠṘnṘṠDnṠDnDPDmPm"},
+{time: {metric: [448, 480]}, tags: {repeat: {metric: [224, 256]}}},
+
+{time: {metric: [480, 496]}, tags: {prescription: "svarasthana"}, content: "n,,ṠṘṠnṘṠnṠnD,nD"},
+{time: {metric: [496, 512]}, tags: {prescription: "svarasthana"}, content: "P,,R,,GmPmGmRGRS"},
+{time: {metric: [512, 528]}, tags: {prescription: "svarasthana"}, content: "RGmP,PmPmD,DPDnD"},
+{time: {metric: [528, 544]}, tags: {prescription: "svarasthana"}, content: "PDmPGmRGRS,RGmP,"},
+{time: {metric: [544, 560]}, tags: {prescription: "svarasthana"}, content: "PmGmR,DPmGmR,GmP"},
+{time: {metric: [560, 576]}, tags: {prescription: "svarasthana"}, content: "ṇS,RGmPmD,nṠṘ,Ṙ,"},
+{time: {metric: [576, 592]}, tags: {prescription: "svarasthana"}, content: "ĠṁṘĠṘṠnṘṠnṠDPmDn"},
+{time: {metric: [592, 608]}, tags: {prescription: "svarasthana"}, content: "ṠṠ,PP,RR,ṇSRGmPm"},
+{time: {metric: [608, 640]}, tags: {repeat: {metric: [224, 256]}}},
+{time: {metric: [640, 672]}, tags: {repeat: {metric: [224, 256]}}},
+
+
+// Loop points
+{time: {metric: [32, 32]},   tags: {loop: true}, content: {to: {metric: [0, 32]}, max: 1}},
+{time: {metric: [96, 96]},   tags: {loop: true}, content: {to: {metric: [64, 96]}, max: 1}},
+{time: {metric: [128, 128]}, tags: {loop: true}, content: {to: {metric: [96, 128]}, max: 1}},
+{time: {metric: [160, 160]}, tags: {loop: true}, content: {to: {metric: [128, 160]}, max: 1}},
+
+// Lyrics in roman. "lyrics" indicates that timing information of syllables is also given in the "content".
+// The syntax is simple. Units of time are separated by one or more spaces. Whatever is between these spaces
+// is associated with a single tick and is taken as a literal without interpretation, except for "," 
+// which can be interpreted as a gap and presented as white space.
+{time: {metric: [0, 16]},    tags: {lyrics: "roman"}, content: "ka , ru , ṇim , , , , , , , pa , , ,"},
+{time: {metric: [16, 32]},   tags: {lyrics: "roman"}, content: "i , , , di , , , man , , ci , , , ,"},
+{time: {metric: [32, 48]},   tags: {lyrics: "roman"}, content: "ta , , , , , , ru , , , , , , ṇa ,"},
+{time: {metric: [48, 64]},   tags: {lyrics: "roman"}, content: ", , , mu , , sā , , , , , , mi , ,"},
+{time: {metric: [64, 80]},   tags: {lyrics: "roman"}, content: "pa , , ru , la , , , , vē , , ḍa , ,"},
+{time: {metric: [80, 96]},   tags: {lyrics: "roman"}, content: "lē , , nu , , , , , , , , , , nā ,"},
+{time: {metric: [96, 112]},  tags: {lyrics: "roman"}, content: "pā , , lī , , śrī , , vē , , , ṇu , ,"},
+{time: {metric: [112, 128]}, tags: {lyrics: "roman"}, content: "gō , , pā , , la , , dē , , , va , ,"},
+{time: {metric: [224, 240]}, tags: {lyrics: "roman"}, content: "kr , pa , , , jū , , , , , , , du ,"},
+{time: {metric: [240, 256]}, tags: {lyrics: "roman"}, content: "mi , , , , , ī , , vē , , ḷa , , ,"},
+
+{time: {metric: [0, 32]},    tags: {text: "roman", line: 1}, content: "karuṇimpa idi manci"},
+{time: {metric: [32, 64]},   tags: {text: "roman", line: 2}, content: "taruṇamu sāmi"},
+{time: {metric: [64, 96]},  tags: {text: "roman", line: 1}, content: "parula vēḍalēnu nā-"},
+{time: {metric: [96, 128]}, tags: {text: "roman", line: 2}, content: "-pālī śrī vēṇugōpāla dēva"},
+{time: {metric: [224, 256]}, tags: {text: "roman"}, content: "krpajūdumi ī vēḷa"},
+
+{time: {metric: [0, 16]},    tags: {word: "roman"}, content: "karuṇimpa"},
+{time: {metric: [16, 24]},   tags: {word: "roman"}, content: "idi"},
+{time: {metric: [24, 32]},   tags: {word: "roman"}, content: "manci"},
+{time: {metric: [32, 54]},   tags: {word: "roman"}, content: "taruṇamu"},
+{time: {metric: [54, 64]},   tags: {word: "roman"}, content: "sāmi"},
+{time: {metric: [64, 74]},   tags: {word: "roman"}, content: "parula"},
+{time: {metric: [74, 94]},   tags: {word: "roman"}, content: "vēḍalēnu"},
+{time: {metric: [94, 102]},  tags: {word: "roman"}, content: "nāpālī"},
+{time: {metric: [102, 105]}, tags: {word: "roman"}, content: "śrī"},
+{time: {metric: [105, 121]}, tags: {word: "roman"}, content: "vēṇugōpāla"},
+{time: {metric: [121, 128]}, tags: {word: "roman"}, content: "dēva"},
+{time: {metric: [224, 230]}, tags: {word: "roman"}, content: "krpa"},
+{time: {metric: [230, 246]}, tags: {word: "roman"}, content: "jūdumi"},
+{time: {metric: [246, 249]}, tags: {word: "roman"}, content: "ī"},
+{time: {metric: [249, 256]}, tags: {word: "roman"}, content: "vēḷa"},
+
+];

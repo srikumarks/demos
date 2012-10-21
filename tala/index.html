@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <!-- Bootstrap -->
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <title>Tala keeper</title>
+        <script src="../lib/steller/steller.js"></script>
+        <script src="../lib/steller/models.js"></script>
+        <script src="../lib/kinetic-core.min.js"></script>
+        <script defer src="tala.js"></script>
+        <style>
+            div.menu {
+                font-size: 16pt;
+            }
+            div.menu span {
+                padding: 4pt;
+            }
+            div.menu h2 {
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="hero-unit">
+                    <div class="row">
+                        <h1 class="span5">Tala keeper</h1>
+                        <div class="span5">
+                            <b>Presets:</b>
+                            <button id="com_adi">Ādi</button>
+                            <button id="com_rupaka">Rūpaka</button>
+                            <button id="com_mcapu">Miśra Cāpu</button>
+                            <button id="com_ata">Ata</button>
+                        </div>
+                     </div>
+                     <br/>
+                     <div class="row">
+                         <div class="span7">
+                             <div class="row">
+                                 <span>Tempo:</span> <span><input id="tempo" class="span4" type="range" min="0" max="1" step="0.001"/></span>
+                                 <span>(<span id="tempo_display"></span> aksh/min)</span>
+                             </div>
+                             <div class="row">
+                                 <span>Tuning:</span> <span><input id="tuning" class="span4" type="range" min="36" max="84" step="1"/></span>
+                                 <span><span id="tuning_display"></span></span>
+                             </div>
+                         </div>
+                     </div>
+                </div>
+            </div>
+            <div class="row span 10">
+                <div class="span4" id="anim">
+                    <!--
+                    <svg id="anim" width="240" height="240">
+                    <line x1="0" y1="230" x2="360" y2="230" stroke="black" style="stroke-width: 4"/>
+                    <circle id="baton" cx="60" cy="290" r="5" fill="black"/>
+                    <circle id="pulse" cx="60" cy="290" r="5" fill="black"/>
+                    </svg>
+                    -->
+                </div>
+                <div class="span2 menu" id="tala">
+                    <h2 class="span2">Tālā</h2>
+                    <span class="span2">Dhruva</span>
+                    <span class="span2">Maṭya</span>
+                    <span class="span2">Rūpaka</span>
+                    <span class="span2">Jampa</span>
+                    <span class="span2">Tripuṭa</span>
+                    <span class="span2">Aṭa</span>
+                    <span class="span2">Eka</span>
+                </div>
+                <div class="span2 menu" id="jati">
+                    <h2 class="span2">Jāti</h2>
+                    <span class="span2">(4) Catuśram</span>
+                    <span class="span2">(3) Tiśram</span>
+                    <span class="span2">(7) Miśram</span>
+                    <span class="span2">(5) Kaṇḍam</span>
+                    <span class="span2">(9) Saṅkīrṇam</span>
+                </div>
+                <div class="span2 menu" id="nadai">
+                    <h2 class="span2">Nadai</h2>
+                    <span class="span2">(4) Catuśram</span>
+                    <span class="span2">(3) Tiśram</span>
+                    <span class="span2">(7) Miśram</span>
+                    <span class="span2">(5) Kaṇḍam</span>
+                    <span class="span2">(9) Saṅkīrṇam</span>
+                </div>
+                <div class="span2 menu" id="speed">
+                    <h2 class="span2">Speed</h2>
+                    <span>1</span>
+                    <span>1/2</span>
+                    <span>1/4</span>
+                </div>
+                 <div class="span2 menu" id="kalai">
+                    <h2 class="span2">Kalai</h2>
+                    <span>1</span>
+                    <span>2</span>
+                    <span>3</span>
+                    <span>4</span>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+

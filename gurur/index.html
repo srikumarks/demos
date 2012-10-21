@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <!-- Bootstrap -->
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <title>Gurur Brahma</title>
+        <script src="../lib/steller/steller.js"></script>
+        <script src="../lib/steller/models.js"></script>
+        <script src="../lib/nishabdam.js"></script>
+        <script src="../lib/vina.js"></script>
+        <script src="../lib/tanpura.js"></script>
+        <script defer src="gurur.js"></script>
+        <style>
+            #gurur {
+                font-size: 14pt;
+            }
+            #gurur div span {
+                display: inline-block;
+                width: 98px;
+                border-width: 1px;
+                border-color: black;
+                border-style: solid;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="hero-unit">
+                <h1>Gurur Brahma</h1>
+                <p><span id="text_svara">Svarasthānās</span> | <span id="text_eng">Roman</span> | <span id="text_deva">देवनागरी</span></p>
+            </div>
+            <div class="row">
+                <svg id="text_table" width="1200" height="400">
+                <circle id="conductor" cx="12" cy="100" r="5" fill="black"/>
+                <circle id="baton" cx="5" cy="100" r="5" fill="black"/>
+                </svg>
+            </div>
+            <br/>
+            <div class="row">
+                <div class="span4">
+                    <input type="button" class="btn btn-primary btn-large span2" id="play" value="Play"/> 
+                    <input type="button" class="btn btn-primary btn-large span2" id="stop" value="Stop"/>
+                </div>
+                <div class="span4">
+                    <!-- <input type="button" id="pause" value="Pause"/> -->
+                    <!--<input type="button" id="canon" value="Canon"/>-->
+                    <span class="span1">Tempo:</span> <input id="tempo" class="span3" type="range" min="0" max="1" step="0.001"/>
+                    <span class="span1">Tonic:</span> <input id="tonic" class="span3" type="range" min="0" max="1" step="0.001"/>
+                    <span class="span1">Volume:</span> <input id="volume" class="span3" type="range" min="0" max="1" step="0.001"/>
+                </div>
+                <div class="span3">
+                    <input id="bounce" class="span1" type="checkbox" checked/> 
+                    <span class="span2">Bounce on letters:</span>
+                </div>
+             </div>
+            <div id="loading">
+                (Loading vina samples ...)
+            </div>
+            <div id="stats_">
+            </div>
+        </div>
+    </body>
+</html>
+
