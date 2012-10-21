@@ -126,7 +126,7 @@ console.assert(srikumarks.audio.pitch);
         return gram;
     }
 
-    var gram = setupGram('gram', [2, 10]);
+    var gram = setupGram('gram', [2, 6]);
 
 
     var mic = sh.models.mic();
