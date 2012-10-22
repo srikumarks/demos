@@ -129,7 +129,8 @@ console.assert(srikumarks.audio.PitchTracker);
     var spec = sh.models.spectrum(1024, 0.25);
     mic.connect(spec);
 
-    var options = {significance: 15, decayFactor: 0.9, spawnThreshold: 1, dieThreshold: 0.4, minVar_st: 1, octaveRange: gram.octaveRange, lifeDecayFactor: 0.75};
+    var options = {significance: 15, decayFactor: 0.9, spawnThreshold: 1, dieThreshold: 0.4, 
+        minVar_st: 1, octaveRange: gram.octaveRange, lifeDecayFactor: 0.75, trackingCoeff: 0.3};
     var pitch = PitchTracker(options);
 
     spec.time.watch(function (t) {
