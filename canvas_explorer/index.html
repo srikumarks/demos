@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="../lib/codemirror/lib/codemirror.js"></script>
+        <link rel="stylesheet" href="../lib/codemirror/lib/codemirror.css">
+        <script src="../lib/codemirror/mode/javascript/javascript.js"></script>
+        <style type="text/css">
+            img, canvas {
+                border: solid;
+                border-width: 1px;
+                margin: 5px;
+                padding: 5px;
+                border-color: #cfcfcf;
+            }
+        </style>
+    </head>
+    <body>
+        <table>
+            <tr>
+                <td width="30%" valign="top">
+                    <div>
+                        <canvas id="canvas" width="256" height="256"/>
+                    </div>
+                    <div>
+                        <button id="export">Save image</button>
+                        <div><small>
+                                <ul>
+                                    <li>Saved images appear below.</li>
+                                    <li>Click image to load its code.</li>
+                                    <li>Shift-click to delete a saved image.</li>
+                                </ul>
+                            </small></div>
+                    </div>
+                    <hr/>
+                    <div id="rendered"></div>
+                </td>
+                <td width="50%" valign="top">
+<textarea id="code" placeholder="Canvas drawing code" cols="80" rows="50">
+// Enter drawing code here. Methods of the canvas 2d context
+// Can simply be called without the context object prefix.
+
+canvas.width = 128;
+canvas.height = 128;
+
+var r = createRadialGradient(48, 48, 0, 64, 64, 64);
+r.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
+r.addColorStop(0.95, 'rgba(0, 0, 0, 0.75)');
+r.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+fillStyle = r;
+fillRect(0, 0, 128, 128);
+</textarea>
+                </td>
+            </tr>
+        </table>
+    <script>
+            var canvas, context;
+
+            // Evaluate the user code inside a with clause that introduces
+            // canvas 2d's context object. This lets the user write code
+            // like "fillRect(0, 0, 20, 20)" instead of "context.fillRect(0, 0, 20, 20)".
+            function evalCode(code) {
+                try {
+                    with (context) {
+                        clearRect(0, 0, canvas.width, canvas.height);
+                        save();
+                        eval('(function () {\n' + code + '\n}())');
+                        restore();
+                    }
+                } catch (e) {
+                    // Ignore errors
+                }
+            }
+
+            (function () {
+                var key = 'srikumarks.github.com/demos/canvas_explorer/code';
+                if (localStorage[key]) {
+                    // Load the latest code saved.
+                    document.getElementById('code').innerText = localStorage[key];
+                }
+
+                // Setup the code editor.
+                var canvasCode = CodeMirror.fromTextArea(document.getElementById('code'));
+                canvasCode.setSize(null, 600);
+                canvas = document.getElementById('canvas');
+                context = canvas.getContext('2d');
+                canvasCode.setOption('lineNumbers', true);
+
+                var codeChangeTime = Date.now();
+                var codeUpdateTimer = setTimeout(run, 0);
+
+                canvasCode.setOption('onChange', function () {
+                    var now = Date.now();
+                    if (now - codeChangeTime < 300) {
+                        clearTimeout(codeUpdateTimer);
+                    }
+                 
+                    codeUpdateTimer = setTimeout(run, 300);
+                    codeChangeTime = now;
+                });
+
+                canvasCode.setOption('onBlur', run);
+
+                document.getElementById('export').onclick = function () {
+                    var imgCode = canvasCode.getValue();
+                    var r = document.getElementById('rendered');
+                    var img = document.createElement('img');
+                    img.src = canvas.toDataURL('image/png');
+                    img.width = canvas.width * 32 / canvas.height;
+                    img.height = 32;
+                    img.onclick = function (event) {
+                        if (event.shiftKey) {
+                            setTimeout(function () {
+                                r.removeChild(img);
+                            }, 0);
+                        } else {
+                            canvasCode.setValue(imgCode);
+                        }
+                    };
+
+                    r.insertAdjacentElement('afterbegin', img);
+                };
+
+                function run() {
+                    var code = canvasCode.getValue();
+                    canvas.onclick = function () {
+                        canvasCode.setValue(code);
+                    };
+                    evalCode(store(code));
+                }
+
+                function store(code) {
+                    localStorage[key] = code;
+                    return code;
+                }
+            }());
+        </script>
+    </body>
+</html>

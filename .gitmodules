@@ -1,3 +1,6 @@
 [submodule "lib/steller"]
 	path = lib/steller
     url = git://github.com/srikumarks/steller.git
+[submodule "lib/codemirror"]
+	path = lib/codemirror
+	url = git://github.com/marijnh/CodeMirror.git
