@@ -41,6 +41,7 @@ function evalCode(code) {
     var codeChangeTime = Date.now();
     var debounceTime = 300;
     var codeUpdateTimer = setTimeout(run, 0);
+    var codeIsValid = true;
 
     canvasCode.setOption('onChange', function () {
         var now = Date.now();
@@ -62,10 +63,10 @@ function evalCode(code) {
     });
 
     document.getElementById('export').onclick = function () {
-        try {
+        if (codeIsValid) {
             store(saveImage(canvasCode.getValue()));
-        } catch (e) {
-            console.error("Bad image code. Won't save image snapshot.");
+        } else {
+            console.error("Invalid code. Won't save image.");
         }
     };
 
@@ -74,9 +75,10 @@ function evalCode(code) {
     function run() {
         try {
             store(evalCode(canvasCode.getValue()));
+            codeIsValid = true;
         } catch (e) {
             // Ignore errors
-            console.error("Bad image code. Won't save code.");
+            codeIsValid = false;
         }
     }
 
