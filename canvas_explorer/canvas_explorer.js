@@ -39,15 +39,25 @@ function evalCode(code) {
     canvasCode.setOption('lineNumbers', true);
 
     var codeChangeTime = Date.now();
+    var debounceTime = 300;
     var codeUpdateTimer = setTimeout(run, 0);
 
     canvasCode.setOption('onChange', function () {
         var now = Date.now();
-        if (now - codeChangeTime < 300) {
+        if (now - codeChangeTime < debounceTime) {
             clearTimeout(codeUpdateTimer);
+
+            // EXPERIMENTAL:
+            //
+            // Trying out a kind of adaptive deboucing of edits.
+            // If the edits are coming in quickly, reduce the
+            // debounce time to improve on realtime feeling.
+            // If edits are coming in slowly, increase the debounce 
+            // time to adapt to the programmer's pace.
+            debounceTime *= Math.pow(2.0, 2.0 * Math.min(1.0, Math.max(-1.0, ((now - codeChangeTime) / debounceTime - 0.5))));
         }
 
-        codeUpdateTimer = setTimeout(run, 300);
+        codeUpdateTimer = setTimeout(run, debounceTime);
         codeChangeTime = now;
     });
 
@@ -79,6 +89,8 @@ function evalCode(code) {
                 }, 0);
             } else {
                 canvasCode.setValue(imgCode);
+                clearTimeout(codeUpdateTimer);
+                codeUpdateTimer = setTimeout(run, 0);
             }
         };
         img.imageCode = imgCode;
