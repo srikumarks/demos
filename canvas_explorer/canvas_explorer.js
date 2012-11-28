@@ -62,7 +62,11 @@ function evalCode(code) {
     });
 
     document.getElementById('export').onclick = function () {
-        store(saveImage(canvasCode.getValue()));
+        try {
+            store(saveImage(canvasCode.getValue()));
+        } catch (e) {
+            console.error("Bad image code. Won't save image snapshot.");
+        }
     };
 
     load();
@@ -72,6 +76,7 @@ function evalCode(code) {
             store(evalCode(canvasCode.getValue()));
         } catch (e) {
             // Ignore errors
+            console.error("Bad image code. Won't save code.");
         }
     }
 
