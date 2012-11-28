@@ -185,6 +185,11 @@ var anim = (function () {
         });
     };
 
+    // Aliases.
+    motions.sin = motions.sine;
+    motions.lin = motions.linear;
+    motions.ease = motions.easeinout;
+
     motions._clear();
 
     return motions;
