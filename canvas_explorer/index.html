@@ -4,6 +4,7 @@
         <script src="../lib/codemirror/lib/codemirror.js"></script>
         <link rel="stylesheet" href="../lib/codemirror/lib/codemirror.css">
         <script src="../lib/codemirror/mode/javascript/javascript.js"></script>
+        <script src="canvas_explorer.js" defer></script>
         <style type="text/css">
             img, canvas {
                 border: solid;
@@ -53,87 +54,5 @@ fillRect(0, 0, 128, 128);
                 </td>
             </tr>
         </table>
-    <script>
-            var canvas, context;
-
-            // Evaluate the user code inside a with clause that introduces
-            // canvas 2d's context object. This lets the user write code
-            // like "fillRect(0, 0, 20, 20)" instead of "context.fillRect(0, 0, 20, 20)".
-            function evalCode(code) {
-                try {
-                    with (context) {
-                        clearRect(0, 0, canvas.width, canvas.height);
-                        save();
-                        eval('(function () {\n' + code + '\n}())');
-                        restore();
-                    }
-                } catch (e) {
-                    // Ignore errors
-                }
-            }
-
-            (function () {
-                var key = 'srikumarks.github.com/demos/canvas_explorer/code';
-                if (localStorage[key]) {
-                    // Load the latest code saved.
-                    document.getElementById('code').innerText = localStorage[key];
-                }
-
-                // Setup the code editor.
-                var canvasCode = CodeMirror.fromTextArea(document.getElementById('code'));
-                canvasCode.setSize(null, 600);
-                canvas = document.getElementById('canvas');
-                context = canvas.getContext('2d');
-                canvasCode.setOption('lineNumbers', true);
-
-                var codeChangeTime = Date.now();
-                var codeUpdateTimer = setTimeout(run, 0);
-
-                canvasCode.setOption('onChange', function () {
-                    var now = Date.now();
-                    if (now - codeChangeTime < 300) {
-                        clearTimeout(codeUpdateTimer);
-                    }
-                 
-                    codeUpdateTimer = setTimeout(run, 300);
-                    codeChangeTime = now;
-                });
-
-                canvasCode.setOption('onBlur', run);
-
-                document.getElementById('export').onclick = function () {
-                    var imgCode = canvasCode.getValue();
-                    var r = document.getElementById('rendered');
-                    var img = document.createElement('img');
-                    img.src = canvas.toDataURL('image/png');
-                    img.width = canvas.width * 32 / canvas.height;
-                    img.height = 32;
-                    img.onclick = function (event) {
-                        if (event.shiftKey) {
-                            setTimeout(function () {
-                                r.removeChild(img);
-                            }, 0);
-                        } else {
-                            canvasCode.setValue(imgCode);
-                        }
-                    };
-
-                    r.insertAdjacentElement('afterbegin', img);
-                };
-
-                function run() {
-                    var code = canvasCode.getValue();
-                    canvas.onclick = function () {
-                        canvasCode.setValue(code);
-                    };
-                    evalCode(store(code));
-                }
-
-                function store(code) {
-                    localStorage[key] = code;
-                    return code;
-                }
-            }());
-        </script>
     </body>
 </html>
