@@ -18,73 +18,104 @@ function rgba(r, g, b, a) {
 // duration of dt, using the scheme named by 'scheme'. 
 // Defined scheme names are 'linear', 'loop', 'sine',
 // 'cos', 'easein', 'easeout', 'easeinout' and 'bounce'.
-var anim = (function () {
+var resetAnimations = (function () {
     var motions = {
-        'linear': function (v1, v2, dt) {
-            var mt = Math.min(1.0, (t % dt) / dt);
-            var v = v1 + mt * (v2 - v1);
-            return v;
+        linear: function () {
+            var t = 0.0;
+            return function (v1, v2, dt) {
+                var mt = t % 1;
+                var v = v1 + mt * (v2 - v2);
+                t += 1.0 / dt;
+                return v;
+            };
         },
 
-        'loop': function (v1, v2, dt, phase) {
-            var mt = ((t + (2 * dt * (1.0 - phase || 0.0))) % (2 * dt)) / dt;
-            var v = v1 + (mt < 1.0 ? mt : 2.0 - mt) * (v2 - v1);
-            return v;
+        loop: function () {
+            var t = 0.0;
+            return function (v1, v2, dt, phase) {
+                var mt = (t + 2.0 - 2.0 * (phase || 0.0)) % 2.0;
+                var v = v1 + (mt < 1.0 ? mt : 2.0 - mt) * (v2 - v1);
+                t += 1.0 / dt;
+                return v;
+            };
         },
 
-        'sin': function (v1, v2, dt, phase) {
-            var mt = (t % (4 * dt)) / (4 * dt);
-            return v1 + 0.5 * (v2 - v1) * (1.0 + Math.sin(2 * Math.PI * (mt - 0.25 - (phase || 0.0))));
+        sine: function () {
+            var t = 0.0;
+            return function (v1, v2, dt, phase) {
+                var mt = t % 1.0;
+                var v = v1 + 0.5 * (v2 - v1) * (1.0 + Math.sin(2.0 * Math.PI * (mt - 0.25 - (phase || 0.0))));
+                t += 1.0 / (4.0 * dt);
+                return v;
+            };
         },
 
-        'cos': function (v1, v2, dt, phase) {
-            var mt = (t % (4 * dt)) / (4 * dt);
-            return v1 + 0.5 * (v2 - v1) * (1.0 + Math.cos(2 * Math.PI * (mt - 0.25 - (phase || 0.0))));
+        easein: function () {
+            var t = 0.0;
+            return function (v1, v2, dt) {
+                var mt = Math.min(1.0, t);
+                var v = v1 + (v2 - v1) * (4.0 * mt * (1.0 - mt));
+                t += 0.5 / dt;
+                return v;
+            };
         },
 
-        'easein': function (v1, v2, dt) {
-            var mt = Math.min(0.5, t / (2.0 * dt));
-            return v1 + (v2 - v1) * (4.0 * mt * (1.0 - mt));
+        easeout: function () {
+            var t = 0.0;
+            return function (v1, v2, dt) {
+                var v = v1 + (v2 - v2) * Math.min(1.0, t * t);
+                t += 1.0 / dt;
+                return v;
+            };
         },
 
-        'easeout': function (v1, v2, dt) {
-            var mt = Math.min(1.0, t / dt);
-            return v1 + (v2 - v1) * (mt * mt);
+        easeinout: function () {
+            var t = 0.0;
+            return function (v1, v2, dt) {
+                var mt = Math.min(1.0, t);
+                var v = v1 + 0.5 * (v2 - v1) * (1.0 + Math.sin(2.0 * Math.PI * (mt - 0.25)));
+                t += 0.25 / dt;
+                return v;
+            };
         },
 
-        'easeinout': function (v1, v2, dt) {
-            var mt = Math.min(1.0, (t % (4 * dt)) / (4 * dt));
-            return v1 + 0.5 * (v2 - v1) * (1.0 + Math.sin(2 * Math.PI * (mt - 0.25)));
-        },
-
-        'bounce': function (v1, v2, dt, phase) {
-            var mt = ((t % (2.0 * dt)) / (2.0 * dt) - (phase || 0.0)) % 1.0;
-            return v1 + (v2 - v1) * (4.0 * mt * (1.0 - mt));
+        bounce: function () {
+            var t = 0.0;
+            return function (v1, v2, dt) {
+                var mt = t % 1.0;
+                var v = v1 + (v2 - v1) * (4.0 * mt * (1.0 - mt));
+                t += 0.5 / dt;
+                return v;
+            };
         }
     };
 
-    Object.keys(motions).forEach(function (k) {
-        motions[k] = (function (m) {
-            return function (v1, v2, dt) {
-                dt = dt || 120;
-                var v = m(v1, v2, dt);
-                animate = true;
-                return v;
-            }
-        }(motions[k]));
-    });
+    var motionTypes = Object.keys(motions);
 
-    motions.sine = motions.sin;
-    motions.lin = motions.linear;
-    motions.ease = motions.easeinout;
-    
-    return motions;
+    return function () {
+        var anim = {};
+        motionTypes.forEach(function (k) {
+            anim[k] = (function (m) {
+                return function (v1, v2, dt) {
+                    dt = dt || 120;
+                    var v = m(v1, v2, dt);
+                    animate = true;
+                    return v;
+                };
+            }(motions[k]()));
+        });
+
+        anim.ease = anim.easeinout;
+        anim.lin = anim.linear;
+        return anim;
+    };
 }());
 
 // Evaluate the user code inside a with clause that introduces
 // canvas 2d's context object. This lets the user write code
 // like "fillRect(0, 0, 20, 20)" instead of "context.fillRect(0, 0, 20, 20)".
 function evalCode(code) {
+    var anim = resetAnimations();
     with (context) {
         with (Math) {
             clearRect(0, 0, canvas.width, canvas.height);
