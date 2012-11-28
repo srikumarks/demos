@@ -18,104 +18,183 @@ function rgba(r, g, b, a) {
 // duration of dt, using the scheme named by 'scheme'. 
 // Defined scheme names are 'linear', 'loop', 'sine',
 // 'cos', 'easein', 'easeout', 'easeinout' and 'bounce'.
-var resetAnimations = (function () {
+//
+// DESIGN: Whenever anim.loop(10, 20, 60) is called within the
+// render function, a new animation instance is spawned off and
+// kept in the anim.loop.instances array. On each call to anim.loop
+// within a single render() invocation, the instance identified by
+// the index "anim.loop.instance" is run and the index incremented.
+// This gives us a very simple mechanism to instantiate multiple
+// animations in the render loop without fuss, though at some
+// computational expense. For this project, I don't care much
+// about computational cost since it is about experimentation.
+//
+// Upon entry into the render() function, anim._reset() needs to
+// be called and every time the code changes, anim._clear() needs
+// to be called. The former will reset the instance index for the
+// next animation run and the latter will remove all instances
+// and prepare for a fresh run.
+var anim = (function () {
     var motions = {
-        linear: function () {
-            var t = 0.0;
-            return function (v1, v2, dt) {
-                var mt = t % 1;
-                var v = v1 + mt * (v2 - v2);
-                t += 1.0 / dt;
-                return v;
-            };
+        linear: function fn(v1, v2, dt) {
+            var f = fn.instances[fn.instance];
+            if (!f) {
+                f = (function () {
+                    var t = 0.0;
+                    return function (v1, v2, dt) {
+                        var mt = t % 1;
+                        var v = v1 + mt * (v2 - v2);
+                        t += 1.0 / dt;
+                        animate = true;
+                        return v;
+                    };
+                }());
+                fn.instances[fn.instance] = f;
+            }
+            fn.instance++;
+            return f(v1, v2, dt);
         },
 
-        loop: function () {
-            var t = 0.0;
-            return function (v1, v2, dt, phase) {
-                var mt = (t + 2.0 - 2.0 * (phase || 0.0)) % 2.0;
-                var v = v1 + (mt < 1.0 ? mt : 2.0 - mt) * (v2 - v1);
-                t += 1.0 / dt;
-                return v;
-            };
+        loop: function fn(v1, v2, dt, phase) {
+            var f = fn.instances[fn.instance];
+            if (!f) {
+                f = (function () {
+                    var t = 0.0;
+                    return function (v1, v2, dt, phase) {
+                        var mt = (t + 2.0 - 2.0 * (phase || 0.0)) % 2.0;
+                        var v = v1 + (mt < 1.0 ? mt : 2.0 - mt) * (v2 - v1);
+                        t += 1.0 / dt;
+                        animate = true;
+                        return v;
+                    };
+                }());
+                fn.instances[fn.instance] = f;
+            }
+            fn.instance++;
+            return f(v1, v2, dt, phase);
         },
 
-        sine: function () {
-            var t = 0.0;
-            return function (v1, v2, dt, phase) {
-                var mt = t % 1.0;
-                var v = v1 + 0.5 * (v2 - v1) * (1.0 + Math.sin(2.0 * Math.PI * (mt - 0.25 - (phase || 0.0))));
-                t += 1.0 / (4.0 * dt);
-                return v;
-            };
+        sine: function fn(v1, v2, dt, phase) {
+            var f = fn.instances[fn.instance];
+            if (!f) {
+                f = (function () {
+                    var t = 0.0;
+                    return function (v1, v2, dt, phase) {
+                        var mt = t % 1.0;
+                        var v = v1 + 0.5 * (v2 - v1) * (1.0 + Math.sin(2.0 * Math.PI * (mt - 0.25 - (phase || 0.0))));
+                        t += 1.0 / (4.0 * dt);
+                        animate = true;
+                        return v;
+                    };
+                }());
+                fn.instances[fn.instance] = f;
+            }
+            fn.instance++;
+            return f(v1, v2, dt, phase);
         },
 
-        easein: function () {
-            var t = 0.0;
-            return function (v1, v2, dt) {
-                var mt = Math.min(1.0, t);
-                var v = v1 + (v2 - v1) * (4.0 * mt * (1.0 - mt));
-                t += 0.5 / dt;
-                return v;
-            };
+        easein: function fn(v1, v2, dt) {
+            var f = fn.instances[fn.instance];
+            if (!f) {
+                f = (function () {
+                    var t = 0.0;
+                    return function (v1, v2, dt) {
+                        var mt = Math.min(1.0, t);
+                        var v = v1 + (v2 - v1) * (4.0 * mt * (1.0 - mt));
+                        t += 0.5 / dt;
+                        animate = true;
+                        return v;
+                    };
+                }());
+                fn.instances[fn.instance] = f;
+            }
+            fn.instance++;
+            return f(v1, v2, dt);
         },
 
-        easeout: function () {
-            var t = 0.0;
-            return function (v1, v2, dt) {
-                var v = v1 + (v2 - v2) * Math.min(1.0, t * t);
-                t += 1.0 / dt;
-                return v;
-            };
+        easeout: function fn(v1, v2, dt) {
+            var f = fn.instances[fn.instance];
+            if (!f) {
+                f = (function () {
+                    var t = 0.0;
+                    return function (v1, v2, dt) {
+                        var v = v1 + (v2 - v2) * Math.min(1.0, t * t);
+                        t += 1.0 / dt;
+                        animate = true;
+                        return v;
+                    };
+                }());
+                fn.instances[fn.instance] = f;
+            }
+            fn.instance++;
+            return f(v1, v2, dt);
         },
 
-        easeinout: function () {
-            var t = 0.0;
-            return function (v1, v2, dt) {
-                var mt = Math.min(1.0, t);
-                var v = v1 + 0.5 * (v2 - v1) * (1.0 + Math.sin(2.0 * Math.PI * (mt - 0.25)));
-                t += 0.25 / dt;
-                return v;
-            };
+        easeinout: function fn(v1, v2, dt) {
+            var f = fn.instances[fn.instance];
+            if (!f) {
+                f = (function () {
+                    var t = 0.0;
+                    return function (v1, v2, dt) {
+                        var mt = Math.min(1.0, t);
+                        var v = v1 + 0.5 * (v2 - v1) * (1.0 + Math.sin(2.0 * Math.PI * (mt - 0.25)));
+                        t += 0.25 / dt;
+                        animate = true;
+                        return v;
+                    };
+                }());
+                fn.instances[fn.instance] = f;
+            }
+            fn.instance++;
+            return f(v1, v2, dt);
         },
 
-        bounce: function () {
-            var t = 0.0;
-            return function (v1, v2, dt) {
-                var mt = t % 1.0;
-                var v = v1 + (v2 - v1) * (4.0 * mt * (1.0 - mt));
-                t += 0.5 / dt;
-                return v;
-            };
+        bounce: function fn(v1, v2, dt, phase) {
+            var f = fn.instances[fn.instance];
+            if (!f) {
+                f = (function () {
+                    var t = 0.0;
+                    return function (v1, v2, dt, phase) {
+                        var mt = (t + 1.0 - (phase || 0.0)) % 1.0;
+                        var v = v1 + (v2 - v1) * (4.0 * mt * (1.0 - mt));
+                        t += 0.5 / dt;
+                        animate = true;
+                        return v;
+                    };
+                }());
+                fn.instances[fn.instance] = f;
+            }
+            fn.instance++;
+            return f(v1, v2, dt, phase);
         }
     };
 
     var motionTypes = Object.keys(motions);
 
-    return function () {
-        var anim = {};
+    motions._clear = function () {
         motionTypes.forEach(function (k) {
-            anim[k] = (function (m) {
-                return function (v1, v2, dt) {
-                    dt = dt || 120;
-                    var v = m(v1, v2, dt);
-                    animate = true;
-                    return v;
-                };
-            }(motions[k]()));
+            motions[k].instances = [];
+            motions[k].instance = 0;
         });
+    }
 
-        anim.ease = anim.easeinout;
-        anim.lin = anim.linear;
-        return anim;
+    motions._reset = function () {
+        motionTypes.forEach(function (k) {
+            // Needs to be reset on every render loop entry.
+            motions[k].instance = 0;
+        });
     };
+
+    motions._clear();
+
+    return motions;
 }());
 
 // Evaluate the user code inside a with clause that introduces
 // canvas 2d's context object. This lets the user write code
 // like "fillRect(0, 0, 20, 20)" instead of "context.fillRect(0, 0, 20, 20)".
 function evalCode(code) {
-    var anim = resetAnimations();
+    anim._clear();
     with (context) {
         with (Math) {
             clearRect(0, 0, canvas.width, canvas.height);
@@ -124,7 +203,7 @@ function evalCode(code) {
                 t = -1;
                 render = eval('(function () {'
                     + 'if (render === arguments.callee) {'
-                    + '++t; animate = false;\n' 
+                    + '++t; animate = false; anim._reset();\n' 
                     + code 
                     + ';\nif (animate) { requestAnimationFrame(render); }\n'
                     + '}})');
