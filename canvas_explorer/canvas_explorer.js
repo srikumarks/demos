@@ -5,17 +5,18 @@ var canvas, context;
 // canvas 2d's context object. This lets the user write code
 // like "fillRect(0, 0, 20, 20)" instead of "context.fillRect(0, 0, 20, 20)".
 function evalCode(code) {
-    try {
-        with (context) {
-            clearRect(0, 0, canvas.width, canvas.height);
-            save();
+    with (context) {
+        clearRect(0, 0, canvas.width, canvas.height);
+        save();
+        try {
             eval('(function () {\n' + code + '\n}())');
+        } catch (e) {
             restore();
-            commit();
+            throw e;
         }
-    } catch (e) {
-        // Ignore errors
+        restore();
     }
+    return code;
 }
 
 (function () {
@@ -57,7 +58,11 @@ function evalCode(code) {
     load();
 
     function run() {
-        evalCode(store(canvasCode.getValue()));
+        try {
+            store(evalCode(canvasCode.getValue()));
+        } catch (e) {
+            // Ignore errors
+        }
     }
 
     function saveImage(imgCode) {
@@ -84,6 +89,7 @@ function evalCode(code) {
     
     function store(code) {
         localStorage[key] = code;
+
         var r = elements.rendered;
         var imgs = r.getElementsByTagName('img');
         var i, N = imgs.length;
@@ -108,7 +114,7 @@ function evalCode(code) {
         }
         if (localStorage[key]) {
             // Load the latest code saved.
-            document.getElementById('code').innerText = localStorage[key];
+            canvasCode.setValue(localStorage[key]);
         }
     }
 }());
