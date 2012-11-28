@@ -93,6 +93,25 @@ var anim = (function () {
             return f(v1, v2, dt, phase);
         },
 
+        cos: function fn(v1, v2, dt, phase) {
+            var f = fn.instances[fn.instance];
+            if (!f) {
+                f = (function () {
+                    var t = 0.0;
+                    return function (v1, v2, dt, phase) {
+                        var mt = t % 1.0;
+                        var v = v1 + 0.5 * (v2 - v1) * (1.0 + Math.cos(2.0 * Math.PI * (mt - 0.25 - (phase || 0.0))));
+                        t += 1.0 / (4.0 * dt);
+                        animate = true;
+                        return v;
+                    };
+                }());
+                fn.instances[fn.instance] = f;
+            }
+            fn.instance++;
+            return f(v1, v2, dt, phase);
+        },
+
         easein: function fn(v1, v2, dt) {
             var f = fn.instances[fn.instance];
             if (!f) {
