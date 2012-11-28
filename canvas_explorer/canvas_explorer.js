@@ -1,20 +1,109 @@
 
-var canvas, context;
+window.requestAnimationFrame =  window.requestAnimationFrame || 
+                                window.webkitRequestAnimationFrame || 
+                                window.mozRequestAnimationFrame ||
+                                function (fn) { setTimeout(fn, 15); };
+
+
+var canvas, context, render, t = 0, animate = false;
+
+// Exposed function which is better to work with than the string form.
+function rgba(r, g, b, a) {
+    return 'rgba(' + Math.round(r) + ', ' + Math.round(g) + ', ' + Math.round(b) + ', ' + a + ')';
+}
+
+// Exposed function to perform simplistic animations.
+//      anim.scheme(v1, v2, dt)
+// will generate a value that animates from v1 to v2 over the
+// duration of dt, using the scheme named by 'scheme'. 
+// Defined scheme names are 'linear', 'loop', 'sine',
+// 'cos', 'easein', 'easeout', 'easeinout' and 'bounce'.
+var anim = (function () {
+    var motions = {
+        'linear': function (v1, v2, dt) {
+            var mt = Math.min(1.0, (t % dt) / dt);
+            var v = v1 + mt * (v2 - v1);
+            return v;
+        },
+
+        'loop': function (v1, v2, dt, phase) {
+            var mt = ((t + (2 * dt * (1.0 - phase || 0.0))) % (2 * dt)) / dt;
+            var v = v1 + (mt < 1.0 ? mt : 2.0 - mt) * (v2 - v1);
+            return v;
+        },
+
+        'sin': function (v1, v2, dt, phase) {
+            var mt = (t % (4 * dt)) / (4 * dt);
+            return v1 + 0.5 * (v2 - v1) * (1.0 + Math.sin(2 * Math.PI * (mt - 0.25 - (phase || 0.0))));
+        },
+
+        'cos': function (v1, v2, dt, phase) {
+            var mt = (t % (4 * dt)) / (4 * dt);
+            return v1 + 0.5 * (v2 - v1) * (1.0 + Math.cos(2 * Math.PI * (mt - 0.25 - (phase || 0.0))));
+        },
+
+        'easein': function (v1, v2, dt) {
+            var mt = Math.min(0.5, t / (2.0 * dt));
+            return v1 + (v2 - v1) * (4.0 * mt * (1.0 - mt));
+        },
+
+        'easeout': function (v1, v2, dt) {
+            var mt = Math.min(1.0, t / dt);
+            return v1 + (v2 - v1) * (mt * mt);
+        },
+
+        'easeinout': function (v1, v2, dt) {
+            var mt = Math.min(1.0, (t % (4 * dt)) / (4 * dt));
+            return v1 + 0.5 * (v2 - v1) * (1.0 + Math.sin(2 * Math.PI * (mt - 0.25)));
+        },
+
+        'bounce': function (v1, v2, dt, phase) {
+            var mt = ((t % (2.0 * dt)) / (2.0 * dt) - (phase || 0.0)) % 1.0;
+            return v1 + (v2 - v1) * (4.0 * mt * (1.0 - mt));
+        }
+    };
+
+    Object.keys(motions).forEach(function (k) {
+        motions[k] = (function (m) {
+            return function (v1, v2, dt) {
+                dt = dt || 120;
+                var v = m(v1, v2, dt);
+                animate = true;
+                return v;
+            }
+        }(motions[k]));
+    });
+
+    motions.sine = motions.sin;
+    motions.lin = motions.linear;
+    motions.ease = motions.easeinout;
+    
+    return motions;
+}());
 
 // Evaluate the user code inside a with clause that introduces
 // canvas 2d's context object. This lets the user write code
 // like "fillRect(0, 0, 20, 20)" instead of "context.fillRect(0, 0, 20, 20)".
 function evalCode(code) {
     with (context) {
-        clearRect(0, 0, canvas.width, canvas.height);
-        save();
-        try {
-            eval('(function () {\n' + code + '\n}())');
-        } catch (e) {
+        with (Math) {
+            clearRect(0, 0, canvas.width, canvas.height);
+            save();
+            try {
+                t = -1;
+                render = eval('(function () {'
+                    + 'if (render === arguments.callee) {'
+                    + '++t; animate = false;\n' 
+                    + code 
+                    + ';\nif (animate) { requestAnimationFrame(render); }\n'
+                    + '}})');
+                render();
+            } catch (e) {
+                restore();
+                throw e;
+            }
             restore();
-            throw e;
         }
-        restore();
     }
     return code;
 }

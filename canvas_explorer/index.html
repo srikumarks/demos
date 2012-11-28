@@ -37,16 +37,35 @@
                 </td>
                 <td width="50%" valign="top">
 <textarea id="code" placeholder="Canvas drawing code" cols="80" rows="50">
-// Enter drawing code here. Methods of the canvas 2d context
-// Can simply be called without the context object prefix.
+// Drawing code goes here. 
+//
+// Methods of the canvas 2d context can simply be called 
+// without the "context." object prefix.
+//
+// Math functions can be used without the "Math." prefix.
+//
+// For CSS colors, the function rgba(r,g,b,a) is available
+// and better suited for use with animations.
+//
+// "anim.type(v1, v2, dt)" can be used to animate any numeric 
+// value. 'type' can be one of 'linear'/'lin', 'sine'/'sin',
+// 'cos', 'loop', 'easein', 'easeout', 'easeinout'/'ease',
+// and 'bounce'.
+//
+// Time is explicitly available as "t". For explicit animations,
+// without using the "anim." functions, you need to set the 
+// "animate" variable to "true" like this -
+//		animate = true;
 
 canvas.width = 128;
 canvas.height = 128;
+canvas.style.backgroundColor = 'black';
 
 var r = createRadialGradient(48, 48, 0, 64, 64, 64);
-r.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
-r.addColorStop(0.95, 'rgba(0, 0, 0, 0.75)');
-r.addColorStop(1, 'rgba(0, 0, 0, 0)');
+var c = anim.sine(0, 255, 30);
+r.addColorStop(0, rgba(c, c, c, 1.0));
+r.addColorStop(0.95, rgba(0, 0, 0, 0.75));
+r.addColorStop(1, rgba(0, 0, 0, 0));
 
 fillStyle = r;
 fillRect(0, 0, 128, 128);
