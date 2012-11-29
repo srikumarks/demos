@@ -208,10 +208,11 @@ function evalCode(code) {
         return obj;
     }
 
-    var elements = getElements(['rendered', 'canvas', 'code']);
+    var elements = getElements(['rendered', 'canvas', 'code', 'export', 'example_buttons', 'example_code']);
     var key = 'srikumarks.github.com/demos/canvas_explorer/code';
 
     // Setup the code editor.
+    elements.code.innerText = document.querySelector('#example_code pre').innerText; // Load instructions example.
     var canvasCode = CodeMirror.fromTextArea(elements.code);
     canvasCode.setSize(null, 600);
     canvas = elements.canvas;
@@ -242,7 +243,7 @@ function evalCode(code) {
         codeChangeTime = now;
     });
 
-    document.getElementById('export').onclick = function () {
+    elements.export.onclick = function () {
         if (codeIsValid) {
             store(saveImage(canvasCode.getValue()));
         } else {
@@ -316,5 +317,27 @@ function evalCode(code) {
             canvasCode.setValue(localStorage[key]);
         }
     }
+
+    function setupExamples() {
+        function setupExample(name, code) {
+            var b = document.createElement('button');
+            b.onclick = function () {
+                elements.export.onclick();
+                canvasCode.setValue(code);
+            };
+            b.innerText = name;
+            elements.example_buttons.insertAdjacentElement('beforeend', b);
+        }
+
+        var exs = elements.example_code.getElementsByTagName('pre');
+        var N = exs.length;
+        var i, ex;
+        for (i = 0; i < N; ++i) {
+            ex = exs[i];
+            setupExample(ex.dataset.name, ex.innerText);
+        }
+    }
+
+    setupExamples();
 }());
 

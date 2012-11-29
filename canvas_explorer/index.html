@@ -37,6 +37,12 @@
                 </td>
                 <td width="50%" valign="top">
 <textarea id="code" placeholder="Canvas drawing code" cols="80" rows="50">
+</textarea>
+<div id="example_buttons">
+    Examples: 
+</div>
+<div id="example_code" hidden>
+    <pre data-name="Instructions">
 // Drawing code goes here. 
 //
 // Methods of the canvas 2d context can simply be called 
@@ -62,14 +68,68 @@ canvas.height = 128;
 canvas.style.backgroundColor = 'black';
 
 var r = createRadialGradient(48, 48, 0, 64, 64, 64);
-var c = anim.sine(0, 255, 30);
-r.addColorStop(0, rgba(c, c, c, 1.0));
+r.addColorStop(0, rgba(255, 255, 255, 1.0));
 r.addColorStop(0.95, rgba(0, 0, 0, 0.75));
 r.addColorStop(1, rgba(0, 0, 0, 0));
 
 fillStyle = r;
 fillRect(0, 0, 128, 128);
-</textarea>
+    </pre>
+    <pre data-name="Bouncing ball">
+var w = 256, h = 256;
+canvas.width = w;
+canvas.height = h;
+canvas.style.backgroundColor = 'black';
+
+function steelBall(x, y, r) {
+	var grad = createRadialGradient(x - r/3, y - r/3, 0, x, y, r);
+	grad.addColorStop(0, rgba(255, 255, 255, 1.0));
+	grad.addColorStop(0.97, rgba(0, 0, 0, 0.65));
+	grad.addColorStop(1, rgba(1, 1, 1, 1));
+
+	fillStyle = grad;
+	fillRect(x-r, y-r, 2*r, 2*r);
+}
+
+// Note the twin animations. The ball's motion as well as the ball's
+// bouncing speed are being animated.
+steelBall(128, anim.bounce(250-15, anim.sine(64, 200, 120), anim.sine(30, 10, 120)), 15);
+
+// Draw a "floor".
+strokeStyle = rgba(128, 128, 128, 1.0);
+lineWidth = 3;
+beginPath();
+moveTo(0, 250);
+lineTo(256, 250);
+stroke();
+    </pre>
+    <pre data-name="Harmonic oscillators">
+var w = 256, h = 256;
+canvas.width = w;
+canvas.height = h;
+canvas.style.backgroundColor = 'black';
+
+function steelBall(x, y, r) {
+	var grad = createRadialGradient(x - r/3, y - r/3, 0, x, y, r);
+	grad.addColorStop(0, rgba(255, 255, 255, 1.0));
+	grad.addColorStop(0.97, rgba(0, 0, 0, 0.65));
+	grad.addColorStop(1, rgba(0, 0, 0, 0));
+
+	fillStyle = grad;
+	fillRect(x-r, y-r, 2*r, 2*r);
+}
+
+var i;
+
+// Make a dozen steel balls, each oscillating with a frequency
+// that's harmonically related to a fundamental so the balls
+// will all periodically align. Note that each "anim.sine"
+// inside the loop is an *independent* animation.
+for (i = 0; i < 13; ++i) {
+	steelBall(10 + i * 20, anim.sine(50, 150, 240 / (i+1)), 10);
+}
+    </pre>
+</div>
                 </td>
             </tr>
         </table>
