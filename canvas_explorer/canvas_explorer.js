@@ -106,7 +106,7 @@ var anim = (function () {
             return function (v1, v2, dt) {
                 var mt = Math.min(1.0, t);
                 var v = v1 + 0.5 * (v2 - v1) * (1.0 + Math.sin(2.0 * Math.PI * (mt - 0.25)));
-                t += 0.25 / dt;
+                t += 0.5 / dt;
                 animate = true;
                 return v;
             };
