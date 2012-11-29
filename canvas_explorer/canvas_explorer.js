@@ -36,164 +36,121 @@ function rgba(r, g, b, a) {
 // and prepare for a fresh run.
 var anim = (function () {
     var motions = {
-        linear: function fn(v1, v2, dt) {
-            var f = fn.instances[fn.instance];
-            if (!f) {
-                f = (function () {
-                    var t = 0.0;
-                    return function (v1, v2, dt) {
-                        var mt = t % 1;
-                        var v = v1 + mt * (v2 - v2);
-                        t += 1.0 / dt;
-                        animate = true;
-                        return v;
-                    };
-                }());
-                fn.instances[fn.instance] = f;
-            }
-            fn.instance++;
-            return f(v1, v2, dt);
+        linear: function () {
+            var t = 0.0;
+            return function (v1, v2, dt) {
+                var mt = t % 1;
+                var v = v1 + mt * (v2 - v2);
+                t += 1.0 / dt;
+                animate = true;
+                return v;
+            };
         },
 
-        loop: function fn(v1, v2, dt, phase) {
-            var f = fn.instances[fn.instance];
-            if (!f) {
-                f = (function () {
-                    var t = 0.0;
-                    return function (v1, v2, dt, phase) {
-                        var mt = (t + 2.0 - 2.0 * (phase || 0.0)) % 2.0;
-                        var v = v1 + (mt < 1.0 ? mt : 2.0 - mt) * (v2 - v1);
-                        t += 1.0 / dt;
-                        animate = true;
-                        return v;
-                    };
-                }());
-                fn.instances[fn.instance] = f;
-            }
-            fn.instance++;
-            return f(v1, v2, dt, phase);
+        loop: function () {
+            var t = 0.0;
+            return function (v1, v2, dt, phase) {
+                var mt = (t + 2.0 - 2.0 * (phase || 0.0)) % 2.0;
+                var v = v1 + (mt < 1.0 ? mt : 2.0 - mt) * (v2 - v1);
+                t += 1.0 / dt;
+                animate = true;
+                return v;
+            };
         },
 
-        sine: function fn(v1, v2, dt, phase) {
-            var f = fn.instances[fn.instance];
-            if (!f) {
-                f = (function () {
-                    var t = 0.0;
-                    return function (v1, v2, dt, phase) {
-                        var mt = t % 1.0;
-                        var v = v1 + 0.5 * (v2 - v1) * (1.0 + Math.sin(2.0 * Math.PI * (mt - 0.25 - (phase || 0.0))));
-                        t += 1.0 / (4.0 * dt);
-                        animate = true;
-                        return v;
-                    };
-                }());
-                fn.instances[fn.instance] = f;
-            }
-            fn.instance++;
-            return f(v1, v2, dt, phase);
+        sine: function () {
+            var t = 0.0;
+            return function (v1, v2, dt, phase) {
+                var mt = t % 1.0;
+                var v = v1 + 0.5 * (v2 - v1) * (1.0 + Math.sin(2.0 * Math.PI * (mt - 0.25 - (phase || 0.0))));
+                t += 1.0 / (2.0 * dt);
+                animate = true;
+                return v;
+            };
         },
 
-        cos: function fn(v1, v2, dt, phase) {
-            var f = fn.instances[fn.instance];
-            if (!f) {
-                f = (function () {
-                    var t = 0.0;
-                    return function (v1, v2, dt, phase) {
-                        var mt = t % 1.0;
-                        var v = v1 + 0.5 * (v2 - v1) * (1.0 + Math.cos(2.0 * Math.PI * (mt - 0.25 - (phase || 0.0))));
-                        t += 1.0 / (4.0 * dt);
-                        animate = true;
-                        return v;
-                    };
-                }());
-                fn.instances[fn.instance] = f;
-            }
-            fn.instance++;
-            return f(v1, v2, dt, phase);
+        cos: function () {
+            var t = 0.0;
+            return function (v1, v2, dt, phase) {
+                var mt = t % 1.0;
+                var v = v1 + 0.5 * (v2 - v1) * (1.0 + Math.cos(2.0 * Math.PI * (mt - 0.25 - (phase || 0.0))));
+                t += 1.0 / (2.0 * dt);
+                animate = true;
+                return v;
+            };
         },
 
-        easein: function fn(v1, v2, dt) {
-            var f = fn.instances[fn.instance];
-            if (!f) {
-                f = (function () {
-                    var t = 0.0;
-                    return function (v1, v2, dt) {
-                        var mt = Math.min(1.0, t);
-                        var v = v1 + (v2 - v1) * (4.0 * mt * (1.0 - mt));
-                        t += 0.5 / dt;
-                        animate = true;
-                        return v;
-                    };
-                }());
-                fn.instances[fn.instance] = f;
-            }
-            fn.instance++;
-            return f(v1, v2, dt);
+        easein: function () {
+            var t = 0.0;
+            return function (v1, v2, dt) {
+                var mt = Math.min(1.0, t);
+                var v = v1 + (v2 - v1) * (4.0 * mt * (1.0 - mt));
+                t += 0.5 / dt;
+                animate = true;
+                return v;
+            };
         },
 
-        easeout: function fn(v1, v2, dt) {
-            var f = fn.instances[fn.instance];
-            if (!f) {
-                f = (function () {
-                    var t = 0.0;
-                    return function (v1, v2, dt) {
-                        var v = v1 + (v2 - v2) * Math.min(1.0, t * t);
-                        t += 1.0 / dt;
-                        animate = true;
-                        return v;
-                    };
-                }());
-                fn.instances[fn.instance] = f;
-            }
-            fn.instance++;
-            return f(v1, v2, dt);
+        easeout: function () {
+            var t = 0.0;
+            return function (v1, v2, dt) {
+                var v = v1 + (v2 - v2) * Math.min(1.0, t * t);
+                t += 1.0 / dt;
+                animate = true;
+                return v;
+            };
         },
 
-        easeinout: function fn(v1, v2, dt) {
-            var f = fn.instances[fn.instance];
-            if (!f) {
-                f = (function () {
-                    var t = 0.0;
-                    return function (v1, v2, dt) {
-                        var mt = Math.min(1.0, t);
-                        var v = v1 + 0.5 * (v2 - v1) * (1.0 + Math.sin(2.0 * Math.PI * (mt - 0.25)));
-                        t += 0.25 / dt;
-                        animate = true;
-                        return v;
-                    };
-                }());
-                fn.instances[fn.instance] = f;
-            }
-            fn.instance++;
-            return f(v1, v2, dt);
+        easeinout: function () {
+            var t = 0.0;
+            return function (v1, v2, dt) {
+                var mt = Math.min(1.0, t);
+                var v = v1 + 0.5 * (v2 - v1) * (1.0 + Math.sin(2.0 * Math.PI * (mt - 0.25)));
+                t += 0.25 / dt;
+                animate = true;
+                return v;
+            };
         },
 
-        bounce: function fn(v1, v2, dt, phase) {
-            var f = fn.instances[fn.instance];
-            if (!f) {
-                f = (function () {
-                    var t = 0.0;
-                    return function (v1, v2, dt, phase) {
-                        var mt = (t + 1.0 - (phase || 0.0)) % 1.0;
-                        var v = v1 + (v2 - v1) * (4.0 * mt * (1.0 - mt));
-                        t += 0.5 / dt;
-                        animate = true;
-                        return v;
-                    };
-                }());
-                fn.instances[fn.instance] = f;
-            }
-            fn.instance++;
-            return f(v1, v2, dt, phase);
-        }
+        bounce: function () {
+            var t = 0.0;
+            return function (v1, v2, dt, phase) {
+                var mt = (t + 1.0 - (phase || 0.0)) % 1.0;
+                var v = v1 + (v2 - v1) * (4.0 * mt * (1.0 - mt));
+                t += 0.5 / dt;
+                animate = true;
+                return v;
+            };
+        },
     };
 
     var motionTypes = Object.keys(motions);
 
+    // Turn the animation generator functions into functions that
+    // can handle multiple animation instances in call form.
+    function setup() {
+        motionTypes.forEach(function (k) {
+            var m = motions[k];
+            var wrapm = function fn(v1, v2, dt, phase) {
+                var f = fn.instances[fn.instance];
+                if (!f) {
+                    f = m();
+                    fn.instances[fn.instance] = f;
+                }
+                fn.instance++;
+                return f(v1, v2, dt, phase);
+            };
+            wrapm.instances = [];
+            wrapm.instance = 0;
+            motions[k] = wrapm;
+        });
+    }
+
     motions._clear = function () {
         motionTypes.forEach(function (k) {
-            motions[k].instances = [];
-            motions[k].instance = 0;
+            var wm = motions[k];
+            wm.instances = [];
+            wm.instance = 0;
         });
     }
 
@@ -209,7 +166,7 @@ var anim = (function () {
     motions.lin = motions.linear;
     motions.ease = motions.easeinout;
 
-    motions._clear();
+    setup();
 
     return motions;
 }());
