@@ -129,6 +129,44 @@ for (i = 0; i < 13; ++i) {
 	steelBall(10 + i * 20, anim.sine(50, 150, 240 / (i+1)), 10);
 }
     </pre>
+    <pre data-name="Harmonic oscillators Xtreme">
+var w = 640, h = 480;
+
+canvas.width = w;
+canvas.height = h;
+canvas.style.backgroundColor = 'black';
+
+if (t === 0) {
+  var makeSteelBall = prerender(function (r) {
+    with (this) {
+      canvas.width = 2 * r;
+      canvas.height = 2 * r;
+    
+      var grad = createRadialGradient(r - r/3, r - r/3, 0, r, r, r);
+      grad.addColorStop(0, rgba(255, 255, 255, 1.0));
+      grad.addColorStop(0.97, rgba(0, 0, 0, 0.0));
+      grad.addColorStop(1, rgba(0, 0, 0, 0));
+
+      fillStyle = grad;//rgba(255,0,0,0.2);
+      fillRect(0, 0, 2*r, 2*r);  
+    }
+  });
+  
+  state.steelBall = makeSteelBall(10);
+}
+
+// Make a lot of steel balls, each oscillating with a frequency
+// that's harmonically related to a fundamental so the balls
+// will all periodically align. Some mesmerizing visual patterns
+// arise. This works better in Safari than in Chrome at the moment,
+// on MacOSX.
+var x, y;
+for (var i = 0; i < 640; ++i) {
+  x = i;
+  y = anim.sine(400, 80, 1280 / (i + 1)) - 10;
+  drawImage(steelBall, x, y);
+}
+    </pre>
 </div>
                 </td>
             </tr>
