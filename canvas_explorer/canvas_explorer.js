@@ -176,26 +176,41 @@ var anim = (function () {
 // like "fillRect(0, 0, 20, 20)" instead of "context.fillRect(0, 0, 20, 20)".
 function evalCode(code) {
     anim._clear();
-    with (context) {
-        with (Math) {
-            clearRect(0, 0, canvas.width, canvas.height);
-            save();
-            try {
-                t = -1;
-                render = eval('(function () {'
-                    + 'if (render === arguments.callee) {'
-                    + '++t; animate = false; anim._reset();\n' 
-                    + code 
-                    + ';\nif (animate) { requestAnimationFrame(render); }\n'
-                    + '}})');
-                render();
-            } catch (e) {
+
+    // Enable some state that the render function can use
+    // to keep data that is shared between render() calls.
+    // This is better than accessing the global window
+    // context every time ... and likely more efficient
+    // (accessing window.X is relatively expensive under V8).
+    //
+    // Any initialization can be performed within the render
+    // code inside an "if (t === 0) {...}" block.
+    var state = {};
+
+    with (state) {
+        with (context) {
+            with (Math) {
+                clearRect(0, 0, canvas.width, canvas.height);
+                save();
+                try {
+                    t = -1;
+                    render = eval('(function () {'
+                        + 'if (render === arguments.callee) {'
+                            + '++t; animate = false; anim._reset();\n' 
+//                            + 'clearRect(0, 0, canvas.width, canvas.height);\n'
+                        + code 
+                        + ';\nif (animate) { requestAnimationFrame(render); }\n'
+                        + '}})');
+                    render();
+                } catch (e) {
+                    restore();
+                    throw e;
+                }
                 restore();
-                throw e;
             }
-            restore();
         }
     }
+
     return code;
 }
 
