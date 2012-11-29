@@ -40,7 +40,7 @@ var anim = (function () {
             var t = 0.0;
             return function (v1, v2, dt) {
                 var mt = t % 1;
-                var v = v1 + mt * (v2 - v2);
+                var v = v1 + mt * (v2 - v1);
                 t += 1.0 / dt;
                 animate = true;
                 return v;
@@ -94,7 +94,7 @@ var anim = (function () {
         easeout: function () {
             var t = 0.0;
             return function (v1, v2, dt) {
-                var v = v1 + (v2 - v2) * Math.min(1.0, t * t);
+                var v = v1 + (v2 - v1) * Math.min(1.0, t * t);
                 t += 1.0 / dt;
                 animate = true;
                 return v;
@@ -161,12 +161,12 @@ var anim = (function () {
         });
     };
 
+    setup();
+
     // Aliases.
     motions.sin = motions.sine;
     motions.lin = motions.linear;
     motions.ease = motions.easeinout;
-
-    setup();
 
     return motions;
 }());
