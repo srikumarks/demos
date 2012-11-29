@@ -171,6 +171,38 @@ var anim = (function () {
     return motions;
 }());
 
+// The prerender function takes a function that draws something
+// into the context set as the "this" parameter and produces
+// a prerender maker function that can make pre-rendered objects
+// parameterized by whatever the given function accepts.
+//
+// Damn that's hard to describe in words! So here is some sample
+// code you can use in the code box -
+//
+//  if (t === 0) {
+//      var makeBox = prerender(function (w) {
+//          this.canvas.width = w;
+//          this.canvas.height = w;
+//          this.fillStyle = 'red';
+//          this.fillRect(0, 0, w, w);
+//      });
+//
+//      state.smallBox = makeBox(10);
+//      state.bigBox = makeBox(100);
+//  }
+//
+//  drawImage(smallBox, 100, 100);
+//  drawImage(bigBox, 120, 120);
+//
+function prerender(func) {
+    return function () {
+        var canv = document.createElement('canvas');
+        var ctxt = canv.getContext('2d');
+        func.apply(ctxt, arguments);
+        return canv;
+    };
+}
+
 // Evaluate the user code inside a with clause that introduces
 // canvas 2d's context object. This lets the user write code
 // like "fillRect(0, 0, 20, 20)" instead of "context.fillRect(0, 0, 20, 20)".
