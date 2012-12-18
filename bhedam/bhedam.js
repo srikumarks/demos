@@ -128,15 +128,16 @@ function identify(db, svaras) {
 
 function showRaga(name) {
     var r = RagaDBKV[name];
-    E.raga_info.innerHTML = JSON.stringify({name: r[0], arohanam: r[1], avarohanam: r[2]});
+    E.raga_info.innerHTML = '<h4>' + r[0] + '</h4> arohanam: ' + r[1].join(', ') + '<br/>avarohanam: ' + r[2].join(', ');
 }
 
 function format(ragas, func) {
     func = func || 'showRaga';
     var suffix = '';
     if (ragas.length > 10) {
+        var n = ragas.length - 10;
         ragas = ragas.slice(0, 10);
-        suffix = ', ...';
+        suffix = ', ... ' + n + ' more';
     } 
 
     ragas = ragas.map(function (r) {
