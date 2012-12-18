@@ -128,7 +128,7 @@ function identify(db, svaras) {
 
 function showRaga(name) {
     var r = RagaDBKV[name];
-    E.raga_info.innerHTML = '<h4>' + r[0] + '</h4> arohanam: ' + r[1].join(', ') + '<br/>avarohanam: ' + r[2].join(', ');
+    E.raga_info.innerHTML = '<h3>' + r[0] + '</h3> arohanam: ' + r[1].join(', ') + '<br/>avarohanam: ' + r[2].join(', ');
 }
 
 function format(ragas, func) {
