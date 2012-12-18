@@ -13,10 +13,24 @@
     <body style="padding: 20px">
         <div>Raga: <input type="text" id="raga"></input> (<span id="raga_match"></span>)</div>
         <div>Scale: <input type="text" id="svaras"></input> (<span id="input_match"></span>)</div>
-        <div>Graham: <input type="text" id="shift" value="S"></input></div>
-        <div><h4>Graha bhedam</h4> <span id="graha_bhedam"></span> (<span id="graha_match"></span>)</div>
+        <div>Grham: <input type="text" id="shift" value="S"></input></div>
+        <div><h4>Grha bhedam</h4> <span id="graha_bhedam"></span> (<span id="graha_match"></span>)</div>
         <div><h4>Sruti bhedam</h4> <span id="sruti_bhedam"></span> (<span id="sruti_match"></span>)</div>
         <hr/>
         <div><span id="raga_info"></span></div>
+        <hr/>
+        <div>
+            <h5>Instructions</h5>
+            <small>
+                This is a prototype interface to explore raga relationships via bhedams.
+
+                <ol>
+                    <li>You can type a raga name in the "Raga" box to get a list of matches.</li>
+                    <li>.. or you can enter scalar information (arohana only) in the "Scale" box using the "SrRgGmMPdDnN" letters.</li>
+                    <li>The "Grham" field determines how the transposition is done and should be a single svara letter.</li>
+                    <li>Clicking on a raga name shows known info about it.</li>
+                </ol>
+            </small>
+        </div>
     </body>
 </html>
