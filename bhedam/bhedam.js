@@ -164,9 +164,9 @@ function showRaga(name) {
 function format(ragas, func) {
     func = func || 'showRaga';
     var suffix = '';
-    if (ragas.length > 10) {
-        var n = ragas.length - 10;
-        ragas = ragas.slice(0, 10);
+    if (ragas.length > 13) {
+        var n = ragas.length - 8;
+        ragas = ragas.slice(0, 8);
         suffix = ', ... ' + n + ' more';
     } 
 
@@ -195,18 +195,11 @@ function setRaga(ragaName) {
 function onchange() {
     var ragaVal = E.raga.value;
     var inputVal = E.svaras.value;
-
-    if (inputs.raga !== ragaVal) {
-        inputs.raga = ragaVal;
-        var result = search(ragaVal);
-        if (result.length > 0) {
-            E.svaras.value = inputVal = result[0][1][0];
-            E.raga_match.innerHTML = format(result.map(function (r) { return r[0]; }), 'setRaga');
-        }
-    }
+    var svarasChanged = false;
 
     if (inputs.svaras !== inputVal) {
         // Need to update.
+        svarasChanged = true;
         inputs.svaras = inputVal;
 
         E.input_match.innerHTML = inputVal.length > 0 ? format(identify(RagaDB, inputVal)) : '';
@@ -222,6 +215,19 @@ function onchange() {
             }
         }
     }
+
+    if (inputs.raga !== ragaVal) {
+        inputs.raga = ragaVal;
+        var result = search(ragaVal);
+        if (result.length > 0) {
+            if (!svarasChanged) {
+                E.svaras.value = inputVal = result[0][1][0];
+            }
+            E.raga_match.innerHTML = format(result.map(function (r) { return r[0]; }), 'setRaga');
+        }
+    }
+
+    
 }
 
 
