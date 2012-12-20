@@ -4,10 +4,15 @@ function elements(ids) {
     ids.forEach(function (id) { 
         obj[id] = document.getElementById(id);
     });
+    obj.ids = ids;
     return obj;
 }
 
-var E = elements(["raga", "svaras", "raga_match", "input_match", "shift", "graha_bhedam", "sruti_bhedam", , "graha_match", "sruti_match", "raga_info"]);
+var E = elements(["raga", "svaras", "raga_match", "input_match", "raga_info"]);
+
+var G = elements(["gr1", "gr2", "gg1", "gg2", "gm1", "gm2", "gp", "gd1", "gd2", "gn1", "gn2"]);
+var S = elements(["sr1", "sr2", "sg1", "sg2", "sm1", "sm2", "sp", "sd1", "sd2", "sn1", "sn2"]);
+var bhedamSvaras = "rRgGmMPdDnN";
 
 function findRagaMatch(svaras) {
     return "none";
@@ -46,7 +51,7 @@ function grahaBhedam(input, shift) {
     var steps = inSvaras.join('').indexOf(refSvara);
 
     if (steps < 0) {
-        return {bhedam: "{Svara not found}", match: []};
+        return {bhedam: "N/A", match: []};
     }
 
     steps = steps % inSvaras.length;
@@ -101,7 +106,7 @@ function srutiBhedam(input, shift) {
 
     var offset = bhedamSvaras.join('').indexOf('S');
     if (offset < 0) {
-        return {bhedam: "{Invalid}", match: []};
+        return {bhedam: "N/A", match: []};
     }
 
     var b = bhedamSvaras.slice(offset, offset + inSvaras.length + 1).join('');
@@ -166,7 +171,6 @@ function setRaga(ragaName) {
 function onchange() {
     var ragaVal = E.raga.value;
     var inputVal = E.svaras.value;
-    var shiftVal = E.shift.value;
 
     if (inputs.raga !== ragaVal) {
         inputs.raga = ragaVal;
@@ -177,23 +181,25 @@ function onchange() {
         }
     }
 
-    if (inputs.svaras !== inputVal || inputs.shift !== shiftVal) {
+    if (inputs.svaras !== inputVal) {
         // Need to update.
         inputs.svaras = inputVal;
-        inputs.shift = shiftVal;
 
-        try {
-            E.input_match.innerHTML = inputVal.length > 0 ? format(identify(RagaDB, inputVal)) : '';
-            var gb = grahaBhedam(inputVal, shiftVal);
-            E.graha_bhedam.innerText = gb.bhedam;
-            E.graha_match.innerHTML = format(gb.match);
-            var sb = srutiBhedam(inputVal, shiftVal);
-            E.sruti_bhedam.innerText = sb.bhedam;
-            E.sruti_match.innerHTML = format(sb.match);
-        } catch (e) {
+        E.input_match.innerHTML = inputVal.length > 0 ? format(identify(RagaDB, inputVal)) : '';
+        
+        var i, N, gb, sb;
+        for (i = 0, N = bhedamSvaras.length; i < N; ++i) {
+            try {
+                gb = grahaBhedam(inputVal, bhedamSvaras[i]);
+                G[G.ids[i]].innerHTML = '<b>' + gb.bhedam + '</b> ' + format(gb.match);
+                sb = srutiBhedam(inputVal, bhedamSvaras[i]);
+                S[S.ids[i]].innerHTML = '<b>' + sb.bhedam + '</b> ' + format(sb.match);
+            } catch (e) {
+            }
         }
     }
 }
+
 
 setInterval(onchange, 100);
 

@@ -9,14 +9,50 @@
         <script src="../lib/steller/models.js"></script>
         <script src="ragadb.js"></script>
         <script defer src="bhedam.js"></script>
+        <style>
+            td {
+                vertical-align: text-top
+            }
+        </style>
     </head>
     <body style="padding: 20px">
         <div>Raga: <input type="text" id="raga"></input> (<span id="raga_match"></span>)</div>
         <div>Scale: <input type="text" id="svaras"></input> (<span id="input_match"></span>)</div>
-        <div>Grham: <input type="text" id="shift" value="S"></input></div>
-        <div><h4>Grha bhedam</h4> <span id="graha_bhedam"></span> (<span id="graha_match"></span>)</div>
-        <div><h4>Sruti bhedam</h4> <span id="sruti_bhedam"></span> (<span id="sruti_match"></span>)</div>
-        <hr/>
+        <div>
+            <table width="640px" border="1px" cellpadding="2px">
+                <tr>
+                    <td></td><td>r</td><td>R</td><td>g</td><td>G</td><td>m</td><td>M</td><td>P</td><td>d</td><td>D</td><td>n</td><td>N</td>
+                </tr>
+                <tr>
+                    <td>Grha bhedam</td>
+                    <td id="gr1"></td>
+                    <td id="gr2"></td>
+                    <td id="gg1"></td>
+                    <td id="gg2"></td>
+                    <td id="gm1"></td>
+                    <td id="gm2"></td>
+                    <td id="gp"></td>
+                    <td id="gd1"></td>
+                    <td id="gd2"></td>
+                    <td id="gn1"></td>
+                    <td id="gn2"></td>
+                </tr>
+                <tr>
+                    <td>Sruti bhedam</td>
+                    <td id="sr1"></td>
+                    <td id="sr2"></td>
+                    <td id="sg1"></td>
+                    <td id="sg2"></td>
+                    <td id="sm1"></td>
+                    <td id="sm2"></td>
+                    <td id="sp"></td>
+                    <td id="sd1"></td>
+                    <td id="sd2"></td>
+                    <td id="sn1"></td>
+                    <td id="sn2"></td>
+                </tr>
+            </table>
+        </div>
         <div><span id="raga_info"></span></div>
         <hr/>
         <div>
@@ -28,7 +64,7 @@
                     <li>You can type a raga name in the "Raga" box to get a list of matches.</li>
                     <li>.. or you can enter scalar information (arohana only) in the "Scale" box using the "SrRgGmMPdDnN" letters.
                     For example, Shankarabharanm is "SRGmPDNS" and Kharaharapriya is "SRgmPDnS".</li>
-                    <li>The "Grham" field determines how the transposition is done and should be a single svara letter.</li>
+                    <li>The table will display all possible bhedams.</li>
                     <li>Clicking on a raga name shows known info about it.</li>
                 </ol>
 
