@@ -49,10 +49,12 @@ function findMelaKartas(db) {
 
     db.forEach(function (r) {
         // Only one arohana and one avarohana
-        if (r[1].length === 1 && r[2].length === 1) {
-            if (Array.prototype.slice.call(r[1][0]).reverse().join('') === r[2][0]) {
-                result[r[0]] = true;
-            }
+        if (r[1].length !== 1 || r[2].length !== 1) {
+            return;
+        }
+
+        if (r[1][0].match(/^S[rRg][RgG][mM]P[dDn][DnN]S$/) && r[2][0].match(/^S[DnN][dDn]P[mM][RgG][rRg]S$/)) {
+            result[r[0]] = true;
         }
     });
 
