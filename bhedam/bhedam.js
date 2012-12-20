@@ -44,6 +44,23 @@ RagaDB.forEach(function (r) {
     RagaDBKV[r[0]] = r;
 });
 
+function findMelaKartas(db) {
+    var result = {};
+
+    db.forEach(function (r) {
+        // Only one arohana and one avarohana
+        if (r[1].length === 1 && r[2].length === 1) {
+            if (Array.prototype.slice.call(r[1][0]).reverse().join('') === r[2][0]) {
+                result[r[0]] = true;
+            }
+        }
+    });
+
+    return result;
+}
+
+var Melakartas = findMelaKartas(RagaDB);
+
 function grahaBhedam(input, shift) {
     var inSvaras = input.match(svarasPat);
     var refSvara = shift.match(svarasPat)[0];
@@ -131,10 +148,14 @@ function identify(db, svaras) {
     });
 }
 
+function taggedRaga(r) {
+    return (Melakartas[r] ? '*' : '') + r;
+}
+
 function showRaga(name) {
     var r = RagaDBKV[name];
     E.raga.value = r[0];
-    E.raga_info.innerHTML = '<h3>' + r[0] + '</h3> arohanam: ' + r[1].join(', ') + '<br/>avarohanam: ' + r[2].join(', ');
+    E.raga_info.innerHTML = '<h3>' + r[0] + (Melakartas[r[0]] ? ' <small>(mela)</small>' : '') + '</h3> arohanam: ' + r[1].join(', ') + '<br/>avarohanam: ' + r[2].join(', ');
 }
 
 function format(ragas, func) {
@@ -147,7 +168,7 @@ function format(ragas, func) {
     } 
 
     ragas = ragas.map(function (r) {
-        return '<a href=\'javascript:' + func + '("' + r + '")\'>' + r + '</a>';
+        return '<a href=\'javascript:' + func + '("' + r + '")\'>' + taggedRaga(r) + '</a>';
     });
 
     return ragas.join(', ') + suffix;
