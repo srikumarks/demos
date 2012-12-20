@@ -53,7 +53,8 @@ function findMelaKartas(db) {
             return;
         }
 
-        if (r[1][0].match(/^S[rRg][RgG][mM]P[dDn][DnN]S$/) && r[2][0].match(/^S[DnN][dDn]P[mM][RgG][rRg]S$/)) {
+        if (r[1][0].match(/^S(rR|rg|rG|Rg|RG|gG)[mM]P(dD|dn|dN|Dn|DN|nN)S$/) 
+            && Array.prototype.slice.call(r[1][0]).reverse().join('') === r[2][0]) {
             result[r[0]] = true;
         }
     });
