@@ -6,7 +6,7 @@
     </head>
     <body>
         <table cellpadding="24" width="25%">
-            <tr style="font-size: 48pt">
+           <tr style="font-size: 48pt; text-align: center">
                 <td id="normal"></td>
                 <td id="overline"></td>
                 <td id="underline"></td>
@@ -17,11 +17,22 @@
                 <td id="underdot"></td>
                 <td id="underddot"></td>
             </tr>
-            <tr>
+            <tr style="font-size: 12pt; text-align: center;">
+                <td>1</td>
+                <td>2</td>
+                <td>3</td>
+                <td>4</td>
+                <td>5</td>
+                <td>6</td>
+                <td>7</td>
+                <td>8</td>
+                <td>9</td>
+            </tr>
+             <tr>
                 <td colspan="9">
                     <ol>
                         <li>Press any key to see variations of the character.</li>
-                        <li>Click on letter above to apply accent.</li>
+                        <li>Click on letter or press number key above to apply accent.</li>
                         <li>Press ENTER key to make another word/line.</li>
                     </ol>
                 </td>
@@ -71,10 +82,11 @@
             }
 
             document.body.onkeypress = function (event) {
-                console.log(event);
                 if (event.charCode === 13) {
                     wordList += word.join('') + '<br/>';
                     word = [];
+                } else if (event.charCode >= 49 && event.charCode <= 49+8) {
+                    E[Ids[event.charCode - 49]].onclick();
                 } else {
                     word.push(String.fromCharCode(event.charCode));
                     showChars(String.fromCharCode(event.charCode));
