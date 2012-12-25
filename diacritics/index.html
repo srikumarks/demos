@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <title>Diacritics</title>
+    </head>
+    <body>
+        <table cellpadding="24" width="25%">
+            <tr style="font-size: 48pt">
+                <td id="normal"></td>
+                <td id="overline"></td>
+                <td id="underline"></td>
+                <td id="breve"></td>
+                <td id="tilde"></td>
+                <td id="overdot"></td>
+                <td id="overddot"></td>
+                <td id="underdot"></td>
+                <td id="underddot"></td>
+            </tr>
+            <tr>
+                <td colspan="9">
+                    <ol>
+                        <li>Press any key to see variations of the character.</li>
+                        <li>Click on letter above to apply accent.</li>
+                        <li>Press ENTER key to make another word/line.</li>
+                    </ol>
+                </td>
+            </tr>
+            <tr style="font-size: 24pt">
+                <td id="words" colspan="9"></td>
+            </tr>
+        </table>
+        <script>
+            var E = {};
+            var Ids = ["normal", "overline", "underline", "breve", "tilde", "overdot", "overddot", "underdot", "underddot"];
+            
+            Ids.forEach(function (id) {
+                E[id] = document.getElementById(id);
+                E[id].onclick = function () {
+                    word.pop();
+                    word.push(E[id].innerText);
+                    showWords();
+                };
+            });
+
+            var Words = document.getElementById('words');
+
+            var wordList = "Śankarābharaṇam" + '<br/>';
+            var word = [];
+
+            var Suffix = {
+                normal: "",
+                overline: String.fromCharCode(parseInt("0304", 16)),
+                underline: String.fromCharCode(parseInt("0331", 16)),
+                overdot: String.fromCharCode(parseInt("0307", 16)),
+                overddot: String.fromCharCode(parseInt("0308", 16)),
+                breve: String.fromCharCode(parseInt("0301", 16)),
+                tilde: String.fromCharCode(parseInt("0303", 16)),
+                underdot: String.fromCharCode(parseInt("0323", 16)),
+                underddot: String.fromCharCode(parseInt("0324", 16))
+            };
+
+            function showChars(c) {
+                Ids.forEach(function (id) {
+                    E[id].innerText = c + Suffix[id];
+                });
+            }
+
+            function showWords() {
+                Words.innerHTML = wordList + word.join('');
+            }
+
+            document.body.onkeypress = function (event) {
+                console.log(event);
+                if (event.charCode === 13) {
+                    wordList += word.join('') + '<br/>';
+                    word = [];
+                } else {
+                    word.push(String.fromCharCode(event.charCode));
+                    showChars(String.fromCharCode(event.charCode));
+                }
+                showWords();
+            };
+
+            showChars('a');
+            showWords();
+        </script>
+    </body>
+</html>
+
