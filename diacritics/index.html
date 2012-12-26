@@ -5,7 +5,7 @@
         <title>Diacritics</title>
     </head>
     <body>
-        <table cellpadding="24" width="25%">
+        <table cellspacing="24" width="25%">
            <tr style="font-size: 48pt; text-align: center">
                 <td id="normal"></td>
                 <td id="overline"></td>
@@ -28,17 +28,12 @@
                 <td>8</td>
                 <td>9</td>
             </tr>
-             <tr>
+            <tr>
                 <td colspan="9">
-                    <ol>
-                        <li>Press any key to see variations of the character.</li>
-                        <li>Click on letter above or press corresponding number key to apply accent.</li>
-                        <li>Press ENTER key to make another word/line.</li>
-                    </ol>
+                    <p>Type in the box below. To set an accent, select the character
+                    and either click on the desired accent or press its number.</p>
+                    <textarea id="words" cols="60" rows="10" style="font-size: 18pt"></textarea>
                 </td>
-            </tr>
-            <tr style="font-size: 24pt">
-                <td id="words" colspan="9"></td>
             </tr>
         </table>
         <script>
@@ -48,16 +43,17 @@
             Ids.forEach(function (id) {
                 E[id] = document.getElementById(id);
                 E[id].onclick = function () {
-                    word.pop();
-                    word.push(E[id].innerText);
-                    showWords();
+                    setAccent(id);
                 };
             });
 
             var Words = document.getElementById('words');
 
-            var wordList = "Śankarābharaṇam" + '<br/>';
-            var word = [];
+            var KEY = 'srikumarks.github.com.demos.diacritics.text';
+            var SEP = '\n';
+
+            // Load from localStorage.
+            Words.value = localStorage[KEY] || '';
 
             var Suffix = {
                 normal: "",
@@ -71,31 +67,68 @@
                 underddot: String.fromCharCode(parseInt("0324", 16))
             };
 
+            // A single string containing all the suffixes.
+            var Suffixes = Object.keys(Suffix).map(function (k) { return Suffix[k]; }).join('');
+
+            // Displays the accented characters.
             function showChars(c) {
-                Ids.forEach(function (id) {
-                    E[id].innerText = c + Suffix[id];
-                });
-            }
-
-            function showWords() {
-                Words.innerHTML = wordList + word.join('');
-            }
-
-            document.body.onkeypress = function (event) {
-                if (event.charCode === 13) {
-                    wordList += word.join('') + '<br/>';
-                    word = [];
-                } else if (event.charCode >= 49 && event.charCode <= 49+8) {
-                    E[Ids[event.charCode - 49]].onclick();
-                } else {
-                    word.push(String.fromCharCode(event.charCode));
-                    showChars(String.fromCharCode(event.charCode));
+                if (c && !/\s/.test(c)) {
+                    Ids.forEach(function (id) {
+                        E[id].innerText = c + Suffix[id];
+                    });
                 }
-                showWords();
+            }
+
+            // Changes the diacritic for the current selection character.
+            // The diacritic is identified by its id name.
+            function setAccent(id) {
+                if (WordsCursor.end > WordsCursor.start && !/\s/.test(Words.value[WordsCursor.start])) {
+                    var numChars = Suffixes.indexOf(Words.value[WordsCursor.start+1]) >= 0 ? 2 : 1;
+
+                    // Edit the string.
+                    Words.value = Words.value.substring(0, WordsCursor.start) 
+                        + Words.value[WordsCursor.start] + Suffix[id] 
+                        + Words.value.substring(WordsCursor.start + numChars);
+
+                    // Select the edited character.
+                    if (Suffix[id].length > 0) {
+                        Words.setSelectionRange(WordsCursor.start, WordsCursor.start + 2);
+                    } else {
+                        Words.setSelectionRange(WordsCursor.start, WordsCursor.start + 1);
+                    }
+
+                    // Store the result in localStorage.
+                    localStorage[KEY] = Words.value;
+                }
+            }
+
+            var WordsCursor = {start: Words.selectionStart, end: Words.selectionEnd};
+
+            Words.onselect = function () {
+                WordsCursor.start = Words.selectionStart;
+                WordsCursor.end = Words.selectionEnd;
+
+                if (WordsCursor.end > WordsCursor.start) {
+                    showChars(Words.value[WordsCursor.start]);
+                }
+            };
+
+            Words.onkeypress = function (event) {
+                var k = String.fromCharCode(event.charCode);
+                if (k >= '1' && k <= '9') {
+                    // Keys 1 to 9 are mapped to the accents when a selection is active.
+                    if (WordsCursor.end > WordsCursor.start) {
+                        setAccent(Ids[k.charCodeAt(0) - '1'.charCodeAt(0)]);
+                        return false;
+                    }
+                }
+            };
+
+            Words.onchange = function () {
+                localStorage[KEY] = Words.value;
             };
 
             showChars('a');
-            showWords();
         </script>
     </body>
 </html>
