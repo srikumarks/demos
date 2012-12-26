@@ -115,6 +115,9 @@
 
             Words.onkeypress = function (event) {
                 var k = String.fromCharCode(event.charCode);
+                WordsCursor.start = Words.selectionStart;
+                WordsCursor.end = Words.selectionEnd;
+
                 if (k >= '1' && k <= '9') {
                     // Keys 1 to 9 are mapped to the accents when a selection is active.
                     if (WordsCursor.end > WordsCursor.start) {
