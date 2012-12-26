@@ -100,7 +100,16 @@
 
                     // Store the result in localStorage.
                     localStorage[KEY] = Words.value;
-                }
+
+                    flash(id);
+                 }
+            }
+
+            function flash(id) {
+                E[id].style.backgroundColor = 'rgb(210,210,210)';
+                setTimeout(function () {
+                    E[id].style.backgroundColor = 'white';
+                }, 90);
             }
 
             var WordsCursor = {start: Words.selectionStart, end: Words.selectionEnd};
