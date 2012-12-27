@@ -30,9 +30,20 @@
             </tr>
             <tr>
                 <td colspan="9">
-                    <p>Type in the box below. To add a diacritical mark to a character, 
-                    select it first and either click on the desired mark or press the
-                    number key corresponding to the mark.</p>
+                    <ul>
+                        <li>Type normal roman text first in the box below.</li>
+                        <li>To add a diacritical mark to a character, select it
+                        first and either click on the desired mark or press the
+                        number key corresponding to the mark.</li>
+                        <li>As you markup words, the page will remember the
+                        diacritical marks you apply to each word and
+                        automatically apply to the same word the next time you
+                        use it.</li>
+                        <li>To remove diacritics for a word, select the whole
+                        word and press '0'.</li>
+                        <li>To define the new diacritic form of a word, select
+                        its new form and press '='.</li>
+                    </ul>
                     <textarea id="words" cols="60" rows="15" style="font-size: 18pt"></textarea>
                 </td>
             </tr>
@@ -51,10 +62,12 @@
             var Words = document.getElementById('words');
 
             var KEY = 'srikumarks.github.com.demos.diacritics.text';
+            var SPELLKEY = 'srikumarks.github.com.demos.diacritics.spellings';
             var SEP = '\n';
 
             // Load from localStorage.
             Words.value = localStorage[KEY] || '';
+            var Spellings = JSON.parse(localStorage[SPELLKEY] || '{}');
 
             var Suffix = {
                 normal: "",
@@ -70,6 +83,86 @@
 
             // A single string containing all the suffixes.
             var Suffixes = Object.keys(Suffix).map(function (k) { return Suffix[k]; }).join('');
+            var SuffixRE = new RegExp('[' + Suffixes + ']');
+            var WordRE = new RegExp('\\b([A-Za-z][' + Suffixes + ']?)+', 'g');
+
+            function pureAlpha(word) {
+                return word.match(/[A-Za-z]/g).join('');
+            }
+
+            function learnSpelling(word) {
+                var alpha = pureAlpha(word);
+                var alphaKey = '-' + alpha;
+
+                if (alpha !== word) {
+                    if (Spellings[alphaKey]) {
+                        // spelling already known. Check if the new one
+                        // conforms to the known one.
+                        if (Spellings[alphaKey] === word) {
+                            // Known and correct spelling. Nothing to do.
+                        } else {
+                            // Known, but we have a new spelling. So delete the old one.
+                            delete Spellings[alphaKey];
+                        }
+                    } else {
+                        // Unknown spelling. Add it.
+                        Spellings[alphaKey] = word;
+                    }
+                }
+            }
+
+            function findAlphaKeys(text) {
+                var alphaKeys = {};
+                text.match(WordRE).forEach(function (w) {
+                    alphaKeys['-' + pureAlpha(w)] = true;
+                })
+                return Object.keys(alphaKeys);
+            }
+
+            function applySpelling(alphaKey, text) {
+                var fixedWord = Spellings[alphaKey];
+                if (!fixedWord) {
+                    return text;
+                }
+
+                var fragments = [];
+                var i = 0;
+                var wordRE = new RegExp('\\b' + Array.prototype.slice.call(alphaKey, 1).map(function (c) { return c + '[' + Suffixes + ']?'; }).join('') + '(?![A-Za-z])', 'g');
+                var m;
+                while (m = wordRE.exec(text)) {
+                    fragments.push(text.substring(i, m.index));
+                    fragments.push(fixedWord);
+                    i = m.index + m[0].length;
+                }
+                fragments.push(text.substring(i));
+
+                return fragments.join('');
+            }
+
+            function uniquify(wordArr) {
+                if (!wordArr) {
+                    return [];
+                }
+                var hash = {};
+                wordArr.forEach(function (w) {
+                    hash['-' + w] = true;
+                });
+                return Object.keys(hash).map(function (w) { return w.substring(1); });
+            }
+
+            function learnAllSpellings(text) {
+                uniquify(text.match(WordRE)).forEach(function (w) {
+                    learnSpelling(w);
+                });
+            }
+
+            function applyAllSpellings(text) {
+                var alphaKeys = findAlphaKeys(text);
+                alphaKeys.forEach(function (k) {
+                    text = applySpelling(k, text);
+                });
+                return text;
+            }
 
             // Displays the accented characters.
             function showChars(c) {
@@ -116,7 +209,9 @@
                 var saveTimer;
 
                 function saveFn() {
+                    trackSelection();
                     localStorage[KEY] = Words.value;
+                    localStorage[SPELLKEY] = JSON.stringify(Spellings);
                     saveTimer = undefined;
                 }
 
@@ -125,15 +220,19 @@
                         clearTimeout(saveTimer);
                     }
 
-                    saveTimer = setTimeout(saveFn, 100);
+                    saveTimer = setTimeout(saveFn, 200);
                 };
             }());
 
             var WordsCursor = {start: Words.selectionStart, end: Words.selectionEnd};
 
-            Words.onselect = function () {
+            function trackSelection() {
                 WordsCursor.start = Words.selectionStart;
                 WordsCursor.end = Words.selectionEnd;
+            }
+
+            Words.onselect = function () {
+                trackSelection();
 
                 if (WordsCursor.end > WordsCursor.start) {
                     showChars(Words.value[WordsCursor.start]);
@@ -142,15 +241,34 @@
 
             Words.onkeypress = function (event) {
                 var k = String.fromCharCode(event.charCode);
-                WordsCursor.start = Words.selectionStart;
-                WordsCursor.end = Words.selectionEnd;
+                trackSelection();
 
                 if (k >= '1' && k <= '9') {
                     // Keys 1 to 9 are mapped to the accents when a selection is active.
                     if (WordsCursor.end > WordsCursor.start) {
                         setAccent(Ids[k.charCodeAt(0) - '1'.charCodeAt(0)]);
+                        trackSelection();
                         return false;
                     }
+                } else if (k === '0') {
+                    var w = Words.value.substring(WordsCursor.start, WordsCursor.end);
+                    var a = pureAlpha(w);
+                    Spellings['-' + a] = a;
+                    Words.value = applyAllSpellings(Words.value);
+                    delete Spellings['-' + a];
+                    trackSelection();
+                    return false;
+                } else if (k === '=') {
+                    var w = Words.value.substring(WordsCursor.start, WordsCursor.end);
+                    var a = pureAlpha(w);
+                    Spellings['-' + a] = w;
+                    Words.value = applyAllSpellings(Words.value);
+                    trackSelection();
+                    return false;
+                } else if (/[^A-Za-z]/.test(k)) {
+                    learnAllSpellings(Words.value);
+                    Words.value = applyAllSpellings(Words.value);
+                    trackSelection();
                 }
 
                 save();
