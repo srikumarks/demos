@@ -99,7 +99,7 @@
                     }
 
                     // Store the result in localStorage.
-                    localStorage[KEY] = Words.value;
+                    save();
 
                     flash(id);
                  }
@@ -111,6 +111,23 @@
                     E[id].style.backgroundColor = 'white';
                 }, 90);
             }
+
+            var save = (function () {
+                var saveTimer;
+
+                function saveFn() {
+                    localStorage[KEY] = Words.value;
+                    saveTimer = undefined;
+                }
+
+                return function save() {
+                    if (saveTimer) {
+                        clearTimeout(saveTimer);
+                    }
+
+                    saveTimer = setTimeout(saveFn, 100);
+                };
+            }());
 
             var WordsCursor = {start: Words.selectionStart, end: Words.selectionEnd};
 
@@ -135,11 +152,11 @@
                         return false;
                     }
                 }
+
+                save();
             };
 
-            Words.onchange = function () {
-                localStorage[KEY] = Words.value;
-            };
+            Words.onchange = Words.onkeydown = Words.onkeyup = save;
 
             showChars('a');
         </script>
