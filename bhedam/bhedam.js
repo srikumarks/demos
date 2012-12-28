@@ -147,10 +147,19 @@ function taggedRaga(r) {
     return (Melakartas[r] ? '*' : '') + r;
 }
 
+function a(href, text) {
+    return '<a href="' + href + '">' + text + '</a>';
+}
+
+function ragaWithLink(r) {
+    var url = 'http://en.wikipedia.org/wiki/' + encodeURIComponent(r);
+    return a(url, '<img src="http://en.wikipedia.org/favicon.ico"/>') + ' ' + a(url, r);
+}
+
 function showRaga(name) {
     var r = RagaDBKV[name];
     E.raga.value = r[0];
-    E.raga_info.innerHTML = '<h3>' + r[0] + (Melakartas[r[0]] ? ' <small>(mela)</small>' : '') + '</h3> arohanam: ' + r[1].join(', ') + '<br/>avarohanam: ' + r[2].join(', ');
+    E.raga_info.innerHTML = '<h3>' + ragaWithLink(r[0]) + (Melakartas[r[0]] ? ' <small>(mela)</small>' : '') + '</h3> arohanam: ' + r[1].join(', ') + '<br/>avarohanam: ' + r[2].join(', ');
 }
 
 function format(ragas, func) {
