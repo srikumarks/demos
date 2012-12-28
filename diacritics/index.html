@@ -94,7 +94,10 @@
                 var alpha = pureAlpha(word);
                 var alphaKey = '-' + alpha;
 
-                if (alpha !== word) {
+                if (alpha !== word && alpha.length() > 3) {
+                    // Only learn spellings for words longer than 3 characters.
+                    // Otherwise stuff like next octave Ri would end up as a
+                    // word in the dictionary.
                     if (Spellings[alphaKey]) {
                         // spelling already known. Check if the new one
                         // conforms to the known one.
