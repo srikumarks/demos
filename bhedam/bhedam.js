@@ -14,10 +14,6 @@ var G = elements(["gr1", "gr2", "gg1", "gg2", "gm1", "gm2", "gp", "gd1", "gd2", 
 var S = elements(["sr1", "sr2", "sg1", "sg2", "sm1", "sm2", "sp", "sd1", "sd2", "sn1", "sn2"]);
 var bhedamSvaras = "rRgGmMPdDnN";
 
-function findRagaMatch(svaras) {
-    return "none";
-}
-
 var svarasthanas = {
     S: 0, r: 1, R: 2, g: 3, G: 4, m: 5, M: 6, P: 7, d: 8, D: 9, n: 10, N: 11,
     'Ṡ': 12, 'ṙ': 13, 'Ṙ': 14, 'ġ': 15, 'Ġ': 16, 'ṁ': 17, 'Ṁ': 18, 'Ṗ': 19, 'ḋ': 20, 'Ḋ': 21, 'ṅ': 22, 'Ṅ': 23
@@ -32,11 +28,7 @@ var sthanaNames = {
 var svarasPat = /[SrRgGmMPdDnN]/g;
 
 function fold(c, n) {
-    if (c < 0) {
-        return (c + 12) % n;
-    } else {
-        return c % n;
-    }
+    return (c < 0) ? ((c + 12) % n) : (c % n);
 }
 
 var RagaDBKV = {};
