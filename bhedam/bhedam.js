@@ -147,13 +147,14 @@ function taggedRaga(r) {
     return (Melakartas[r] ? '*' : '') + r;
 }
 
-function a(href, text) {
-    return '<a href="' + href + '">' + text + '</a>';
+function a(href, text, newWindow) {
+    return '<a href="' + href + '"' + (newWindow ? ' target="_blank"' : '') + '>' + text + '</a>';
 }
 
 function ragaWithLink(r) {
-    var url = 'http://en.wikipedia.org/wiki/' + encodeURIComponent(r);
-    return a(url, '<img src="http://en.wikipedia.org/favicon.ico"/>') + ' ' + a(url, r);
+    var wiki = 'http://en.wikipedia.org';
+    var url =  wiki + '/wiki/' + encodeURIComponent(r);
+    return a(url, '<img src="' + wiki + '/favicon.ico"/>', true) + ' ' + a(url, r, true);
 }
 
 function showRaga(name) {
