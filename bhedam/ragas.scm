@@ -790,7 +790,7 @@
 ("Shyamalam" ("SRgMPdDS") ("SDdPMgRS"))
 ("Deshavali" ("SRgMdDdS") ("SDdMgRS"))
 ("Vijayamalavi" ("SRMPdS") ("SDdPMRS"))
-("Shanmukhapriyaai" ("SRgMPdnS") ("SndPMgRS"))
+("Shanmukhapriya" ("SRgMPdnS") ("SndPMgRS"))
 ("Chamaram" ("SRgMPdnS") ("SndPMgRS"))
 ("Bhashini" ("SgRgMPdnS") ("SndPMgrS"))
 ("Chintamani" ("SgRgMgRgPMPDnS") ("SnDPMgRS"))
