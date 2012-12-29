@@ -205,10 +205,25 @@ function format(ragas, func) {
 var inputs = {raga: '', svaras: '', shift: ''};
 
 function search(ragaName) {
-    ragaName = ragaName.toLowerCase();
-    return RagaDB.filter(function (r) {
-        return r[0].toLowerCase().indexOf(ragaName) >= 0;
+    var ragaNameLC = ragaName.toLowerCase();
+    var exactMatch;
+    var results = RagaDB.filter(function (r) {
+        var n = r[0].toLowerCase();
+        if (ragaNameLC === n) {
+            // Remember the entry that is an exact match.
+            // We'll pull this to the head of the list
+            // so it is what gets displayed.
+            exactMatch = r;
+        }
+        return n.indexOf(ragaNameLC) >= 0 && ragaNameLC !== n;
     });
+
+    // Pull the exact match to the head of the list.
+    if (exactMatch) {
+        results.unshift(exactMatch);
+    }
+
+    return results;
 }
 
 function setRaga(ragaName) {
