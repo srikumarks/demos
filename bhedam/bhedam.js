@@ -39,14 +39,8 @@ RagaDB.forEach(function (r) {
 function processRagaLinks(RagaLinks) {
     var table = {};
     RagaLinks.forEach(function (n, i) {
-        if (i > 0) {
-            table[n[0]] = {
-                spanid: RagaLinks[n[1]][0],
-                wikiLink: RagaLinks[n[2]][0],
-                wikiText: RagaLinks[n[3]][0],
-                asciiWT: RagaLinks[n[4]][0]
-            };
-        }
+        var data = {spanid: n[0], wikiLink: n[1], wikiText: n[2], asciiWT: n[3]};
+        table[n[0]] = table[n[1]] = table[n[2]] = table[n[3]] = data;
     });
     return table;
 }
