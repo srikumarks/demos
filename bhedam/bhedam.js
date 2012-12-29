@@ -153,8 +153,20 @@ function a(href, text, newWindow) {
 
 function ragaWithLink(r) {
     var wiki = 'http://en.wikipedia.org';
-    var url =  wiki + '/wiki/' + encodeURIComponent(r);
-    return a(url, '<img src="' + wiki + '/favicon.ico"/>', true) + ' ' + a(url, r, true);
+    var favicon = '<img src="' + wiki + '/favicon.ico"/>';
+    var info = RagaLinks[r];
+    var url;
+    if (info && info.wikiLink) {
+        url = wiki + '/wiki/' + encodeURIComponent(info.wikiLink);
+    } else if (info && info.spanid) {
+        url = wiki + '/wiki/List_of_Janya_Ragas#' + encodeURIComponent(info.spanid);
+    }
+    
+    if (url) {
+        return a(url, favicon, true) + ' ' + a(url, (info && info.wikiText) || r, true);
+    } else {
+        return (info && info.wikiText) || r;
+    }
 }
 
 function showRaga(name) {
