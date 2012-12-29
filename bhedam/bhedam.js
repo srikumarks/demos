@@ -36,6 +36,24 @@ RagaDB.forEach(function (r) {
     RagaDBKV[r[0]] = r;
 });
 
+function processRagaLinks(RagaLinks) {
+    var table = {};
+    RagaLinks.names.forEach(function (n, i) {
+        if (i > 0) {
+            var info = RagaLinks.info[i];
+            table[n] = {
+                spanid: RagaLinks.names[info[0]],
+                wikiLink: RagaLinks.names[info[1]],
+                wikiText: RagaLinks.names[info[2]],
+                asciiWT: RagaLinks.names[info[3]]
+            };
+        }
+    });
+    return table;
+}
+
+RagaLinks = processRagaLinks(RagaLinks);
+
 function findMelaKartas(db) {
     var result = {};
 
