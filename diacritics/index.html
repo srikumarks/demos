@@ -130,7 +130,7 @@
 
                 var fragments = [];
                 var i = 0;
-                var wordRE = new RegExp('\\b' + Array.prototype.slice.call(alphaKey, 1).map(function (c) { return c + '[' + Suffixes + ']?'; }).join('') + '(?![A-Za-z])', 'g');
+                var wordRE = new RegExp('\\b' + Array.prototype.slice.call(alphaKey, 1).map(function (c) { return c + '[' + Suffixes + ']?'; }).join('') + '(?![A-Za-z' + Suffixes + '])', 'g');
                 var m;
                 while (m = wordRE.exec(text)) {
                     fragments.push(text.substring(i, m.index));
