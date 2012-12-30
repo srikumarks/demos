@@ -6,4 +6,4 @@
 	url = git://github.com/marijnh/CodeMirror.git
 [submodule "bhedam"]
 	path = bhedam
-	url = git@github.com:srikumarks/bhedam.git
+	url = git://github.com/srikumarks/bhedam.git
