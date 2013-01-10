@@ -9,4 +9,4 @@
 	url = git://github.com/srikumarks/bhedam.git
 [submodule "re"]
 	path = re
-	url = git://github.com/srikumarks/rhythm-engine.git
+	url = git://github.com/lonce/rhythm-engine.git
