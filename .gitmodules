@@ -7,6 +7,3 @@
 [submodule "bhedam"]
 	path = bhedam
 	url = git://github.com/srikumarks/bhedam.git
-[submodule "re"]
-	path = re
-	url = git://github.com/srikumarks/rhythm-engine.git
