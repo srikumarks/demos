@@ -10,3 +10,6 @@
 [submodule "re"]
 	path = re
 	url = git://github.com/srikumarks/rhythm-engine.git
+[submodule "music-lessons"]
+	path = music-lessons
+	url = git://github.com/srikumarks/music-lessons.git
