@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="../lib/codemirror/lib/codemirror.js"></script>
+        <link rel="stylesheet" href="../lib/codemirror/lib/codemirror.css">
+        <script src="../lib/codemirror/mode/javascript/javascript.js"></script>
+        <script src="steller.js"></script>
+        <script src="steller_explorer.js" defer></script>
+        <style type="text/css">
+            img, canvas {
+                border: solid;
+                border-width: 1px;
+                margin: 5px;
+                padding: 5px;
+                border-color: #cfcfcf;
+            }
+        </style>
+        <!-- google analytics -->
+        <script type="text/javascript">
+
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-37337144-1']);
+            _gaq.push(['_trackPageview']);
+
+            (function() {
+                 var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+                 ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                 var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+             })();
+
+         </script>
+    </head>
+    <body>
+        <table>
+            <tr>
+                <td width="30%" valign="top">
+                    <div>
+                        <canvas id="canvas" width="256" height="256"/>
+                    </div>
+                    <div>
+                        <button id="export">Save image</button>
+                        <div><small>
+                                <ul>
+                                    <li>Saved images appear below.</li>
+                                    <li>Click image to load its code.</li>
+                                    <li>Shift-click to delete a saved image.</li>
+                                </ul>
+                            </small></div>
+                    </div>
+                    <hr/>
+                    <div id="rendered"></div>
+                </td>
+                <td width="50%" valign="top">
+<textarea id="code" placeholder="Canvas drawing code" cols="80" rows="50">
+</textarea>
+<div id="example_buttons">
+    Examples: 
+</div>
+<div id="example_code" hidden>
+    <pre data-name="Instructions">
+// Code goes here. To evaluate a line, position cursor on it
+// and press "Alt-Enter". To evaluate a selection, select code
+// and press "Alt-Enter".
+//
+// Methods of the canvas 2d context can simply be called 
+// without the "context." object prefix.
+// 
+// Math functions can be used without the "Math." prefix.
+//
+// For CSS colors, the function rgba(r,g,b,a) is available
+// and better suited for use with Animations.
+//
+// A steller Scheduler instance is now running and its methods
+// such as play(), track(), etc. are also available without an
+// object prefix.
+//
+// All the models in the 'models' property of the steller Scheduler
+// are also available unprefixed.
+
+// Some basic setup code.
+R = 128;
+C = R/2;
+canvas.width = R;
+canvas.height = R;
+canvas.style.backgroundColor = 'black';
+
+// Make a parameter that we'll animate.
+pos = Param({min: C - 30, max: C + 30, value: C});
+
+// The draw function will draw a box at the position given
+// by `pos`.
+draw = function (clock) {
+    clearRect(0, 0, R, R);
+    fillStyle = 'blue';
+    fillRect($pos.valueOf(), C, 20, 20);
+};
+
+// Start the draw loop.
+play(loop(frame(draw)));
+
+// Make a chime model instance and connect it to the audio destination.
+ch = chime().connect();
+
+// Convenience function to play a note using the chime model.
+note = function (p, d) {
+    return track([ch.play(p, 1.0), delay(d)]);
+};
+
+// Play a looping pattern and insert a sync object at the
+// start of the loop so that we can sync events to that.
+s = sync();
+play(loop(track([s, note(72,0.5), note(79,0.5), note(84,0.5)])));
+
+// Run the line below to play a note exactly at the start of the above loop.
+s.play(note(96,0.5));
+
+// Run the line below to start animating the rectangle's position
+// exactly at the start of the above note loop.
+s.play(loop(anim(pos, 1.5, C-30, C+30)));
+
+cancel(); // Run this line to stop the scheduled tasks whenever you want them to.
+    </pre>
+</div>
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>
