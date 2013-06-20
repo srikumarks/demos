@@ -181,7 +181,7 @@ function evalCode(code) {
     }
     
     function store(code) {
-        localStorage[key] = {code: code, recording: getRecording()};
+        localStorage[key] = JSON.stringify({code: code, recording: getRecording()});
 
         var r = elements.rendered;
         var imgs = r.getElementsByTagName('img');
