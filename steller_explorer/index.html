@@ -92,7 +92,7 @@ pos = Param({min: C - 30, max: C + 30, value: C});
 draw = function (clock) {
     clearRect(0, 0, R, R);
     fillStyle = 'blue';
-    fillRect($pos.valueOf(), C, 20, 20);
+    fillRect(pos.valueOf(), C, 20, 20);
 };
 
 // Start the draw loop.
