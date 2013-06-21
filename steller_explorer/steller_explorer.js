@@ -8,8 +8,6 @@ window.requestAnimationFrame =  window.requestAnimationFrame ||
 var canvas, context, render, t = 0, Animate = false;
 var $steller_scheduler = new org.anclab.steller.Scheduler(new org.anclab.steller.AudioContext);
 
-$steller_scheduler.play($steller_scheduler.models.chime().connect().play(440,1.0));
-
 // Exposed function which is better to work with than the string form.
 function rgba(r, g, b, a) {
     return 'rgba(' + Math.round(r) + ', ' + Math.round(g) + ', ' + Math.round(b) + ', ' + a + ')';
@@ -105,6 +103,65 @@ function evalCode(code) {
     canvas = elements.canvas;
     context = canvas.getContext('2d');
     canvasCode.setOption('lineNumbers', true);
+    var param_control;
+    canvasCode.on('cursorActivity', function (cm) {
+        var token = cm.getTokenAt(cm.getCursor());
+        if (param_control) {
+            param_control.hidden = true;
+            param_control = undefined;
+        }
+        if (token.className === 'variable') {
+            // Check if it is a Param.
+            var p = window[token.string];
+            if (p && p instanceof org.anclab.steller.Param) {
+                // Yup. Put up the slider.
+                if (!p.slider) {
+                    var d = document.createElement('div');
+                    d.style.position = 'fixed';
+                    d.style.background = '#efefef';
+                    d.style.border = '2px solid black';
+                    d.style.borderRadius = '5px';
+                    d.style.width = '240px';
+                    
+                    var slider = document.createElement('input');
+                    slider.setAttribute('type', 'range');
+                    slider.setAttribute('min', '0.0');
+                    slider.setAttribute('max', '1.0');
+                    slider.setAttribute('step', '0.01');
+                    p.bind(slider);
+                    var name = document.createElement('span');
+                    name.innerText = token.string + ': ';
+                    name.style.fontFamily = 'sans-serif';
+                    name.style.fontWeight = 'bold';
+
+                    var t = document.createElement('span');
+                    d.insertAdjacentElement('beforeend', name);
+                    d.insertAdjacentElement('beforeend', slider);
+                    d.insertAdjacentElement('beforeend', t);
+                    p.watch(function (val) {
+                        t.innerText = Math.round(1000 * val)/1000;
+                    });
+                    p.slider = d;
+                    t.innerText = Math.round(1000 * p.value)/1000;
+                    document.body.insertAdjacentElement('beforeend', d);
+                } else {
+                    p.slider.hidden = false;
+                }
+
+                var xy = cm.cursorCoords();
+                p.slider.style.zIndex = 100;
+                p.slider.style.left = xy.left + 'px';
+                p.slider.style.top = (xy.top - 24) + 'px';
+
+                param_control = p.slider;
+                return;
+            }
+        }
+
+        if (param_control) {
+            param_control.hidden = false;
+        }
+    });
 
     var codeChangeTime = Date.now();
     var debounceTime = 300;
