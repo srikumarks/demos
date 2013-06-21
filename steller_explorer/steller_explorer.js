@@ -110,6 +110,7 @@ function evalCode(code) {
             param_control.hidden = true;
             param_control = undefined;
         }
+
         if (token.className === 'variable') {
             // Check if it is a Param.
             var p = window[token.string];
