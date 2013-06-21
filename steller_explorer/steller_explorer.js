@@ -122,7 +122,6 @@ function evalCode(code) {
                     d.style.background = '#efefef';
                     d.style.border = '2px solid black';
                     d.style.borderRadius = '5px';
-                    d.style.width = '240px';
                     
                     var slider = document.createElement('input');
                     slider.setAttribute('type', 'range');
@@ -140,10 +139,10 @@ function evalCode(code) {
                     d.insertAdjacentElement('beforeend', slider);
                     d.insertAdjacentElement('beforeend', t);
                     p.watch(function (val) {
-                        t.innerText = Math.round(1000 * val)/1000;
+                        t.innerText = ' ' + (Math.round(100 * val)/100);
                     });
                     p.slider = d;
-                    t.innerText = Math.round(1000 * p.value)/1000;
+                    t.innerText = ' ' + (Math.round(100 * p.value)/100);
                     document.body.insertAdjacentElement('beforeend', d);
                 } else {
                     p.slider.hidden = false;
