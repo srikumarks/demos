@@ -53,6 +53,7 @@
                 <td width="50%" valign="top">
 <textarea id="code" placeholder="Canvas drawing code" cols="80" rows="50">
 </textarea>
+<br/>
 <div id="example_buttons">
     Examples: 
 </div>
@@ -119,6 +120,34 @@ s.play(note(96,0.5));
 s.play(loop(anim(pos, 1.5, C-30, C+30)));
 
 cancel(); // Run this line to stop the scheduled tasks whenever you want them to.
+    </pre>
+    <pre data-name="Temporal recursion">
+ch = chime().connect();
+
+// Convenience function to play a note using the chime model.
+note = function (p, d) {
+    return track([ch.play(p, 1.0), delay(d)]);
+};
+
+speed = 2;
+durations = [0.25, 0.5, 0.25, 0.25, 0.25, 0.25, 0.5, 0.5, 1.0];
+random_duration = function () {
+  return durations[floor(random() * durations.length)] / speed;
+};
+
+penta = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24];
+penta1 = [0, 2, 4, 7, 9, 12];
+major = [0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19, 21, 23, 24];
+minor = [0, 2, 3, 5, 7, 9, 10, 12, 14, 15, 17, 19, 21, 22, 24];
+scale = minor;
+
+random_note = dynamic(function (clock) {
+    return track([note(72 + scale[floor(scale.length * random())], random_duration()), random_note]);
+});
+
+play(random_note);
+    
+cancel();    
     </pre>
 </div>
                 </td>
