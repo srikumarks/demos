@@ -122,7 +122,13 @@ s.play(loop(anim(pos, 1.5, C-30, C+30)));
 cancel(); // Run this line to stop the scheduled tasks whenever you want them to.
     </pre>
     <pre data-name="Temporal recursion">
-ch = chime().connect();
+// Reminder: Alt-Enter on a line will evaluate that line. If some
+// is selected, then that will be evaluated.
+//
+// Select all of this text area except the last cancel() line
+// and hit Alt-Enter.
+
+ch = chime().connect(); // Chime model connected to destination.
 
 // Convenience function to play a note using the chime model.
 note = function (p, d) {
