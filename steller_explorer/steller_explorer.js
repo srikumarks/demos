@@ -151,7 +151,7 @@ function evalCode(code) {
                 var xy = cm.cursorCoords();
                 p.slider.style.zIndex = 100;
                 p.slider.style.left = xy.left + 'px';
-                p.slider.style.top = (xy.top - 24) + 'px';
+                p.slider.style.top = (xy.top - 32) + 'px';
 
                 param_control = p.slider;
                 return;
