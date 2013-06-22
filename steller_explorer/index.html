@@ -127,6 +127,9 @@ cancel(); // Run this line to stop the scheduled tasks whenever you want them to
 //
 // Select all of this text area except the last cancel() line
 // and hit Alt-Enter.
+//
+// After evaluating code, positioning cursor within a name assigned
+// to a Param will pop up a slider to change its value.
 
 ch = chime().connect(); // Chime model connected to destination.
 
@@ -136,24 +139,26 @@ note = function (p, d) {
 };
 
 speed = Param({min:0.1, max:5.0, value:1.5, mapping:'log'});
+pitch = Param({min:60, max:96, value:72});
 durations = [0.25, 0.5, 0.25, 0.25, 0.25, 0.25, 0.5, 0.5, 1.0];
 random_duration = function () {
-  return durations[floor(random() * durations.length)] / speed.valueOf();
+  return durations[floor(random() * durations.length)] / speed.value;
 };
 
 penta = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24];
 penta1 = [0, 2, 4, 7, 9, 12];
 major = [0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19, 21, 23, 24];
 minor = [0, 2, 3, 5, 7, 9, 10, 12, 14, 15, 17, 19, 21, 22, 24];
-scale = minor;
+maya = [0, 1, 4, 5, 7, 8, 11, 12];
+scale = maya;
 
 random_note = dynamic(function (clock) {
-    return track([note(72 + scale[floor(scale.length * random())], random_duration()), random_note]);
+    return track([note(pitch.value + scale[floor(scale.length * random())], random_duration()), random_note]);
 });
 
 play(random_note);
     
-cancel();    
+cancel();      
     </pre>
 </div>
                 </td>
