@@ -138,11 +138,31 @@ note = function (p, d) {
     return track([ch.play(p, 1.0), delay(d)]);
 };
 
+
 speed = Param({min:0.1, max:5.0, value:1.5, mapping:'log'});
 pitch = Param({min:60, max:96, value:72});
+
 durations = [0.25, 0.5, 0.25, 0.25, 0.25, 0.25, 0.5, 0.5, 1.0];
 random_duration = function () {
   return durations[floor(random() * durations.length)] / speed.value;
+};
+
+canvas.width = 400;
+canvas.height = 128;
+
+// The draw function will draw a box at the position
+// determined by n (note number) and d (duration).
+draw = function (n, d) {
+  return function (clock, t1r, t2r, start) {
+    clearRect(0, 0, canvas.width, canvas.height);
+    fillStyle = rgba(255,255,255,exp(-2*(t1r - start)/d));
+    fillRect(16 + 12 * n, 32, 12, 64);
+  };
+};
+
+noteWithKey = function (n) {
+  var d = random_duration();
+  return fork([note(pitch.value + n, d), frames(d, draw(n, d))]);
 };
 
 penta = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24];
@@ -150,10 +170,10 @@ penta1 = [0, 2, 4, 7, 9, 12];
 major = [0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19, 21, 23, 24];
 minor = [0, 2, 3, 5, 7, 9, 10, 12, 14, 15, 17, 19, 21, 22, 24];
 maya = [0, 1, 4, 5, 7, 8, 11, 12];
-scale = maya;
+scale = major;
 
 random_note = dynamic(function (clock) {
-    return track([note(pitch.value + scale[floor(scale.length * random())], random_duration()), random_note]);
+    return track([noteWithKey(scale[floor(scale.length * random())]), random_note]);
 });
 
 play(random_note);
