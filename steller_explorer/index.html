@@ -124,12 +124,17 @@ cancel(); // Run this line to stop the scheduled tasks whenever you want them to
     <pre data-name="Temporal recursion">
 // Reminder: Alt-Enter on a line will evaluate that line. If some
 // is selected, then that will be evaluated.
+
+cancel(); // Place cursor on this line and hit Alt-Enter to stop everything.
+
 //
-// Select all of this text area except the last cancel() line
-// and hit Alt-Enter.
+// Select all of the text below and hit Alt-Enter to run this example.
 //
 // After evaluating code, positioning cursor within a name assigned
 // to a Param will pop up a slider to change its value.
+
+// Note: Demonstrating simple temporal recursion to produce a sequence
+// of random notes. No visuals, only sound.
 
 ch = chime().connect(); // Chime model connected to destination.
 
@@ -147,6 +152,47 @@ random_duration = function () {
   return durations[floor(random() * durations.length)] / speed.value;
 };
 
+penta = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24];
+penta1 = [0, 2, 4, 7, 9, 12];
+major = [0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19, 21, 23, 24];
+minor = [0, 2, 3, 5, 7, 9, 10, 12, 14, 15, 17, 19, 21, 22, 24];
+maya = [0, 1, 4, 5, 7, 8, 11, 12];
+scale = major;
+
+random_note = dynamic(function (clock) {
+    return track([note(pitch.value + scale[floor(scale.length * random())], random_duration()), random_note]);
+});
+
+play(random_note);
+    </pre>
+    <pre data-name="Polyphonic visuals">
+// Reminder: Alt-Enter on a line will evaluate that line. If some
+// is selected, then that will be evaluated.
+
+cancel(); // Place cursor on this line and hit Alt-Enter to stop everything.
+
+//
+// Select all of the text below and hit Alt-Enter to run this example.
+//
+// After evaluating code, positioning cursor within a name assigned
+// to a Param will pop up a slider to change its value.
+
+ch = chime().connect(); // Chime model connected to destination.
+
+// Convenience function to play a note using the chime model.
+note = function (p, d) {
+    return track([ch.play(p, 1.0), delay(d)]);
+};
+
+
+speed = Param({min:0.1, max:5.0, value:1.5, mapping:'log'});
+pitch = Param({min:60, max:96, value:72});
+
+durations = [0.25, 0.5, 0.25, 0.25, 0.25, 0.25, 0.5, 0.5, 1.0];
+random_duration = function () {
+  return durations[floor(random() * durations.length)];
+};
+
 canvas.width = 400;
 canvas.height = 128;
 
@@ -154,15 +200,18 @@ canvas.height = 128;
 // determined by n (note number) and d (duration).
 draw = function (n, d) {
   return function (clock, t1r, t2r, start) {
-    clearRect(0, 0, canvas.width, canvas.height);
     fillStyle = rgba(255,255,255,exp(-2*(t1r - start)/d));
     fillRect(16 + 12 * n, 32, 12, 64);
   };
 };
 
+// Clear the frame as the first step in every draw cycle.
+play(loop(frame(function (clock) { clearRect(0, 0, canvas.width, canvas.height); })));
+
 noteWithKey = function (n) {
   var d = random_duration();
-  return fork([note(pitch.value + n, d), frames(d, draw(n, d))]);
+  var ds = d / speed.value; // Speed-adjusted decay duration.
+  return track([spawn(frames(5*d, draw(n, 2*ds))), note(pitch.value + n, d)]);
 };
 
 penta = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24];
@@ -172,13 +221,16 @@ minor = [0, 2, 3, 5, 7, 9, 10, 12, 14, 15, 17, 19, 21, 22, 24];
 maya = [0, 1, 4, 5, 7, 8, 11, 12];
 scale = major;
 
-random_note = dynamic(function (clock) {
-    return track([noteWithKey(scale[floor(scale.length * random())]), random_note]);
-});
+random_note = loop(dynamic(function (clock) {
+    return noteWithKey(scale[floor(scale.length * random())]);
+}));
 
-play(random_note);
-    
-cancel();      
+// Directly control the clock's rate using the speed parameter.
+// Notice that there is very little delay in response when you
+// change the speed, even if a long note has been just scheduled.
+// Position the text cursor within the "speed" variable name 
+// to control it.
+play(track([rate(speed), random_note]));
     </pre>
 </div>
                 </td>
