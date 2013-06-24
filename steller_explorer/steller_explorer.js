@@ -8,6 +8,9 @@ window.requestAnimationFrame =  window.requestAnimationFrame ||
 var canvas, context, render, t = 0, Animate = false;
 var $steller_scheduler = new org.anclab.steller.Scheduler(new org.anclab.steller.AudioContext);
 
+// Map the cancel button to the scheduler's cancel method.
+document.getElementById('cancel').onclick = function () { $steller_scheduler.cancel(); };
+
 // Exposed function which is better to work with than the string form.
 function rgba(r, g, b, a) {
     return 'rgba(' + Math.round(r) + ', ' + Math.round(g) + ', ' + Math.round(b) + ', ' + a + ')';

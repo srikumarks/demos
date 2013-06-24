@@ -39,6 +39,7 @@
                     </div>
                     <div>
                         <button id="export">Save image</button>
+                        <button id="cancel">Stop playing!</button>
                         <div><small>
                                 <ul>
                                     <li>Saved images appear below.</li>
@@ -118,15 +119,10 @@ s.play(note(96,0.5));
 // Run the line below to start animating the rectangle's position
 // exactly at the start of the above note loop.
 s.play(loop(anim(pos, 1.5, C-30, C+30)));
-
-cancel(); // Run this line to stop the scheduled tasks whenever you want them to.
     </pre>
     <pre data-name="Temporal recursion">
 // Reminder: Alt-Enter on a line will evaluate that line. If some
 // is selected, then that will be evaluated.
-
-cancel(); // Place cursor on this line and hit Alt-Enter to stop everything.
-
 //
 // Select all of the text below and hit Alt-Enter to run this example.
 //
@@ -168,9 +164,6 @@ play(random_note);
     <pre data-name="Polyphonic visuals">
 // Reminder: Alt-Enter on a line will evaluate that line. If some
 // is selected, then that will be evaluated.
-
-cancel(); // Place cursor on this line and hit Alt-Enter to stop everything.
-
 //
 // Select all of the text below and hit Alt-Enter to run this example.
 //
