@@ -260,13 +260,13 @@ function evalCode(code) {
         if (localStorage[key + '/saved_code']) {
             savedImageCode = JSON.parse(localStorage[key + '/saved_code']);
             elements.rendered.innerHTML = '';
-            $steller_scheduler.running = false;
+            //$steller_scheduler.running = false;
             for (i = savedImageCode.length - 1; i >= 0; --i) {
-                evalCode(savedImageCode[i].code);
+                //evalCode(savedImageCode[i].code);
                 saveImage(savedImageCode[i].code, savedImageCode[i].recording);
             }
-            $steller_scheduler.cancel();
-            $steller_scheduler.running = true;
+            //$steller_scheduler.cancel();
+            //$steller_scheduler.running = true;
         }
         if (localStorage[key]) {
             // Load the latest code saved.
