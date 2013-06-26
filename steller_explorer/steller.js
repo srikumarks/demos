@@ -701,11 +701,29 @@ function Scheduler(audioContext, options) {
             if (!running) {
                 running = true;
                 mainClock.advanceTo(time_secs());
+                if (playNow.activeFunc) {
+                    playNow = playNow.activeFunc;
+                    play = play.activeFunc;
+                }
                 timer.start();
             }
         } else {
             running = false;
             timer.stop();
+            playNow = (function (playNow) {
+                function inactivePlayNow(model) {
+                    schedule(model);
+                };
+                inactivePlayNow.activeFunc = playNow;
+                return inactivePlayNow;
+            }(playNow));
+            play = (function (play) {
+                function inactivePlay(model) {
+                    schedule(function () { play(model); });
+                }
+                inactivePlay.activeFunc = play;
+                return inactivePlay;
+            }(play));
         }
     });
     self.frame_rate = Param({min: 15, max: 75, value: 60});
@@ -970,7 +988,7 @@ function Scheduler(audioContext, options) {
     }
     var fire;
     if (options && options.diagnostics) {
-        do { if (4 <= LOG_LEVEL) { console.log("scheduler.js" + '[' + 631 + ']:\t', "fire: diagnostics on"); } } while (false);
+        do { if (4 <= LOG_LEVEL) { console.log("scheduler.js" + '[' + 649 + ']:\t', "fire: diagnostics on"); } } while (false);
         fire = function (callback) {
             return function (sched, clock, next) {
                 var t = time_secs();
@@ -1079,7 +1097,9 @@ function Scheduler(audioContext, options) {
                     clock.tick();
                     schedule(poll);
                 } else {
-                    animInfo.end = true;
+                    if (animInfo) {
+                        animInfo.end = true;
+                    }
                     if (clock.t2r > clock.t1r) {
                         next(sched, clock.nudgeToRel(endTime), stop);
                     } else {
@@ -1457,6 +1477,7 @@ function getAudioContext() {
             alias(ac, 'createGainNode', 'createGain');
             alias(ac, 'createDelayNode', 'createDelay');
             alias(ac, 'createJavaScriptNode', 'createScriptProcessor');
+            alias(ac, 'createWaveTable', 'createPeriodicWave');
             AudioParam = Object.getPrototypeOf(ac.createGain().gain);
             AudioParamOld = Object.getPrototypeOf(AudioParam);
             if (AudioParamOld.setValueAtTime) {
@@ -1484,6 +1505,7 @@ function getAudioContext() {
             Oscillator = Object.getPrototypeOf(ac.createOscillator());
             alias(Oscillator, 'noteOn', 'start');
             alias(Oscillator, 'noteOff', 'stop');
+            alias(Oscillator, 'setWaveTable', 'setPeriodicWave');
             return ac;
         };
     }(GLOBAL.AudioContext || GLOBAL.webkitAudioContext));
@@ -1920,7 +1942,7 @@ models.jsnode = function (spec) {
             }
         }
         if (t1 + samplesOutput < t2) {
-            do { if (1 <= LOG_LEVEL) { console.log("models/jsnode.js" + '[' + 168 + ']:\t', "Finished", t2, stopTime); } } while (false);
+            do { if (1 <= LOG_LEVEL) { console.log("models/jsnode.js" + '[' + 172 + ']:\t', "Finished", t2, stopTime); } } while (false);
             hasFinished = true;
             setTimeout(autoDestroy, Math.round(bufferLength * 1000 / AC.sampleRate));
         }
@@ -1946,7 +1968,7 @@ models.jsnode = function (spec) {
         dc && (dc.stop(0), dc.disconnect());
         merger && merger.disconnect();
         sm.drop(jsn);
-        sm.emit && sm.emit('finished');
+        sm.emit && sm.emit('ended');
     };
     var startTimer;
     sm.prepareAheadTime = 0.1;
