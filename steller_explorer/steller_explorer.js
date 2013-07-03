@@ -86,6 +86,11 @@ function evalCode(code) {
     var elements = getElements(['rendered', 'canvas', 'code', 'export', 'example_buttons', 'example_code']);
     var key = 'srikumarks.github.com/demos/steller_explorer/code';
 
+    function matches(str, re) {
+        var m = str.match(re);
+        return (m && m.length) || 0;
+    }
+
     function codeBlockAtCursor(cm) {
         // Find out the smallest complete code block around
         // the current cursor. I approximate this by taking
@@ -99,11 +104,38 @@ function evalCode(code) {
         // effect.
         var c = cm.getCursor();
 
+        var codeContext = cm.doc.getLine(c.line);
         var startLine = c.line, endLine = c.line;
-        while (/^\s/.test(cm.doc.getLine(startLine))) {
+        var indentedRE = /^\s/;
+
+        if (!indentedRE.test(codeContext)) {
+            // Potentially at end or start of block.
+            var brackets = {
+                lparen: matches(codeContext, /[\(]/g),
+                rparen: matches(codeContext, /[\)]/g),
+                lbrace: matches(codeContext, /[\{]/g),
+                rbrace: matches(codeContext, /[\}]/g),
+                lsq: matches(codeContext, /[\[]/g),
+                rsq: matches(codeContext, /[\]]/g),
+            };
+            if (brackets.lparen - brackets.rparen > 0
+                || brackets.lbrace - brackets.rbrace > 0
+                || brackets.lsq - brackets.rsq > 0) {
+                endLine = startLine + 1;
+            }
+
+            if (brackets.lparen - brackets.rparen < 0
+                || brackets.lbrace - brackets.rbrace < 0
+                || brackets.lsq - brackets.rsq < 0) {
+                startLine = startLine - 1;
+            }
+        }
+
+
+        while (indentedRE.test(cm.doc.getLine(startLine))) {
             startLine--;
         }
-        while (/^\s/.test(cm.doc.getLine(endLine))) {
+        while (indentedRE.test(cm.doc.getLine(endLine))) {
             endLine++;
         }
 
