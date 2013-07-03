@@ -106,64 +106,128 @@ function evalCode(code) {
     canvas = elements.canvas;
     context = canvas.getContext('2d');
     canvasCode.setOption('lineNumbers', true);
-    var param_control;
-    canvasCode.on('cursorActivity', function (cm) {
-        var token = cm.getTokenAt(cm.getCursor());
-        if (param_control) {
-            param_control.hidden = true;
-            param_control = undefined;
-        }
 
-        if (token.className === 'variable') {
-            // Check if it is a Param.
-            var p = window[token.string];
-            if (p && p instanceof org.anclab.steller.Param) {
-                // Yup. Put up the slider.
-                if (!p.slider) {
-                    var d = document.createElement('div');
-                    d.style.position = 'fixed';
-                    d.style.background = '#efefef';
-                    d.style.border = '2px solid black';
-                    d.style.borderRadius = '5px';
-                    
-                    var slider = document.createElement('input');
-                    slider.setAttribute('type', 'range');
-                    slider.setAttribute('min', '0.0');
-                    slider.setAttribute('max', '1.0');
-                    slider.setAttribute('step', '0.01');
-                    p.bind(slider);
-                    var name = document.createElement('span');
-                    name.innerText = token.string + ': ';
-                    name.style.fontFamily = 'sans-serif';
-                    name.style.fontWeight = 'bold';
-
-                    var t = document.createElement('span');
-                    d.insertAdjacentElement('beforeend', name);
-                    d.insertAdjacentElement('beforeend', slider);
-                    d.insertAdjacentElement('beforeend', t);
-                    p.watch(function (val) {
-                        t.innerText = ' ' + (Math.round(100 * val)/100);
-                    });
-                    p.slider = d;
-                    t.innerText = ' ' + (Math.round(100 * p.value)/100);
-                    document.body.insertAdjacentElement('beforeend', d);
-                } else {
-                    p.slider.hidden = false;
-                }
-
-                var xy = cm.cursorCoords();
-                p.slider.style.zIndex = 100;
-                p.slider.style.left = xy.left + 'px';
-                p.slider.style.top = (xy.top - 32) + 'px';
-
-                param_control = p.slider;
-                return;
+    function paramsAtPos(cm, pos) {
+        var token = cm.getTokenAt(pos);
+        var path = [];
+        while (token.className === 'property') {
+            path.unshift(token.string);
+            pos.ch = token.start;
+            token = cm.getTokenAt(pos);
+            if (token.string === '.') {
+                pos.ch = token.start;
+                token = cm.getTokenAt(pos);
             }
         }
 
-        if (param_control) {
-            param_control.hidden = false;
+        if (token.className === 'variable') {
+            path.unshift(token.string);
         }
+        
+        var params = [];
+
+        if (path.length == 0) {
+            return params;
+        }
+
+        var obj = path.reduce(function (acc, key) { return acc && acc[key]; }, window);
+
+
+        if (obj && obj instanceof org.anclab.steller.Param) {
+            // This is itself a param. So only one param to display.
+            params.push({label: path.join('.'), param: obj});
+            return params;
+        }
+
+        if (obj) {
+            // Find all members of this object that are Param instances.
+            var key, param;
+            for (key in obj) {
+                param = obj[key];
+                if (param && param instanceof org.anclab.steller.Param) {
+                    params.push({label: key, param: param});
+                }
+            }
+        }
+
+        return params;
+    }
+
+    var sliderPanelElement = (function () {
+        var e = document.createElement('div');
+        e.style.position = 'fixed';
+        e.style.background = '#efefef';
+        e.style.border = '2px solid black';
+        e.style.borderRadius = '5px';
+        e.style.zIndex = 100;
+        e.style.display = 'table';
+        e.style.padding = '3pt';
+        e.hidden = true;
+        document.body.insertAdjacentElement('beforeend', e);
+        return e;
+    }());
+
+    function hideAllSliders() {
+        var sliders = sliderPanelElement.querySelectorAll('div');
+        var i, N;
+        for (i = 0, N = sliders.length; i < N; ++i) {
+            sliders[i].style.display = 'none';
+        }
+    }
+
+    function showSliderForParam(p, dispName) {
+        if (!p.slider) {
+            var d = document.createElement('div');
+            var slider = document.createElement('input');
+            slider.setAttribute('type', 'range');
+            slider.setAttribute('min', '0.0');
+            slider.setAttribute('max', '1.0');
+            slider.setAttribute('step', '0.01');
+            slider.style.display = 'table-cell';
+            slider.style.marginLeft = '5pt';
+            slider.style.marginRight = '5pt';
+            p.bind(slider);
+            var name = document.createElement('span');
+            name.innerText = dispName + ': ';
+            name.style.fontFamily = 'sans-serif';
+            name.style.fontWeight = 'bold';
+            name.style.display = 'table-cell';
+            name.style.textAlign = 'right';
+
+            var t = document.createElement('span');
+            d.insertAdjacentElement('beforeend', name);
+            d.insertAdjacentElement('beforeend', slider);
+            d.insertAdjacentElement('beforeend', t);
+            p.watch(function (val) {
+                t.innerText = ' ' + (Math.round(100 * val)/100);
+            });
+            p.slider = d;
+            t.innerText = ' ' + (Math.round(100 * p.value)/100);
+            t.style.display = 'table-cell';
+            
+            sliderPanelElement.insertAdjacentElement('beforeend', d);
+        }
+
+        p.slider.style.display = 'table-row';
+    }
+
+    canvasCode.on('cursorActivity', function (cm) {
+        var token = cm.getTokenAt(cm.getCursor());
+
+        var ps = paramsAtPos(cm, cm.getCursor());
+        if (ps && ps.length > 0) {
+            hideAllSliders();
+            for (var i = 0, N = ps.length; i < N; ++i) {
+                showSliderForParam(ps[i].param, ps[i].label);
+            }
+            xy = cm.cursorCoords();
+            sliderPanelElement.style.display = 'table';
+            sliderPanelElement.style.left = xy.left + 'px';
+            sliderPanelElement.style.bottom = (window.innerHeight - xy.top + 8) + 'px';
+            return;
+        }
+
+        sliderPanelElement.style.display = 'none';
     });
 
     var codeChangeTime = Date.now();
@@ -260,13 +324,13 @@ function evalCode(code) {
         if (localStorage[key + '/saved_code']) {
             savedImageCode = JSON.parse(localStorage[key + '/saved_code']);
             elements.rendered.innerHTML = '';
-            //$steller_scheduler.running = false;
+            $steller_scheduler.running = false;
             for (i = savedImageCode.length - 1; i >= 0; --i) {
-                //evalCode(savedImageCode[i].code);
+                evalCode(savedImageCode[i].code);
                 saveImage(savedImageCode[i].code, savedImageCode[i].recording);
             }
-            //$steller_scheduler.cancel();
-            //$steller_scheduler.running = true;
+            $steller_scheduler.cancel();
+            $steller_scheduler.running = true;
         }
         if (localStorage[key]) {
             // Load the latest code saved.
