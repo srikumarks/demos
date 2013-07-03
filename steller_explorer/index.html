@@ -161,8 +161,8 @@ random_note = dynamic(function (clock) {
 
 play(random_note);
     </pre>
-    <pre data-name="Polyphonic visuals">
-// Reminder: Alt-Enter on a line will evaluate that line. If some
+    <pre data-name="Polyphonic visuals">i
+// Reminder: Alt-Enter on a line will evaluate that line. If some text
 // is selected, then that will be evaluated.
 //
 // Select all of the text below and hit Alt-Enter to run this example.
@@ -207,7 +207,7 @@ noteWithVisual = dynamic(function (clock) {
   var n = choose(scale);
   var d = choose(durations);
   var ds = d / speed.value; // Speed-adjusted decay duration.
-  return track([spawn(frames(5*d, draw(n, 2*ds))), note(pitch.value + n, d)]);
+  return track([spawn(frames(5*ds, draw(n, 2*ds))), note(pitch.value + n, d)]);
 });
 
 penta = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24];
@@ -223,7 +223,7 @@ scale = maya;
 // Position the text cursor within the "speed" variable name 
 // to control it.
 play(track([rate(speed), loop(noteWithVisual)]));
-        </pre>
+            </pre>
 </div>
                 </td>
             </tr>
