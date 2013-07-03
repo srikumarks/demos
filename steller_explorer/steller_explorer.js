@@ -86,19 +86,50 @@ function evalCode(code) {
     var elements = getElements(['rendered', 'canvas', 'code', 'export', 'example_buttons', 'example_code']);
     var key = 'srikumarks.github.com/demos/steller_explorer/code';
 
-    // Setup the code editor.
-    elements.code.innerText = document.querySelector('#example_code pre').innerText; // Load instructions example.
-    var canvasCode = CodeMirror.fromTextArea(elements.code);
-    var keyMap = Object.create(CodeMirror.keyMap.default);
-    var recording = [];
-    keyMap['Alt-Enter'] = function (cm) {
-        var code = cm.somethingSelected() ? cm.getSelection() : cm.getLine(cm.getCursor().line);
+    function codeBlockAtCursor(cm) {
+        // Find out the smallest complete code block around
+        // the current cursor. I approximate this by taking
+        // the smallest code block where the first line and 
+        // the last line do not start with white space, but
+        // the rest of the lines do. Given properly indented
+        // code, this is a reasonable bet, but beware in the
+        // case of code that reassigns a variable but the value
+        // of the variable has already been captured in closures.
+        // In such cases, the change may appear to not have any
+        // effect.
+        var c = cm.getCursor();
+
+        var startLine = c.line, endLine = c.line;
+        while (/^\s/.test(cm.doc.getLine(startLine))) {
+            startLine--;
+        }
+        while (/^\s/.test(cm.doc.getLine(endLine))) {
+            endLine++;
+        }
+
+        return cm.doc.getRange({line: startLine, ch: 0}, {line: endLine+1, ch:0});
+    }
+
+    // A "code run" is a chunk of code that needs to be evaluated
+    // "now". A code run is recorded along with a time stamp so
+    // that such runs can be replayed (in the future).
+    function recordCodeRun(code) {
         try {
             evalCode(code);
             recording.push({time: window.performance.now(), code: code});
             localStorage['steller_explorer.recording'] = JSON.stringify(recording);
         } catch (e) {
         }
+    }
+
+    // Setup the code editor.
+    elements.code.innerText = document.querySelector('#example_code pre').innerText; // Load instructions example.
+    var canvasCode = CodeMirror.fromTextArea(elements.code);
+    var keyMap = Object.create(CodeMirror.keyMap.default);
+    var recording = [];
+    keyMap['Alt-Enter'] = function (cm) {
+        var code = cm.somethingSelected() ? cm.getSelection() : codeBlockAtCursor(cm);
+        recordCodeRun(code);
     };
     CodeMirror.keyMap['steller_explorer'] = keyMap;
     canvasCode.setOption('keyMap', 'steller_explorer');
@@ -235,8 +266,7 @@ function evalCode(code) {
     var codeUpdateTimer = setTimeout(run, 0);
     var codeIsValid = true;
 
-    debugger;
-    canvasCode.setOption('onChange', function () {
+    canvasCode.on('change', function (cm) {
         var now = Date.now();
         if (now - codeChangeTime < debounceTime) {
             clearTimeout(codeUpdateTimer);
@@ -251,7 +281,7 @@ function evalCode(code) {
             debounceTime *= Math.pow(2.0, 2.0 * Math.min(1.0, Math.max(-1.0, ((now - codeChangeTime) / debounceTime - 0.5))));
         }
 
-        codeUpdateTimer = setTimeout(run, debounceTime);
+        codeUpdateTimer = setTimeout(run, debounceTime, cm);
         codeChangeTime = now;
     });
 
@@ -269,8 +299,9 @@ function evalCode(code) {
 
     load();
 
-    function run() {
+    function run(cm) {
         try {
+            recordCodeRun(codeBlockAtCursor(cm));
             store(canvasCode.getValue());
             codeIsValid = true;
         } catch (e) {
