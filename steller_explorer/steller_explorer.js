@@ -301,7 +301,12 @@ function evalCode(code) {
 
     function run(cm) {
         try {
-            recordCodeRun(codeBlockAtCursor(cm));
+            // Previously I had the changed block evaluate automatically,
+            // but this is in general problematic and it is better for
+            // the user to initiate evaluate using Alt-Enter, in which case
+            // the code block is determined automatically.
+            //
+            //recordCodeRun(codeBlockAtCursor(cm));
             store(canvasCode.getValue());
             codeIsValid = true;
         } catch (e) {
