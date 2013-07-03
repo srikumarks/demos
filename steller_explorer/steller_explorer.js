@@ -329,7 +329,9 @@ function evalCode(code) {
         }
     };
 
-    load();
+
+    // Delay the load operation till everything is ready.
+    window.addEventListener('load', load);
 
     function run(cm) {
         try {
