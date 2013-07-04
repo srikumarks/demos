@@ -132,18 +132,13 @@ play(loop(frame(draw)));
 // Make a chime model instance and connect it to the audio destination.
 ch = chime().connect();
 
-// Convenience function to play a note using the chime model.
-note = function (p, d) {
-    return track([ch.play(p, 1.0), delay(d)]);
-};
-
 // Play a looping pattern and insert a sync object at the
 // start of the loop so that we can sync events to that.
 s = sync();
-play(loop(track([s, note(72,0.5), note(79,0.5), note(84,0.5)])));
+play(loop(track([s, ch.note(72,0.5), ch.note(79,0.5), ch.note(84,0.5)])));
 
 // Run the line below to play a note exactly at the start of the above loop.
-s.play(note(96,0.5));
+s.play(ch.note(96,0.5));
 
 // Run the line below to start animating the rectangle's position
 // exactly at the start of the above note loop.
@@ -163,12 +158,6 @@ s.play(loop(anim(pos, 1.5, C-30, C+30)));
 
 ch = chime().connect(); // Chime model connected to destination.
 
-// Convenience function to play a note using the chime model.
-note = function (p, d) {
-    return track([ch.play(p, 1.0), delay(d)]);
-};
-
-
 speed = Param({min:0.1, max:5.0, value:1.5, mapping:'log'});
 pitch = Param({min:60, max:96, value:72});
 
@@ -185,7 +174,7 @@ maya = [0, 1, 4, 5, 7, 8, 11, 12];
 scale = major;
 
 random_note = dynamic(function (clock) {
-    return track([note(pitch.value + scale[floor(scale.length * random())], random_duration()), random_note]);
+    return track([ch.note(pitch.value + scale[floor(scale.length * random())], random_duration()), random_note]);
 });
 
 play(random_note);
@@ -200,11 +189,6 @@ play(random_note);
 // to a Param will pop up a slider to change its value.
 
 ch = chime().connect(); // Chime model connected to destination.
-
-// Convenience function to play a note using the chime model.
-note = function (p, d) {
-    return track([ch.play(p, 1.0), delay(d)]);
-};
 
 // Choose one from an array at random
 choose = function (arr) {
@@ -236,7 +220,7 @@ noteWithVisual = dynamic(function (clock) {
   var n = choose(scale);
   var d = choose(durations);
   var ds = d / speed.value; // Speed-adjusted decay duration.
-  return track([spawn(frames(5*ds, draw(n, 2*ds))), note(pitch.value + n, d)]);
+  return track([spawn(frames(5*ds, draw(n, 2*ds))), ch.note(pitch.value + n, d)]);
 });
 
 penta = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24];
