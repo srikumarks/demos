@@ -1581,26 +1581,38 @@ models.chime = function () {
     model.halfLife = Param({min: 0.001, max: 10, value: 0.5, mapping: 'log'});
     model.attackTime = Param({min: 0.001, max: 1.0, value: 0.01, mapping: 'log'});
     model.level = Param({min: 0.125, max: 4.0, audioParam: output.gain, mapping: 'log'});
+    function trigger(clock, pitchNumber, velocity) {
+        var f = util.p2f(pitchNumber.valueOf());
+        var osc = AC.createOscillator();
+        osc.type = osc.SINE;
+        osc.frequency.value = f;
+        var gain = AC.createGainNode();
+        gain.gain.value = 0;
+        gain.gain.setValueAtTime(0, clock.t1);
+        gain.gain.linearRampToValueAtTime(velocity.valueOf() / 8, clock.t1 + model.attackTime.value);
+        var halfLife = model.halfLife.value * 440 / f;
+        var dur = halfLife * 10;
+        gain.gain.setTargetAtTime(0, clock.t1 + model.attackTime.value, halfLife);
+        osc.connect(gain);
+        gain.connect(output);
+        osc.start(clock.t1);
+        osc.stop(clock.t1 + dur);
+    }
     model.play = function (pitchNumber, velocity) {
         if (velocity === undefined) {
             velocity = 1.0;
         }
         return sh.fire(function (clock) {
-            var f = util.p2f(pitchNumber.valueOf());
-            var osc = AC.createOscillator();
-            osc.type = osc.SINE;
-            osc.frequency.value = f;
-            var gain = AC.createGainNode();
-            gain.gain.value = 0;
-            gain.gain.setValueAtTime(0, clock.t1);
-            gain.gain.linearRampToValueAtTime(velocity.valueOf() / 8, clock.t1 + model.attackTime.value);
-            var halfLife = model.halfLife.value * 440 / f;
-            var dur = halfLife * 10;
-            gain.gain.setTargetAtTime(0, clock.t1 + model.attackTime.value, halfLife);
-            osc.connect(gain);
-            gain.connect(output);
-            osc.start(clock.t1);
-            osc.stop(clock.t1 + dur);
+            trigger(clock, pitchNumber, velocity);
+        });
+    };
+    model.note = function (pitchNumber, duration, velocity) {
+        if (velocity === undefined) {
+            velocity = 1.0;
+        }
+        return sh.dynamic(function (clock) {
+            trigger(clock, pitchNumber, velocity);
+            return delay(duration);
         });
     };
     return model;
