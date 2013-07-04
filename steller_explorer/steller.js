@@ -1612,7 +1612,7 @@ models.chime = function () {
         }
         return sh.dynamic(function (clock) {
             trigger(clock, pitchNumber, velocity);
-            return delay(duration);
+            return sh.delay(duration);
         });
     };
     return model;
