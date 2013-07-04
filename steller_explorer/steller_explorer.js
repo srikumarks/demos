@@ -91,6 +91,18 @@ function evalCode(code) {
         return (m && m.length) || 0;
     }
 
+    function clearMarksAt(cm, c) {
+        cm.doc.findMarksAt(c).forEach(function (tm) { tm.clear(); });
+    }
+
+    function clearAllMarks(cm) {
+        cm.doc.getAllMarks().forEach(function (tm) { tm.clear(); });
+    }
+
+    function markRange(cm, from, to, evalSucc) {
+        cm.doc.markText(from, to, {className: evalSucc ? 'last_succ_eval' : 'last_fail_eval'});
+    }
+
     function codeBlockAtCursor(cm) {
         // Find out the smallest complete code block around
         // the current cursor. I approximate this by taking
@@ -139,18 +151,29 @@ function evalCode(code) {
             endLine++;
         }
 
-        return cm.doc.getRange({line: startLine, ch: 0}, {line: endLine+1, ch:0});
+        var rangeL = {line: startLine, ch: 0};
+        var rangeR = {line: endLine+1, ch: 0};
+        clearAllMarks(cm);
+        markRange(cm, rangeL, rangeR, true);
+        return cm.doc.getRange(rangeL, rangeR);
     }
 
     // A "code run" is a chunk of code that needs to be evaluated
     // "now". A code run is recorded along with a time stamp so
     // that such runs can be replayed (in the future).
-    function recordCodeRun(code) {
+    function recordCodeRun(cm, code) {
         try {
             evalCode(code);
             recording.push({time: window.performance.now(), code: code});
             localStorage['steller_explorer.recording'] = JSON.stringify(recording);
         } catch (e) {
+            var m = cm.findMarksAt(cm.getCursor());
+            if (m.length > 0) {
+                var range = m[0].find();
+                clearAllMarks(cm);
+                markRange(cm, range.from, range.to, false);
+            }
+            console.log(e);
         }
     }
 
@@ -161,7 +184,7 @@ function evalCode(code) {
     var recording = [];
     keyMap['Alt-Enter'] = function (cm) {
         var code = cm.somethingSelected() ? cm.getSelection() : codeBlockAtCursor(cm);
-        recordCodeRun(code);
+        recordCodeRun(cm, code);
     };
     CodeMirror.keyMap['steller_explorer'] = keyMap;
     canvasCode.setOption('keyMap', 'steller_explorer');
