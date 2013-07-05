@@ -103,6 +103,20 @@ function evalCode(code) {
         cm.doc.markText(from, to, {className: evalSucc ? 'last_succ_eval' : 'last_fail_eval'});
     }
 
+    function parenState() {
+        return { paren: 0, sq: 0, brace: 0};
+    }
+
+    function parenDet(code, state) {
+        state.paren += matches(code, /[\(]/g);
+        state.paren -= matches(code, /[\)]/g);
+        state.sq += matches(code, /[\[]/g);
+        state.sq -= matches(code, /[\]]/g);
+        state.brace += matches(code, /[\{]/g);
+        state.brace -= matches(code, /[\}]/g);
+        return state;
+    }
+
     function codeBlockAtCursor(cm) {
         // Find out the smallest complete code block around
         // the current cursor. I approximate this by taking
@@ -122,37 +136,34 @@ function evalCode(code) {
 
         if (!indentedRE.test(codeContext)) {
             // Potentially at end or start of block.
-            var brackets = {
-                lparen: matches(codeContext, /[\(]/g),
-                rparen: matches(codeContext, /[\)]/g),
-                lbrace: matches(codeContext, /[\{]/g),
-                rbrace: matches(codeContext, /[\}]/g),
-                lsq: matches(codeContext, /[\[]/g),
-                rsq: matches(codeContext, /[\]]/g),
-            };
-            if (brackets.lparen - brackets.rparen > 0
-                || brackets.lbrace - brackets.rbrace > 0
-                || brackets.lsq - brackets.rsq > 0) {
+            var brackets = parenDet(codeContext, parenState());
+            if (brackets.paren > 0 || brackets.brace > 0 || brackets.sq > 0) {
                 endLine = startLine + 1;
             }
 
-            if (brackets.lparen - brackets.rparen < 0
-                || brackets.lbrace - brackets.rbrace < 0
-                || brackets.lsq - brackets.rsq < 0) {
+            if (brackets.paren < 0 || brackets.brace < 0 || brackets.sq < 0) {
                 startLine = startLine - 1;
             }
         }
 
 
+        // Start from the closest line above that isn't indented.
         while (indentedRE.test(cm.doc.getLine(startLine))) {
             startLine--;
         }
-        while (indentedRE.test(cm.doc.getLine(endLine))) {
+
+        // Step each line from the starting line and count brackets.
+        // Stop when you reach a line that matches enough brackets.
+        // TODO: Ignore comments in the code that contain brackets.
+        brackets = parenDet(cm.doc.getLine(startLine), parenState());
+        endLine = startLine;
+        while (brackets.paren > 0 || brackets.sq > 0 || brackets.brace > 0) {
             endLine++;
+            parenDet(cm.doc.getLine(endLine), brackets);
         }
 
         var rangeL = {line: startLine, ch: 0};
-        var rangeR = {line: endLine+1, ch: 0};
+        var rangeR = cm.doc.posFromIndex(cm.doc.indexFromPos({line: endLine + 1, ch: 0}) - 1);
         clearAllMarks(cm);
         markRange(cm, rangeL, rangeR, true);
         return cm.doc.getRange(rangeL, rangeR);
