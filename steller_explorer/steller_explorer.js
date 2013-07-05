@@ -114,11 +114,27 @@ function prerender(func) {
 // (accessing window.X is relatively expensive under V8).
 var $ = {};
 
+var $canvas_container = document.querySelector('.canvas_area');
+
+setInterval((function () {
+    var lastWidth = $canvas_container.offsetWidth;
+    var lastHeight = $canvas_container.offsetHeight;
+    return function () {
+        if (lastWidth !== $canvas_container.offsetWidth
+                || lastHeight !== $canvas_container.offsetHeight) {
+            canvas.width = lastWidth = $canvas_container.offsetWidth;
+            canvas.height = lastHeight = $canvas_container.offsetHeight;
+        }
+    };
+}()), 500);
+
 // Evaluate the user code inside a with clause that introduces
 // canvas 2d's context object. This lets the user write code
 // like "fillRect(0, 0, 20, 20)" instead of "context.fillRect(0, 0, 20, 20)".
 function evalCode(code) {
     with ($) { with (context) { with (org.anclab.steller) { with ($steller_scheduler) { with ($steller_scheduler.models ) { with (Math) {
+        canvas.width = $canvas_container.offsetWidth;
+        canvas.height = $canvas_container.offsetHeight;
         save();
         try {
             t = -1;

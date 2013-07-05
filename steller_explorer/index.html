@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset='utf-8'> 
         <script src="../lib/codemirror3/lib/codemirror.js"></script>
         <link rel="stylesheet" href="../lib/codemirror3/lib/codemirror.css">
         <script src="../lib/codemirror3/mode/javascript/javascript.js"></script>
         <script src="steller.js"></script>
         <script src="steller_explorer.js" defer></script>
         <style type="text/css">
-            img, canvas {
+            img {
                 border: solid;
                 border-width: 1px;
                 margin: 5px;
@@ -24,6 +25,8 @@
                 position: fixed;
                 width: 35em;
                 height: 100%;
+                margin: 0px;
+                padding: 0px;
             }
             #code {
                 position: fixed;
@@ -39,7 +42,7 @@
             .canvas_area {
                 position: fixed;
                 float: right;
-                left: 36em;
+                left: 35em;
                 right: 0px;
                 top: 0px;
                 bottom: 0px;
@@ -54,7 +57,7 @@
                 bottom: 0px;
                 margin: 0px;
                 padding: 0px;
-                border: 1px solid black;
+                //border: 1px solid black;
                 width: 100%;
                 height: 100%;
             }
@@ -69,7 +72,7 @@
                 padding: 0px;
             }
             .CodeMirror {
-              height: 100%;
+                height: 95%;
             }
         </style>
         <!-- google analytics -->
@@ -91,6 +94,7 @@
     <div>
     <div class="code_area">
 <div id="example_buttons">
+        <button id="cancel">✘</button>
     Examples: 
 </div>
         <textarea id="code" placeholder="Canvas drawing code" cols="40" rows="200">
@@ -120,9 +124,9 @@
 // steller Scheduler are also available unprefixed.
         </pre>
     <pre data-name="Simple">
-// Code goes here. To evaluate a line, position cursor on it
-// and press "Alt-Enter". To evaluate a selection, select code
-// and press "Alt-Enter".
+// Code goes here. To evaluate a line, position cursor on 
+// it and press "Alt-Enter". To evaluate a selection, 
+// select code and press "Alt-Enter".
 //
 // Methods of the canvas 2d context can simply be called 
 // without the "context." object prefix.
@@ -132,18 +136,16 @@
 // For CSS colors, the function rgba(r,g,b,a) is available
 // and better suited for use with Animations.
 //
-// A steller Scheduler instance is now running and its methods
-// such as play(), track(), etc. are also available without an
-// object prefix.
+// A steller Scheduler instance is now running and its 
+// methods such as play(), track(), etc. are also available 
+// without an object prefix.
 //
-// All the models in the 'models' property of the steller Scheduler
-// are also available unprefixed.
+// All the models in the 'models' property of the 
+// steller Scheduler are also available unprefixed.
 
 // Some basic setup code.
 R = 128;
 C = R/2;
-canvas.width = R;
-canvas.height = R;
 canvas.style.backgroundColor = 'black';
 
 // Make a parameter that we'll animate.
@@ -160,34 +162,46 @@ draw = function (clock) {
 // Start the draw loop.
 play(loop(frame(draw)));
 
-// Make a chime model instance and connect it to the audio destination.
+// Make a chime model instance and connect it to 
+// the audio destination.
 ch = chime().connect();
 
-// Play a looping pattern and insert a sync object at the
-// start of the loop so that we can sync events to that.
+// Play a looping pattern and insert a sync object 
+// at the start of the loop so that we can sync events 
+// to that.
 s = sync();
-play(loop(track([s, ch.note(72,0.5), ch.note(79,0.5), ch.note(84,0.5)])));
+play(loop(track([
+    s, 
+    ch.note(72,0.5), 
+    ch.note(79,0.5), 
+    ch.note(84,0.5)
+    ])));
 
-// Run the line below to play a note exactly at the start of the above loop.
+// Run the line below to play a note exactly at 
+// the start of the above loop.
 s.play(ch.note(96,0.5));
 
-// Run the line below to start animating the rectangle's position
-// exactly at the start of the above note loop.
+// Run the line below to start animating the 
+// rectangle's position exactly at the start of 
+// the above note loop.
 s.play(loop(anim(pos, 1.5, C-30, C+30)));
     </pre>
     <pre data-name="Temporal recursion">
-// Reminder: Alt-Enter on a line will evaluate that line. If some
-// is selected, then that will be evaluated.
+// Reminder: Alt-Enter on a line will evaluate that 
+// line. If some is selected, then that will be evaluated.
 //
-// Select all of the text below and hit Alt-Enter to run this example.
+// Select all of the text below and hit Alt-Enter 
+// to run this example.
 //
-// After evaluating code, positioning cursor within a name assigned
-// to a Param will pop up a slider to change its value.
+// After evaluating code, positioning cursor within 
+// a name assigned to a Param will pop up a slider 
+// to change its value.
 
-// Note: Demonstrating simple temporal recursion to produce a sequence
-// of random notes. No visuals, only sound.
+// Note: Demonstrating simple temporal recursion to 
+// produce a sequence of random notes. No visuals, 
+// only sound.
 
-ch = chime().connect(); // Chime model connected to destination.
+ch = chime().connect(); // Chime instr connected to destination.
 
 speed = Param({min:0.1, max:5.0, value:1.5, mapping:'log'});
 pitch = Param({min:60, max:96, value:72});
@@ -205,19 +219,24 @@ maya = [0, 1, 4, 5, 7, 8, 11, 12];
 scale = major;
 
 random_note = dynamic(function (clock) {
-    return track([ch.note(pitch.value + scale[floor(scale.length * random())], random_duration()), random_note]);
+    return track([
+        ch.note(pitch.value + scale[floor(scale.length * random())], random_duration()), 
+        random_note
+        ]);
 });
 
 play(random_note);
     </pre>
     <pre data-name="Polyphonic visuals">
-// Reminder: Alt-Enter on a line will evaluate that line. If some text
-// is selected, then that will be evaluated.
+// Reminder: Alt-Enter on a line will evaluate that line. 
+// If some text is selected, then that will be evaluated.
 //
-// Select all of the text below and hit Alt-Enter to run this example.
+// Select all of the text below and hit Alt-Enter to run 
+// this example.
 //
-// After evaluating code, positioning cursor within a name assigned
-// to a Param will pop up a slider to change its value.
+// After evaluating code, positioning cursor within a 
+// name assigned to a Param will pop up a slider to change 
+// its value.
 
 ch = chime().connect(); // Chime model connected to destination.
 
@@ -231,8 +250,6 @@ pitch = Param({min:60, max:96, value:72});
 
 durations = [0.25, 0.5, 0.25, 0.25, 0.25, 0.25, 0.5, 0.5, 1.0];
 
-canvas.width = 400;
-canvas.height = 128;
 canvas.style.backgroundColor = 'black';
 
 // The draw function will draw a box at the position
@@ -240,18 +257,23 @@ canvas.style.backgroundColor = 'black';
 draw = function (n, d) {
   return function (clock, t1r, t2r, start) {
     fillStyle = rgba(255,255,255,exp(-2*(t1r - start)/d));
-    fillRect(16 + 12 * n, 32, 12, 64);
+    fillRect(16 + 24 * n, 32, 24, 128);
   };
 };
 
 // Clear the frame as the first step in every draw cycle.
-play(loop(frame(function (clock) { clearRect(0, 0, canvas.width, canvas.height); })));
+play(loop(frame(function (clock) { 
+    clearRect(0, 0, canvas.width, canvas.height); 
+})));
 
 noteWithVisual = dynamic(function (clock) {
   var n = choose(scale);
   var d = choose(durations);
   var ds = d / speed.value; // Speed-adjusted decay duration.
-  return track([spawn(frames(5*ds, draw(n, 2*ds))), ch.note(pitch.value + n, d)]);
+  return track([
+    spawn(frames(5*ds, draw(n, 2*ds))), 
+    ch.note(pitch.value + n, d)
+    ]);
 });
 
 penta = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24];
@@ -261,11 +283,11 @@ minor = [0, 2, 3, 5, 7, 9, 10, 12, 14, 15, 17, 19, 21, 22, 24];
 maya = [0, 1, 4, 5, 7, 8, 11, 12];
 scale = maya;
 
-// Directly control the clock's rate using the speed parameter.
-// Notice that there is very little delay in response when you
-// change the speed, even if a long note has been just scheduled.
-// Position the text cursor within the "speed" variable name 
-// to control it.
+// Directly control the clock's rate using the speed 
+// parameter. Notice that there is very little delay in 
+// response when you change the speed, even if a long note. 
+// has been just scheduled. Position the text cursor 
+// within the "speed" variable name to control it.
 play(track([rate(speed), loop(noteWithVisual)]));
             </pre>
 </div>
@@ -277,7 +299,7 @@ play(track([rate(speed), loop(noteWithVisual)]));
 <div class="misc" hidden>
         <button id="showhide">[ ]</button>
         <button id="export">Save image</button>
-        <button id="cancel">Stop playing!</button>
+        <!-- <button id="cancel">Stop playing!</button> -->
         <div><small>
                 <ul>
                     <li>Saved images appear below.</li>
