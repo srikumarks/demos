@@ -258,7 +258,7 @@ function evalCode(code) {
     };
     CodeMirror.keyMap['steller_explorer'] = keyMap;
     canvasCode.setOption('keyMap', 'steller_explorer');
-    canvasCode.setSize(null, 600);
+//    canvasCode.setSize(null, 600);
     canvas = elements.canvas;
     context = canvas.getContext('2d');
     canvasCode.setOption('lineNumbers', true);

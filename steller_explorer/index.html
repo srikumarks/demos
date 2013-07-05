@@ -20,6 +20,57 @@
             .last_fail_eval {
                 background: #ffbfbf;
             }
+            .code_area {
+                position: fixed;
+                width: 35em;
+                height: 100%;
+            }
+            #code {
+                position: fixed;
+                width: 35em;
+                height: 100%;
+            }
+            #example_buttons {
+                top: 0px;
+                z-index: 50;
+                background: rgb(240,240,255);
+                padding: 5px;
+            }
+            .canvas_area {
+                position: fixed;
+                float: right;
+                left: 36em;
+                right: 0px;
+                top: 0px;
+                bottom: 0px;
+                margin: 0px;
+                padding: 0px;
+            }
+            #canvas {
+                position: relative;
+                left: 0px;
+                right: 0px;
+                top: 0px;
+                bottom: 0px;
+                margin: 0px;
+                padding: 0px;
+                border: 1px solid black;
+                width: 100%;
+                height: 100%;
+            }
+            .misc {
+                position: fixed;
+                bottom: 0px;
+                z-index: 50;
+                background: #efefef;
+            }
+            body {
+                margin: 0px;
+                padding: 0px;
+            }
+            .CodeMirror {
+              height: 100%;
+            }
         </style>
         <!-- google analytics -->
         <script type="text/javascript">
@@ -37,41 +88,21 @@
          </script>
     </head>
     <body>
-        <table>
-            <tr>
-                <td width="30%" valign="top">
-                    <div>
-                        <canvas id="canvas" width="256" height="256"/>
-                    </div>
-                    <div>
-                        <button id="export">Save image</button>
-                        <button id="cancel">Stop playing!</button>
-                        <div><small>
-                                <ul>
-                                    <li>Saved images appear below.</li>
-                                    <li>Click image to load its code.</li>
-                                    <li>Shift-click to delete a saved image.</li>
-                                </ul>
-                            </small></div>
-                    </div>
-                    <hr/>
-                    <div id="rendered"></div>
-                </td>
-                <td width="50%" valign="top">
-<textarea id="code" placeholder="Canvas drawing code" cols="80" rows="50">
-</textarea>
-<br/>
+    <div>
+    <div class="code_area">
 <div id="example_buttons">
     Examples: 
 </div>
+        <textarea id="code" placeholder="Canvas drawing code" cols="40" rows="200">
+        </textarea>
 <div id="example_code" hidden>
     <pre data-name="Blank">
 // Repo URL: https://github.com/srikumarks/steller
 // Demo URL: http://sriku.org/demos/steller_explorer
 //
-// Code goes here. To evaluate a line, position cursor on it
-// and press "Alt-Enter". To evaluate a selection, select code
-// and press "Alt-Enter".
+// Code goes here. To evaluate a line, position cursor on 
+// it and press "Alt-Enter". To evaluate a selection, 
+// select code and press "Alt-Enter".
 //
 // Methods of the canvas 2d context can simply be called 
 // without the "context." object prefix.
@@ -81,13 +112,13 @@
 // For CSS colors, the function rgba(r,g,b,a) is available
 // and better suited for use with Animations.
 //
-// A steller Scheduler instance is now running and its methods
-// such as play(), track(), etc. are also available without an
-// object prefix.
+// A steller Scheduler instance is now running and its 
+// methods such as play(), track(), etc. are also available 
+// without an object prefix.
 //
-// All the models in the 'models' property of the steller Scheduler
-// are also available unprefixed.
-    </pre>
+// All the models in the 'models' property of the 
+// steller Scheduler are also available unprefixed.
+        </pre>
     <pre data-name="Simple">
 // Code goes here. To evaluate a line, position cursor on it
 // and press "Alt-Enter". To evaluate a selection, select code
@@ -238,10 +269,34 @@ scale = maya;
 play(track([rate(speed), loop(noteWithVisual)]));
             </pre>
 </div>
-                </td>
-            </tr>
-            <tr><td>
-            </td></tr>
-        </table>
+    </div>
+    <div class="canvas_area">
+        <canvas id="canvas"/>
+    </div>
+</div>
+<div class="misc" hidden>
+        <button id="showhide">[ ]</button>
+        <button id="export">Save image</button>
+        <button id="cancel">Stop playing!</button>
+        <div><small>
+                <ul>
+                    <li>Saved images appear below.</li>
+                    <li>Click image to load its code.</li>
+                    <li>Shift-click to delete a saved image.</li>
+                </ul>
+        </small></div>
+        <hr/>
+        <div id="rendered"></div>
+    </div>
+    <script>
+        (function (showhideElem) {
+            var shown = false;
+            showhideElem.onclick = function () {
+                if (shown) {
+                } else {
+                }
+            };
+        }(document.getElementById('showhide')));
+    </script>
     </body>
 </html>
