@@ -16,6 +16,32 @@ function rgba(r, g, b, a) {
     return 'rgba(' + Math.round(r) + ', ' + Math.round(g) + ', ' + Math.round(b) + ', ' + a + ')';
 }
 
+// A "currying" function that can be used to fix some arguments of a
+// function while letting others vary freely.
+function fix(func) {
+    if (arguments.length === 0) {
+        return func;
+    }
+
+    var freeIndices = [];
+    var args = [];
+    var i, N;
+    for (i = 1, N = arguments.length; i < N; ++i) {
+        if (arguments[i] === undefined) {
+            freeIndices.push(i-1);
+        }
+
+        args.push(arguments[i]);
+    }
+
+    return function () {
+        for (var i = 0, N = freeIndices.length; i < N; ++i) {
+            args[freeIndices[i]] = arguments[i];
+        }
+        return func.apply(null, args);
+    };
+}
+
 // The prerender function takes a function that draws something
 // into the context set as the "this" parameter and produces
 // a prerender maker function that can make pre-rendered objects
