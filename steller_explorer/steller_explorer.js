@@ -19,7 +19,7 @@ function rgba(r, g, b, a) {
 // A "currying" function that can be used to fix some arguments of a
 // function while letting others vary freely.
 function fix(func) {
-    if (arguments.length === 0) {
+    if (arguments.length <= 1) {
         return func;
     }
 
@@ -30,7 +30,6 @@ function fix(func) {
         if (arguments[i] === undefined) {
             freeIndices.push(i-1);
         }
-
         args.push(arguments[i]);
     }
 
@@ -39,6 +38,40 @@ function fix(func) {
             args[freeIndices[i]] = arguments[i];
         }
         return func.apply(null, args);
+    };
+}
+
+// A variation of "fix" above where we're fixing arguments
+// to a method of an object, so the object needs to be
+// the context of the fixed function's invocation.
+function fixm(object, methodName) {
+    if (arguments.length < 2) {
+        throw new Error('Insufficient number of arguments to fixb');
+    }
+
+    var method = object[methodName];
+
+    if (arguments.length === 2) {
+        return function () {
+            return method.apply(object, arguments);
+        };
+    }
+
+    var freeIndices = [];
+    var args = [];
+    var i, N;
+    for (i = 2, N = arguments.length; i < N; ++i) {
+        if (arguments[i] === undefined) {
+            freeIndices.push(i-2);
+        }
+        args.push(arguments[i]);
+    }
+
+    return function () {
+        for (var i = 0, N = freeIndices.length; i < N; ++i) {
+            args[freeIndices[i]] = arguments[i];
+        }
+        return method.apply(object, args);
     };
 }
 
