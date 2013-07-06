@@ -4,6 +4,7 @@
         <meta charset='utf-8'> 
         <script src="../lib/codemirror3/lib/codemirror.js"></script>
         <link rel="stylesheet" href="../lib/codemirror3/lib/codemirror.css">
+        <link rel="stylesheet" href="../lib/codemirror3/theme/solarized.css">
         <script src="../lib/codemirror3/mode/javascript/javascript.js"></script>
         <script src="steller.js"></script>
         <script src="steller_explorer.js" defer></script>
@@ -74,6 +75,15 @@
             .CodeMirror {
                 height: 95%;
             }
+            /* Gutter border and some shadow from it  */
+            .cm-s-solarized .CodeMirror-gutters {
+              padding: 0 10px 0 0px;
+              box-shadow: 0 10px 20px black;
+              border-right: 1px solid;
+            }
+            .cm-s-solarized {
+              font-size: 10pt;
+            }
         </style>
         <!-- google analytics -->
         <script type="text/javascript">
@@ -94,8 +104,7 @@
     <div>
     <div class="code_area">
 <div id="example_buttons">
-        <button id="cancel">✘</button>
-    Examples: 
+        <button id="cancel" title="Cancel all scheduled events">✘</button>
 </div>
         <textarea id="code" placeholder="Canvas drawing code" cols="40" rows="200">
         </textarea>

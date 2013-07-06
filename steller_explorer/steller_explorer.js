@@ -303,7 +303,7 @@ function evalCode(code) {
 
     // Setup the code editor.
     elements.code.innerText = document.querySelector('#example_code pre').innerText; // Load instructions example.
-    var canvasCode = CodeMirror.fromTextArea(elements.code);
+    var canvasCode = CodeMirror.fromTextArea(elements.code, {theme: 'solarized dark'});
     var keyMap = Object.create(CodeMirror.keyMap.default);
     keyMap['Alt-Enter'] = function (cm) {
         var code = cm.somethingSelected() ? cm.getSelection() : codeBlockAtCursor(cm);
