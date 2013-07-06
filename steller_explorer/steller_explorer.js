@@ -367,8 +367,7 @@ function evalCode(code) {
     var sliderPanelElement = (function () {
         var e = document.createElement('div');
         e.style.position = 'fixed';
-        e.style.background = '#efefef';
-        e.style.border = '2px solid black';
+        e.style.background = '#608b96';
         e.style.borderRadius = '5px';
         e.style.zIndex = 100;
         e.style.display = 'table';
