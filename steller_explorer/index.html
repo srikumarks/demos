@@ -6,6 +6,7 @@
         <link rel="stylesheet" href="../lib/codemirror3/lib/codemirror.css">
         <link rel="stylesheet" href="../lib/codemirror3/theme/solarized.css">
         <script src="../lib/codemirror3/mode/javascript/javascript.js"></script>
+        <script src="../lib/codemirror3/addon/edit/continuecomment.js"></script>
         <script src="steller.js"></script>
         <script src="steller_explorer.js" defer></script>
         <style type="text/css">
@@ -255,9 +256,8 @@ play(random_note);
 // Select all of the text below and hit Alt-Enter to run 
 // this example.
 //
-// After evaluating code, positioning cursor within a 
-// name assigned to a Param will pop up a slider to change 
-// its value.
+// This is a simple random note player with some 
+// synchronized visuals. 
 
 ch = chime().connect(); // Chime model connected to destination.
 
