@@ -193,7 +193,7 @@ function evalCode(code) {
         return obj;
     }
 
-    var elements = getElements(['rendered', 'canvas', 'code', 'export', 'example_buttons', 'example_code']);
+    var elements = getElements(['rendered', 'canvas', 'code', 'export', 'example_buttons', 'example_code', 'toolbar']);
     var key = 'srikumarks.github.com/demos/steller_explorer/code';
 
     function matches(str, re) {
@@ -304,6 +304,8 @@ function evalCode(code) {
     // Setup the code editor.
     elements.code.innerText = document.querySelector('#example_code pre').innerText; // Load instructions example.
     var canvasCode = CodeMirror.fromTextArea(elements.code, {theme: 'solarized dark'});
+//    canvasCode.addWidget(CodeMirror.Pos(0,0), elements.toolbar, false);
+//    canvasCode.addLineWidget(0, elements.toolbar, {above: true});
     var keyMap = Object.create(CodeMirror.keyMap.default);
     keyMap['Alt-Enter'] = function (cm) {
         var code = cm.somethingSelected() ? cm.getSelection() : codeBlockAtCursor(cm);
@@ -563,13 +565,10 @@ function evalCode(code) {
 
     function setupExamples() {
         function setupExample(name, code) {
-            var b = document.createElement('button');
-            b.onclick = function () {
-                elements.export.onclick();
-                canvasCode.doc.setValue(code);
-            };
-            b.innerText = name;
-            elements.example_buttons.insertAdjacentElement('beforeend', b);
+            var o = document.createElement('option');
+            o.setAttribute('value', code);
+            o.innerText = name;
+            elements.example_buttons.insertAdjacentElement('beforeend', o);
         }
 
         var exs = elements.example_code.getElementsByTagName('pre');
@@ -579,6 +578,9 @@ function evalCode(code) {
             ex = exs[i];
             setupExample(ex.dataset.name, ex.innerText);
         }
+        elements.example_buttons.addEventListener('change', function (event) {
+            canvasCode.doc.setValue(event.srcElement[event.srcElement.selectedIndex].getAttribute('value'));
+        });
     }
 
     setupExamples();

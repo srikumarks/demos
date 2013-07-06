@@ -24,26 +24,27 @@
             }
             .code_area {
                 position: fixed;
-                width: 35em;
+                width: 420pt;
                 height: 100%;
                 margin: 0px;
                 padding: 0px;
             }
             #code {
                 position: fixed;
-                width: 35em;
                 height: 100%;
             }
-            #example_buttons {
+            #toolbar {
+                position: fixed;
                 top: 0px;
-                z-index: 50;
-                background: rgb(240,240,255);
-                padding: 5px;
+                left: 425pt;
+                z-index: 150;
+//                background: rgb(240,240,255);
+//                padding: 5px;
             }
             .canvas_area {
                 position: fixed;
                 float: right;
-                left: 35em;
+                left: 420pt;
                 right: 0px;
                 top: 0px;
                 bottom: 0px;
@@ -75,16 +76,22 @@
                 padding: 0px;
             }
             .CodeMirror {
-                height: 95%;
+                position: absolute;
+                height: auto;
+                height: 100%;
+                width: 420pt;
             }
             /* Gutter border and some shadow from it  */
             .cm-s-solarized .CodeMirror-gutters {
-              padding: 0 10px 0 0px;
+              padding: 0 8px 0 0px;
               box-shadow: 0 10px 20px black;
               border-right: 1px solid;
             }
             .cm-s-solarized {
               font-size: 10pt;
+            }
+            body {
+                background: black;
             }
         </style>
         <!-- google analytics -->
@@ -104,11 +111,13 @@
     </head>
     <body>
     <div>
-    <div class="code_area">
-<div id="example_buttons">
+    <span id="toolbar">
         <button id="cancel" title="Cancel all scheduled events">✘</button>
-</div>
-        <textarea id="code" placeholder="Canvas drawing code" cols="40" rows="200">
+        <select id="example_buttons">
+        </select>
+    </span>
+     <div class="code_area">
+       <textarea id="code" placeholder="Canvas drawing code" cols="40" rows="200">
         </textarea>
 <div id="example_code" hidden>
     <pre data-name="Blank">
@@ -199,7 +208,8 @@ s.play(loop(anim(pos, 1.5, C-30, C+30)));
     </pre>
     <pre data-name="Temporal recursion">
 // Reminder: Alt-Enter on a line will evaluate that 
-// line. If some is selected, then that will be evaluated.
+// line. If some text is selected, then that will 
+// be evaluated.
 //
 // Select all of the text below and hit Alt-Enter 
 // to run this example.
