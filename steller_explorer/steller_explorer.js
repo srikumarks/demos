@@ -7,9 +7,44 @@ window.requestAnimationFrame =  window.requestAnimationFrame ||
 
 var canvas, context, render, t = 0, Animate = false;
 var $steller_scheduler = new org.anclab.steller.Scheduler(new org.anclab.steller.AudioContext);
+var $recording_in_progress = false;
+var $recording = [];
+
+// These globals are acessible from the live coding env.
+function startRecording() {
+    $recording_in_progress = true;
+}
+
+function stopRecording() {
+    $recording_in_progress = false;
+    localStorage['steller_explorer.recording'] = JSON.stringify($recording);
+}
+
+function clearRecording() {
+    $recording.splice(0);
+}
+
+function theRecording() {
+    return $steller_scheduler.track($recording.map(function (code, i) {
+        if (i > 0) {
+            return $steller_scheduler.track([
+                    $steller_scheduler.delay(0.001 * (code.time - $recording[i-1].time)),
+                    $steller_scheduler.fire(function () {
+                        evalCode(code.code);
+                    })
+                ]);
+        } else {
+            return $steller_scheduler.fire(function () {
+                evalCode(code.code);
+            });
+        }
+    }));
+}
 
 // Map the cancel button to the scheduler's cancel method.
-document.getElementById('cancel').onclick = function () { $steller_scheduler.cancel(); };
+document.getElementById('cancel').onclick = function () { 
+    $steller_scheduler.cancel(); 
+};
 
 // Exposed function which is better to work with than the string form.
 function rgba(r, g, b, a) {
@@ -249,9 +284,12 @@ function evalCode(code) {
     // that such runs can be replayed (in the future).
     function recordCodeRun(cm, code) {
         try {
+            var rec = $recording_in_progress;
             evalCode(code);
-            recording.push({time: window.performance.now(), code: code});
-            localStorage['steller_explorer.recording'] = JSON.stringify(recording);
+            if (rec && rec === $recording_in_progress) {
+                $recording.push({time: window.performance.now(), code: code});
+                localStorage['steller_explorer.recording'] = JSON.stringify($recording);
+            }
         } catch (e) {
             var m = cm.findMarksAt(cm.getCursor());
             if (m.length > 0) {
@@ -267,7 +305,6 @@ function evalCode(code) {
     elements.code.innerText = document.querySelector('#example_code pre').innerText; // Load instructions example.
     var canvasCode = CodeMirror.fromTextArea(elements.code);
     var keyMap = Object.create(CodeMirror.keyMap.default);
-    var recording = [];
     keyMap['Alt-Enter'] = function (cm) {
         var code = cm.somethingSelected() ? cm.getSelection() : codeBlockAtCursor(cm);
         recordCodeRun(cm, code);
@@ -440,6 +477,7 @@ function evalCode(code) {
 
 
     // Delay the load operation till everything is ready.
+    loadLastSavedCode();
     window.addEventListener('load', load);
 
     function run(cm) {
@@ -471,7 +509,7 @@ function evalCode(code) {
                     store(canvasCode.getValue());
                 }, 0);
             } else {
-                canvasCode.setValue(imgCode);
+                canvasCode.doc.setValue(imgCode);
                 clearTimeout(codeUpdateTimer);
                 codeUpdateTimer = setTimeout(run, 0);
             }
@@ -511,10 +549,14 @@ function evalCode(code) {
             $steller_scheduler.cancel();
             $steller_scheduler.running = true;
         }
+        loadLastSavedCode();
+    }
+
+    function loadLastSavedCode() {
         if (localStorage[key]) {
             // Load the latest code saved.
             var cr = JSON.parse(localStorage[key]);
-            canvasCode.setValue(cr.code);
+            canvasCode.doc.setValue(cr.code);
             localStorage['steller_explorer.recording'] = JSON.stringify(cr.recording);
         }
     }
@@ -524,7 +566,7 @@ function evalCode(code) {
             var b = document.createElement('button');
             b.onclick = function () {
                 elements.export.onclick();
-                canvasCode.setValue(code);
+                canvasCode.doc.setValue(code);
             };
             b.innerText = name;
             elements.example_buttons.insertAdjacentElement('beforeend', b);
