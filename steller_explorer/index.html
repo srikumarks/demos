@@ -311,6 +311,31 @@ scale = maya;
 // within the "speed" variable name to control it.
 play(track([rate(speed), loop(noteWithVisual)]));
             </pre>
+            <pre data-name="ScriptProcessor delay bug">
+// Simple audio-in/audio-out copying ScriptProcessor.
+// Illustrates the one-buffer delay imposed by a
+// ScriptProcessor node.
+//
+// Change buffer length to vary the delay amount!!
+jsn = audioContext.createScriptProcessor(4096, 1, 1);
+jsn.onaudioprocess = function (event) {
+  var inb = event.inputBuffer.getChannelData(0);
+  var outb = event.outputBuffer.getChannelData(0);
+  outb.set(inb, 0);
+};
+
+ch = chime(); // Instantiate a "chime" instrument.
+
+// ch -> jsn -> destination
+ch.connect(jsn);
+jsn.connect(audioContext.destination);
+
+// ch -> destination
+ch.connect(audioContext.destination);
+
+// You'll hear an echo when you play this.
+play(ch.note(72,1.0)); 
+            </pre>
 </div>
     </div>
     <div class="canvas_area">
