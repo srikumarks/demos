@@ -396,7 +396,7 @@ function evalCode(code) {
             slider.style.display = 'table-cell';
             slider.style.marginLeft = '5pt';
             slider.style.marginRight = '5pt';
-            p.bind(slider);
+            p.bind(slider, $steller_scheduler);
             var name = document.createElement('span');
             name.innerText = dispName + ': ';
             name.style.fontFamily = 'sans-serif';
