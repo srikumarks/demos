@@ -304,6 +304,11 @@ function evalCode(code) {
     // Setup the code editor.
     elements.code.innerText = document.querySelector('#example_code pre').innerText; // Load instructions example.
     var canvasCode = CodeMirror.fromTextArea(elements.code, {theme: 'solarized dark', continueComments: true});
+    function autoResizeCodeArea(event) {
+        canvasCode.setSize('420pt', (window.innerHeight - 24) + 'px');
+    }
+    window.addEventListener('load', autoResizeCodeArea);
+    window.addEventListener('resize', autoResizeCodeArea);
 //    canvasCode.addWidget(CodeMirror.Pos(0,0), elements.toolbar, false);
 //    canvasCode.addLineWidget(0, elements.toolbar, {above: true});
     var keyMap = Object.create(CodeMirror.keyMap.default);
