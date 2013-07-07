@@ -203,9 +203,9 @@ s.play(ch.note(96,0.5));
 // Run the line below to start animating the 
 // rectangle's position exactly at the start of 
 // the above note loop.
-s.play(loop(fork([
-  anim(pos, 1.5, pos.spec.min, pos.spec.max),
-  fire(function () { xpos = canvas.width * (0.15 + random() * 0.75); })
+s.play(loop(track([
+  fire(function () { xpos = canvas.width * (0.15 + random() * 0.75); }),
+  anim(pos, 1.5, pos.spec.min, pos.spec.max)
   ])));
     </pre>
     <pre data-name="Temporal recursion">
