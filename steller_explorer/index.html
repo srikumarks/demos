@@ -165,20 +165,15 @@
 // All the models in the 'models' property of the 
 // steller Scheduler are also available unprefixed.
 
-// Some basic setup code.
-R = 128;
-C = R/2;
-canvas.style.backgroundColor = 'black';
-
 // Make a parameter that we'll animate.
-pos = Param({min: C - 30, max: C + 30, value: C});
+pos = Param({min: 0.0, max: 1.0, value: 0.0});
 
 // The draw function will draw a box at the position given
 // by `pos`.
 draw = function (clock) {
-    clearRect(0, 0, R, R);
+    clearRect(0, 0, canvas.width, canvas.height);
     fillStyle = 'blue';
-    fillRect(pos.valueOf(), C, 20, 20);
+    fillRect(100, canvas.height * pos.valueOf(), 20, 20);
 };
 
 // Start the draw loop.
@@ -206,7 +201,7 @@ s.play(ch.note(96,0.5));
 // Run the line below to start animating the 
 // rectangle's position exactly at the start of 
 // the above note loop.
-s.play(loop(anim(pos, 1.5, C-30, C+30)));
+s.play(loop(anim(pos, 1.5, pos.spec.min, pos.spec.max)));
     </pre>
     <pre data-name="Temporal recursion">
 // Reminder: Alt-Enter on a line will evaluate that 
