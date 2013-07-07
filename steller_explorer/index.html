@@ -309,8 +309,8 @@ play(track([rate(speed), loop(noteWithVisual)]));
             </pre>
             <pre data-name="ScriptProcessor delay bug">
 // Simple audio-in/audio-out copying ScriptProcessor.
-// Illustrates the one-buffer delay imposed by a
-// ScriptProcessor node.
+// Illustrates the two-buffer delay imposed by a
+// ScriptProcessor node in Chrome and Safari.
 //
 // Change buffer length to vary the delay amount!!
 jsn = audioContext.createScriptProcessor(4096, 1, 1);
