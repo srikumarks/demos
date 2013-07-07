@@ -168,12 +168,14 @@
 // Make a parameter that we'll animate.
 pos = Param({min: 0.0, max: 1.0, value: 0.0});
 
+xpos = 100;
+
 // The draw function will draw a box at the position given
 // by `pos`.
 draw = function (clock) {
     clearRect(0, 0, canvas.width, canvas.height);
     fillStyle = 'blue';
-    fillRect(100, canvas.height * pos.valueOf(), 20, 20);
+    fillRect(xpos, canvas.height * pos.valueOf(), 20, 20);
 };
 
 // Start the draw loop.
@@ -201,7 +203,10 @@ s.play(ch.note(96,0.5));
 // Run the line below to start animating the 
 // rectangle's position exactly at the start of 
 // the above note loop.
-s.play(loop(anim(pos, 1.5, pos.spec.min, pos.spec.max)));
+s.play(loop(fork([
+  anim(pos, 1.5, pos.spec.min, pos.spec.max),
+  fire(function () { xpos = canvas.width * (0.15 + random() * 0.75); })
+  ])));
     </pre>
     <pre data-name="Temporal recursion">
 // Reminder: Alt-Enter on a line will evaluate that 
