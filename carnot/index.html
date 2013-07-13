@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='utf-8'> 
+        <script src="../lib/codemirror3/lib/codemirror.js"></script>
+        <link rel="stylesheet" href="../lib/codemirror3/lib/codemirror.css">
+        <link rel="stylesheet" href="../lib/codemirror3/theme/solarized.css">
+        <script src="../lib/codemirror3/addon/edit/continuecomment.js"></script>
+        <script src="http://sriku.org/lib/carnot/carnot.min.js"></script>
+        <script src="carnot_demo.js" defer></script>
+        <style type="text/css">
+            img {
+                border: solid;
+                border-width: 1px;
+                margin: 5px;
+                padding: 5px;
+                border-color: #cfcfcf;
+            }
+            .last_succ_eval {
+                background: #005336;
+            }
+            .last_fail_eval {
+                background: #702b36;
+            }
+            .code_area {
+                position: fixed;
+                width: 420pt;
+                height: 100%;
+                margin: 0px;
+                padding: 0px;
+            }
+            #code {
+                position: fixed;
+                height: 100%;
+            }
+            #toolbar {
+                position: fixed;
+                top: 0px;
+                left: 5pt;
+                z-index: 150;
+//                background: rgb(240,240,255);
+//                padding: 5px;
+            }
+            #render_area {
+                position: fixed;
+                float: right;
+                left: 420pt;
+                right: 0px;
+                top: 0px;
+                bottom: 0px;
+                margin: 0px;
+                padding: 10px;
+                background: white;
+                overflow-x: scroll;
+                overflow-y: scroll;
+            }
+            .misc {
+                position: fixed;
+                bottom: 0px;
+                z-index: 50;
+                background: #efefef;
+            }
+            body {
+                margin: 0px;
+                padding: 0px;
+            }
+            .CodeMirror {
+                position: absolute;
+                height: auto;
+                height: 100%;
+                width: 420pt;
+                padding-top: 24px;
+            }
+            /* Gutter border and some shadow from it  */
+            .cm-s-solarized .CodeMirror-gutters {
+              padding: 0 8px 0 0px;
+              box-shadow: 0 10px 20px black;
+              border-right: 1px solid;
+            }
+            .cm-s-solarized {
+              font-size: 10pt;
+            }
+            body {
+                background: black;
+            }
+        </style>
+    </head>
+    <body>
+        <div>
+            <span id="toolbar">
+                <button id="cancel" title="New notation block">New</button>
+            </span>
+            <div class="code_area">
+                <textarea id="code" placeholder="Canvas drawing code" cols="40" rows="200">
+tala pattern = || , , , | , , | , , ||
+aksharas per line = 14
+notation font size = 12
+notation small font size = 10
+stretch = 1.1
+stretch space = 0.6
+
+> Ganarajena rakshitoham
+
+m P D P mG R S R mG R m m P ,
+ga ṇa rā _ je _ na ra _ kshi to _ ham _
+S,Pm P nD,n P m,Gm R,,G S GRGR m,Gm R m m,Gm P ,
+> (Repeat)
+
+m P DS+ DP mP mG R RP mG R m m P ,
+ga ṇa rā _ je _ na ra _ kshi to _ ham _
+S,Pm P DnDS+ D,,n m,GP m,Gm R RGRP m,Gm R m m,Gm P ,
+> (Repeat)
+
+aksharas = 7
+S+N DD PP mP DP mG RS
+gu ṇi ja na nu ta pal _ la va pa de _ na
+S+,NS+ D,PD P,mP mP PDP, m,Gm RgS,
+> (No repeat)
+
+m P DS+ DP mP mG R RP mG R m m P ,
+ga ṇa rā _ je _ na ra _ kshi to _ ham _
+S,Pm P DnDS+ D,,n m,GP m,Gm R RgRP m,Gm R m Gm,, P ,
+> (Repeat last two lines)
+
+_ _ _  _ _ _ _ _ _ _ ,m m, P ,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ to _ _ ham _ _ _
+_ _ _  _ _ _ _ _ _ _  ,,m, Gm,, P ,
+> (End phrases)
+                </textarea>
+            </div>
+            <div id="render_area">
+            </div>
+        </div>
+    </body>
+</html>
