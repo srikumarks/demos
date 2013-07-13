@@ -16,8 +16,19 @@ window.requestAnimationFrame =  window.requestAnimationFrame ||
         return obj;
     }
 
-    var elements = getElements(['render_area', 'code', 'toolbar']);
+    var elements = getElements(['render_area', 'code', 'toolbar', 'print', 'newdoc']);
     var key = 'sriku.org/demos/carnot_demo/notation';
+
+    elements.newdoc.onclick = function () {
+        store(notation.getValue());
+        notation.doc.setValue('');
+    };
+
+    elements.print.onclick = function () {
+        var w = window.open(null, 'print', 'width=640,height=480');
+        w.document.body.innerHTML = elements.render_area.innerHTML;
+        w.print();
+    };
 
     // Setup the code editor.
     var notation = CodeMirror.fromTextArea(elements.code, {theme: 'solarized dark', continueComments: true});
@@ -58,6 +69,7 @@ window.requestAnimationFrame =  window.requestAnimationFrame ||
     // Delay the load operation till everything is ready.
     loadLastSavedCode();
     window.addEventListener('load', load);
+    var ShowdownConverter = new Showdown.converter();
 
     function run(cm) {
         try {
@@ -67,11 +79,16 @@ window.requestAnimationFrame =  window.requestAnimationFrame ||
             // the code block is determined automatically.
             //
             //recordCodeRun(codeBlockAtCursor(cm));
-            var n = store(notation.getValue());
-            var svg = render(n);
+            var n = notation.getValue();
+            var html = ShowdownConverter.makeHtml(n);
+            var div = document.createElement('div');
+            div.innerHTML = html;
+            debugger;
+            Carnot.renderSections(Carnot.findSections(div), Carnot.scanStyle(div));
             elements.render_area.innerHTML = '';
-            elements.render_area.insertBefore(svg, null);
+            elements.render_area.insertBefore(div, null);
             codeIsValid = true;
+            store(n);
         } catch (e) {
             // Ignore errors
             codeIsValid = false;
