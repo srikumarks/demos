@@ -31,7 +31,10 @@ window.requestAnimationFrame =  window.requestAnimationFrame ||
     };
 
     // Setup the code editor.
-    var notation = CodeMirror.fromTextArea(elements.code, {theme: 'solarized dark', continueComments: true});
+    var notation = CodeMirror.fromTextArea(elements.code, {
+        theme: 'solarized dark', 
+        continueComments: true
+    });
     function autoResizeCodeArea(event) {
         notation.setSize('420pt', (window.innerHeight - 24) + 'px');
     }
