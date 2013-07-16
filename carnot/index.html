@@ -74,6 +74,14 @@
                 padding-top: 24px;
                 font-family: sans-serif !important;
             }
+            #diacritics_panel {
+                position: fixed;
+                left: 0px;
+                z-index: 200;
+                background: #cfcfcf;
+                border-radius: 5px;
+            }
+
             /* Gutter border and some shadow from it  */
             .cm-s-solarized .CodeMirror-gutters {
               padding: 0 8px 0 0px;
@@ -257,5 +265,31 @@ One who has the soft feet like flower
             <div id="render_area">
             </div>
         </div>
+        <div>
+        <table hidden id="diacritics_panel" cellspacing="2" width="10em">
+           <tr style="font-size: 14pt; font-family: sans-serif;">
+                <td id="normal">a</td>
+                <td id="overline">ā</td>
+                <td id="underline">a̱</td>
+                <td id="breve">á</td>
+                <td id="tilde">ã</td>
+                <td id="overdot">ȧ</td>
+                <td id="overddot">ä</td>
+                <td id="underdot">ạ</td>
+                <td id="underddot">a̤</td>
+            </tr>
+            <tr style="font-size: 9pt; text-align: center;">
+                <td>1</td>
+                <td>2</td>
+                <td>3</td>
+                <td>4</td>
+                <td>5</td>
+                <td>6</td>
+                <td>7</td>
+                <td>8</td>
+                <td>9</td>
+            </tr>
+        </table>
+    </div>
     </body>
 </html>
