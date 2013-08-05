@@ -6,6 +6,10 @@ window.requestAnimationFrame =  window.requestAnimationFrame ||
 
 
 var canvas, context, render, t = 0, Animate = false;
+if (!org.anclab.steller.AudioContext) {
+    alert("This browser doesn't support the Web Audio API yet.");
+    throw new Error('No Web Audio API support');
+}
 var $steller_scheduler = new org.anclab.steller.Scheduler(new org.anclab.steller.AudioContext);
 var $recording_in_progress = false;
 var $recording = [];
