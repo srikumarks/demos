@@ -255,7 +255,7 @@ function evalCode(code) {
         return obj;
     }
 
-    var elements = getElements(['rendered', 'canvas', 'code', 'export', 'example_buttons', 'example_code']);
+    var elements = getElements(['rendered', 'canvas', 'code', 'export', 'example_buttons', 'example_code', 'export_project', 'import_project']);
     var key = 'srikumarks.github.com/demos/canvas_explorer/code';
 
     // Setup the code editor.
@@ -297,6 +297,52 @@ function evalCode(code) {
             console.error("Invalid code. Won't save image.");
         }
     };
+
+    elements.export_project.onclick = exportProject;
+   
+    (function (dropArea) {
+        dropArea.addEventListener("dragleave", function (evt) {
+            var target = evt.target;
+
+            if (target && target === dropArea) {
+                this.className = "";
+            }
+            evt.preventDefault();
+            evt.stopPropagation();
+        }, false);
+
+        dropArea.addEventListener("dragenter", function (evt) {
+            this.className = "over";
+            evt.preventDefault();
+            evt.stopPropagation();
+        }, false);
+
+        dropArea.addEventListener("dragover", function (evt) {
+            evt.preventDefault();
+            evt.stopPropagation();
+        }, false);
+
+        dropArea.addEventListener("drop", function (evt) {
+            traverseFiles(evt.dataTransfer.files);
+            this.className = "";
+            evt.preventDefault();
+            evt.stopPropagation();
+        }, false);        
+
+        function traverseFiles(files) {
+            if (typeof files !== "undefined") {
+                if (files.length < 1) {
+                    return;
+                }
+
+                var reader = new FileReader();
+                reader.onloadend = function () {
+                    importProject(reader.result);
+                };
+                reader.readAsText(files[0]);
+            }
+        }        
+    }(document.querySelector('body')));
 
     load();
 
@@ -362,6 +408,40 @@ function evalCode(code) {
         if (localStorage[key]) {
             // Load the latest code saved.
             canvasCode.setValue(localStorage[key]);
+        }
+    }
+
+    function exportProject() {
+        var r = elements.rendered;
+        var imgs = r.getElementsByTagName('img');
+        var i, N = imgs.length;
+        var savedImageCode = [];
+        for (i = 0; i < N; ++i) {
+            savedImageCode.push(imgs[i].imageCode);
+        }
+
+
+        var project = {
+            type: key,
+            version: 1,
+            shownImageCode: localStorage[key],
+            savedImageCodes: savedImageCode
+        };
+
+        window.open('data:,' + encodeURIComponent(JSON.stringify(project, null, 4)));
+    }
+
+    function importProject(projectJSON) {
+        var project = JSON.parse(projectJSON);
+        if (!project || (project.type !== key || project.version !== 1)) {
+            alert('Invalid project file');
+            return;
+        }
+
+        if (confirm("WARNING:\nLoading a new project discards the current project!\nDo you want to discard current project?")) {
+            localStorage[key] = project.shownImageCode;
+            localStorage[key+'/saved_code'] = JSON.stringify(project.savedImageCodes);
+            load();
         }
     }
 
