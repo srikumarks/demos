@@ -432,7 +432,11 @@ function evalCode(code) {
     }
 
     function importProject(projectJSON) {
-        var project = JSON.parse(projectJSON);
+        var project = null;
+        try {
+            project = JSON.parse(projectJSON);
+        } catch (e) {
+        }
         if (!project || (project.type !== key || project.version !== 1)) {
             alert('Invalid project file');
             return;
