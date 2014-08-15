@@ -125,7 +125,7 @@
        <textarea id="code" placeholder="Canvas drawing code" cols="40" rows="200">
         </textarea>
 <div id="example_code" hidden>
-    <pre data-name="Blank">
+    <textarea data-name="Blank">
 // Repo URL: https://github.com/srikumarks/steller
 // Demo URL: http://sriku.org/demos/steller_explorer
 //
@@ -147,8 +147,8 @@
 //
 // All the models in the 'models' property of the 
 // steller Scheduler are also available unprefixed.
-        </pre>
-    <pre data-name="Simple">
+        </textarea>
+    <textarea data-name="Simple">
 // Code goes here. To evaluate a line, position cursor on 
 // it and press "Alt-Enter". To evaluate a selection, 
 // select code and press "Alt-Enter".
@@ -210,8 +210,8 @@ s.play(loop(track([
   fire(function () { xpos = canvas.width * (0.15 + random() * 0.75); }),
   anim(pos, 1.5, pos.spec.min, pos.spec.max)
   ])));
-    </pre>
-    <pre data-name="Temporal recursion">
+    </textarea>
+    <textarea data-name="Temporal recursion">
 // Reminder: Alt-Enter on a line will evaluate that 
 // line. If some text is selected, then that will 
 // be evaluated.
@@ -252,8 +252,8 @@ random_note = dynamic(function (clock) {
 });
 
 play(random_note);
-    </pre>
-    <pre data-name="Polyphonic visuals">
+    </textarea>
+    <textarea data-name="Polyphonic visuals">
 // Reminder: Alt-Enter on a line will evaluate that line. 
 // If some text is selected, then that will be evaluated.
 //
@@ -314,8 +314,8 @@ scale = maya;
 // has been just scheduled. Position the text cursor 
 // within the "speed" variable name to control it.
 play(track([rate(speed), loop(noteWithVisual)]));
-            </pre>
-            <pre data-name="ScriptProcessor delay bug">
+            </textarea>
+            <textarea data-name="ScriptProcessor delay bug">
 // Simple audio-in/audio-out copying ScriptProcessor.
 // Illustrates the two-buffer delay imposed by a
 // ScriptProcessor node in Chrome and Safari.
@@ -339,7 +339,7 @@ ch.connect(audioContext.destination);
 
 // You'll hear an echo when you play this.
 play(ch.note(72,1.0)); 
-            </pre>
+            </textarea>
 </div>
     </div>
     <div class="canvas_area">

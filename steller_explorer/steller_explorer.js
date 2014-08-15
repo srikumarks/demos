@@ -306,7 +306,7 @@ function evalCode(code) {
     }
 
     // Setup the code editor.
-    elements.code.innerText = document.querySelector('#example_code pre').innerText; // Load instructions example.
+    elements.code.value = document.querySelector('#example_code textarea').value; // Load instructions example.
     var canvasCode = CodeMirror.fromTextArea(elements.code, {theme: 'solarized dark', continueComments: true});
     function autoResizeCodeArea(event) {
         canvasCode.setSize('420pt', (window.innerHeight - 24) + 'px');
@@ -382,7 +382,7 @@ function evalCode(code) {
         e.style.display = 'table';
         e.style.padding = '3pt';
         e.hidden = true;
-        document.body.insertAdjacentElement('beforeend', e);
+        document.body.appendChild(e);
         return e;
     }());
 
@@ -407,24 +407,24 @@ function evalCode(code) {
             slider.style.marginRight = '5pt';
             p.bind(slider, $steller_scheduler);
             var name = document.createElement('span');
-            name.innerText = dispName + ': ';
+            name.innerHTML = dispName + ': ';
             name.style.fontFamily = 'sans-serif';
             name.style.fontWeight = 'bold';
             name.style.display = 'table-cell';
             name.style.textAlign = 'right';
 
             var t = document.createElement('span');
-            d.insertAdjacentElement('beforeend', name);
-            d.insertAdjacentElement('beforeend', slider);
-            d.insertAdjacentElement('beforeend', t);
+            d.appendChild(name);
+            d.appendChild(slider);
+            d.appendChild(t);
             p.watch(function (val) {
-                t.innerText = ' ' + (Math.round(100 * val)/100);
+                t.innerHTML = ' ' + (Math.round(100 * val)/100);
             });
             p.slider = d;
-            t.innerText = ' ' + (Math.round(100 * p.value)/100);
+            t.innerHTML = ' ' + (Math.round(100 * p.value)/100);
             t.style.display = 'table-cell';
             
-            sliderPanelElement.insertAdjacentElement('beforeend', d);
+            sliderPanelElement.appendChild(d);
         }
 
         p.slider.style.display = 'table-row';
@@ -527,7 +527,7 @@ function evalCode(code) {
         img.imageCode = imgCode;
         img.recording = rec;
 
-        r.insertAdjacentElement('afterbegin', img);
+        r.insertBefore(img, r.childNodes.length > 0 ? r.childNodes[0] : null);
         return imgCode;
     }
     
@@ -575,19 +575,19 @@ function evalCode(code) {
         function setupExample(name, code) {
             var o = document.createElement('option');
             o.setAttribute('value', code);
-            o.innerText = name;
-            elements.example_buttons.insertAdjacentElement('beforeend', o);
+            o.innerHTML = name;
+            elements.example_buttons.appendChild(o);
         }
 
-        var exs = elements.example_code.getElementsByTagName('pre');
+        var exs = elements.example_code.getElementsByTagName('textarea');
         var N = exs.length;
         var i, ex;
         for (i = 0; i < N; ++i) {
             ex = exs[i];
-            setupExample(ex.dataset.name, ex.innerText);
+            setupExample(ex.dataset.name, ex.value);
         }
         elements.example_buttons.addEventListener('change', function (event) {
-            canvasCode.doc.setValue(event.srcElement[event.srcElement.selectedIndex].getAttribute('value'));
+            canvasCode.doc.setValue(event.target[event.target.selectedIndex].getAttribute('value'));
         });
     }
 

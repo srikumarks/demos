@@ -1347,7 +1347,7 @@ var UI = (function (UI) {
     }
     function insertBeforeEnd(target) {
         return function (e) {
-            target.insertAdjacentElement('beforeend', e);
+            target.appendChild(e);
         };
     }
     UI.basicUI = function (document, model, sectionLabel) {
@@ -1371,7 +1371,7 @@ var UI = (function (UI) {
                 var cont = document.createElement('div');
                 var label = document.createElement('span');
                 var valueDisp = document.createElement('span');
-                label.innerText = (spec.label || paramName) + ': ';
+                label.innerHTML = (spec.label || paramName) + ': ';
                 label.style.width = '100px';
                 label.style.display = 'inline-block';
                 label.style.textAlign = 'left';
@@ -1383,18 +1383,18 @@ var UI = (function (UI) {
                 var mapping = mappingFn(spec.mapping);
                 var units = spec.units ? ' ' + spec.units : '';
                 slider.value = mapping.toNorm(param);
-                valueDisp.innerText = ' (' + round(param.value) + units + ')';
+                valueDisp.innerHTML = ' (' + round(param.value) + units + ')';
                         slider.changeModelParameter = function (e) {
                             param.value = mapping.fromNorm(param, parseFloat(this.value));
                         };
                         slider.changeSliderValue = function (value) {
                             slider.value = mapping.toNorm(param);
-                            valueDisp.innerText = ' (' + round(value) + units + ')';
+                            valueDisp.innerHTML = ' (' + round(value) + units + ')';
                                 };
                                 slider.addEventListener('change', slider.changeModelParameter);
                                 param.watch(slider.changeSliderValue);
                                 [label, slider, valueDisp].forEach(insertBeforeEnd(cont));
-                                div.insertAdjacentElement('beforeend', cont);
+                                div.appendChild(cont);
                                 }
                                 });
                             return model.ui = div;
