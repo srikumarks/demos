@@ -7,8 +7,6 @@
         <link rel="stylesheet" href="../lib/codemirror3/theme/solarized.css">
         <script src="../lib/codemirror3/mode/javascript/javascript.js"></script>
         <script src="../lib/codemirror3/addon/edit/continuecomment.js"></script>
-        <script src="steller.js"></script>
-        <script src="steller_explorer.js" defer></script>
         <style type="text/css">
             img {
                 border: solid;
@@ -117,6 +115,7 @@
     <body>
     <div>
     <span id="toolbar">
+        <button id="init" title="Initialize" onclick="initialize_steller()">Initialize</button>
         <button id="cancel" title="Cancel all scheduled events">✘</button>
         <select id="example_buttons">
         </select>
@@ -370,5 +369,7 @@ play(ch.note(72,1.0));
             };
         }(document.getElementById('showhide')));
     </script>
+        <script src="steller.js"></script>
+        <script src="steller_explorer.js" defer></script>
     </body>
 </html>
